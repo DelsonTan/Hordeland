@@ -1,3 +1,4 @@
+const Player = require('./server/player.js')
 const express = require('express')
 const app = express()
 
@@ -9,34 +10,7 @@ const PORT = 3000
 let SOCKET_LIST = {}
 let PLAYER_LIST = {}
 
-class Player {
-    constructor(id) {
-        this.x = 250
-        this.y = 250
-        this.id = id
-        this.number = (Math.floor(10 * Math.random())).toString()
-        this.pressingLeft = false
-        this.pressingRight = false
-        this.pressingUp = false
-        this.pressingDown = false
-        this.maxSpeed = 10
-    }
 
-    updatePosition() {
-        if (this.pressingLeft) {
-            this.x -= this.maxSpeed
-        }
-        if (this.pressingRight) {
-            this.x += this.maxSpeed
-        }
-        if (this.pressingUp) {
-            this.y -= this.maxSpeed
-        }
-        if (this.pressingDown) {
-            this.y += this.maxSpeed
-        }
-    }
-}
 
 io.sockets.on('connection', (socket) => {
     console.log('Client connected!')
