@@ -7,32 +7,43 @@ const io = require('socket.io')(server, {})
 const PORT = 3000
 
 let SOCKET_LIST = {}
+let PLAYER_LIST = {}
+
+class Player {
+    constructor(id) {
+        this.x = 250
+        this.y = 250
+        this.id = id
+        this.number = (Math.floor(10 * Math.random())).toString()
+    }
+}
 
 io.sockets.on('connection', (socket) => {
     console.log('Client connected!')
 
     socket.id = Math.random()
-    socket.x = 0
-    socket.y = 0
-    socket.number = "" + Math.floor(10 * Math.random())
+    
     SOCKET_LIST[socket.id] = socket
 
+    const player = new Player(socket.id)
+    PLAYER_LIST[socket.id] = player
     socket.on('disconnect', () => {
         delete SOCKET_LIST[socket.id]
+        delete PLAYER_LIST[socket.id]
     })
 })
 
 
 setInterval(() => {
     let pack = []
-    for(let i in SOCKET_LIST) {
-        let socket = SOCKET_LIST[i]
-        socket.x++
-        socket.y++
+    for(let i in PLAYER_LIST) {
+        let player = PLAYER_LIST[i]
+        player.x++
+        player.y++
         pack.push({
-            x: socket.x,
-            y: socket.y,
-            number: socket.number
+            x: player.x,
+            y: player.y,
+            number: player.number
         })
     }
 
