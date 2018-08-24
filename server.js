@@ -1,4 +1,5 @@
 const Player = require('./server/player.js')
+const Projectile = require('./server/projectile.js')
 const express = require('express')
 const app = express()
 
