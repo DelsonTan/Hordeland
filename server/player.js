@@ -2,6 +2,7 @@ const Entity = require('./entity.js')
 
 class Player extends Entity {
 
+    // Adds player to Player.list upon instantiation
     constructor(id) {
         super(id)
         this.number = (Math.floor(10 * Math.random())).toString()
@@ -10,8 +11,8 @@ class Player extends Entity {
         this.pressingUp = false
         this.pressingDown = false
         this.maxSpeed = 10
+        Player.list[id] = this
     }
-
     // Instance level method to update the player position and velocity
     update() {
         this.updateSpeed()
@@ -37,7 +38,7 @@ class Player extends Entity {
 
     static onConnect(socket) {
         const player = new Player(socket.id)
-        Player.list[socket.id] = player
+        
         socket.on('keyPress', (data) => {
             if (data.inputId === 'left') {
                 player.pressingLeft = data.state

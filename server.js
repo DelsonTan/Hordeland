@@ -1,16 +1,13 @@
-const Player = require('./server/player.js')
-const Projectile = require('./server/projectile.js')
 const express = require('express')
 const app = express()
-
 const server = require('http').Server(app)
 const io = require('socket.io')(server, {})
-
 const PORT = 3000
 
-let SOCKET_LIST = {}
+const Player = require('./server/player.js')
+const Projectile = require('./server/projectile.js')
 
-// Files from server directory
+let SOCKET_LIST = {}
 
 io.sockets.on('connection', (socket) => {
     console.log('Client connected!')
@@ -28,8 +25,10 @@ io.sockets.on('connection', (socket) => {
 
 
 setInterval(() => {
-    const pack = Player.update();
-    
+    const pack = {
+        players: Player.update(),
+        projectiles: Projectile.update()
+    }
     for (let i in SOCKET_LIST) {
         let socket = SOCKET_LIST[i]
         socket.emit('newPositions', pack)

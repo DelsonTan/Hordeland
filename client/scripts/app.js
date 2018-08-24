@@ -9,11 +9,23 @@ $(document).ready(function () {
 
     socket.on('newPositions', function (data) {
         ctx.clearRect(0, 0, 500, 500)
-        for (var i = 0; i < data.length; i++) {
-            ctx.fillText(data[i].number, data[i].x, data[i].y)
+        for (var i = 0; i < data.players.length; i++) {
+            renderPlayers(data.players[i].number, data.players[i].x, data.players[i].y)
+        }
+        for (var i = 0; i < data.projectiles.length; i++) {
+            console.log(data.projectiles)
+            renderProjectile(data.projectiles[i].x - 5, data.projectiles[i].y - 5)
         }
     })
     
+    function renderPlayers(val, xpos, ypos) {
+        ctx.strokeRect(xpos - 5, ypos - 25, 30, 30)
+        ctx.fillText(val, xpos, ypos)
+    }
+
+    function renderProjectile(xpos, ypos) {
+        ctx.fillRect(xpos, ypos, 10, 5)
+    }
     // ------------------------------------------------ Event Handlers ------------------------------------------------
     $(document).on("keydown", function(event) {
         // WASD keys
