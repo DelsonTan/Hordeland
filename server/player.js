@@ -1,8 +1,9 @@
-class Player {
+const Entity = require('./entity.js')
+
+class Player extends Entity {
+
     constructor(id) {
-        this.x = 250
-        this.y = 250
-        this.id = id
+        super(id)
         this.number = (Math.floor(10 * Math.random())).toString()
         this.pressingLeft = false
         this.pressingRight = false
@@ -11,20 +12,64 @@ class Player {
         this.maxSpeed = 10
     }
 
-    updatePosition() {
+    updatePlayer() {
+        this.updateSpeed()
+        super.update()
+    }
+
+    updateSpeed() {
         if (this.pressingLeft) {
-            this.x -= this.maxSpeed
-        }
-        if (this.pressingRight) {
-            this.x += this.maxSpeed
+            this.dx = -this.maxSpeed
+        } else if (this.pressingRight) {
+            this.dx = this.maxSpeed
+        } else {
+            this.dx = 0
         }
         if (this.pressingUp) {
-            this.y -= this.maxSpeed
-        }
-        if (this.pressingDown) {
-            this.y += this.maxSpeed
+            this.dy = -this.maxSpeed
+        } else if (this.pressingDown) {
+            this.dy = this.maxSpeed
+        } else {
+            this.dy = 0
         }
     }
+}
+
+Player.list = {}
+
+Player.onConnect = function(socket) {
+    
+    const player = new Player(socket.id)
+    Player.list[socket.id] = player
+    socket.on('keyPress', (data) => {
+        if (data.inputId === 'left') {
+            player.pressingLeft = data.state
+        } else if (data.inputId === 'right') {
+            player.pressingRight = data.state
+        } else if (data.inputId === 'up') {
+            player.pressingUp = data.state
+        } else if (data.inputId === 'down') {
+            player.pressingDown = data.state
+        }
+    })
+}
+
+Player.onDisconnect = function(socket) {
+    delete Player.list[socket.id]
+}
+
+Player.update = function() {
+    const pack = []
+    for (let i in Player.list) {
+        let player = Player.list[i]
+        player.updatePlayer()
+        pack.push({
+            x: player.x,
+            y: player.y,
+            number: player.number
+        })
+    }
+    return pack
 }
 
 module.exports = Player

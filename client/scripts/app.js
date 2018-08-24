@@ -1,6 +1,9 @@
 $(document).ready(function () {
     // ------------------------------------------------ Render Logic ------------------------------------------------
-    var ctx = $('#ctx')[0].getContext("2d")
+    var canvas = $('#ctx')[0]
+    canvas.width = 500
+    canvas.height = 500
+    var ctx = canvas.getContext("2d")
     ctx.font = '30px Arial'
     var socket = io()
 
