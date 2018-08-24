@@ -12,7 +12,8 @@ class Player extends Entity {
         this.maxSpeed = 10
     }
 
-    updatePlayer() {
+    // Instance level method to update the player position and velocity
+    update() {
         this.updateSpeed()
         super.update()
     }
@@ -33,43 +34,42 @@ class Player extends Entity {
             this.dy = 0
         }
     }
-}
 
-Player.list = {}
-
-Player.onConnect = function(socket) {
-    
-    const player = new Player(socket.id)
-    Player.list[socket.id] = player
-    socket.on('keyPress', (data) => {
-        if (data.inputId === 'left') {
-            player.pressingLeft = data.state
-        } else if (data.inputId === 'right') {
-            player.pressingRight = data.state
-        } else if (data.inputId === 'up') {
-            player.pressingUp = data.state
-        } else if (data.inputId === 'down') {
-            player.pressingDown = data.state
-        }
-    })
-}
-
-Player.onDisconnect = function(socket) {
-    delete Player.list[socket.id]
-}
-
-Player.update = function() {
-    const pack = []
-    for (let i in Player.list) {
-        let player = Player.list[i]
-        player.updatePlayer()
-        pack.push({
-            x: player.x,
-            y: player.y,
-            number: player.number
+    static onConnect(socket) {
+        const player = new Player(socket.id)
+        Player.list[socket.id] = player
+        socket.on('keyPress', (data) => {
+            if (data.inputId === 'left') {
+                player.pressingLeft = data.state
+            } else if (data.inputId === 'right') {
+                player.pressingRight = data.state
+            } else if (data.inputId === 'up') {
+                player.pressingUp = data.state
+            } else if (data.inputId === 'down') {
+                player.pressingDown = data.state
+            }
         })
     }
-    return pack
+
+    static onDisconnect(socket) {
+        delete Player.list[socket.id]
+    }
+
+    static update() {
+        const pack = []
+        for (let i in Player.list) {
+            let player = Player.list[i]
+            player.update()
+            pack.push({
+                x: player.x,
+                y: player.y,
+                number: player.number
+            })
+        }
+        return pack
+    }
 }
+// Class-level value property: list of players
+Player.list = {}
 
 module.exports = Player
