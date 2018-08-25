@@ -1,8 +1,8 @@
 const Entity = require('./entity.js')
+const Projectile = require('./projectile.js')
 
 class Player extends Entity {
 
-    // Adds player to Player.list upon instantiation
     constructor(id) {
         super(id)
         this.number = (Math.floor(10 * Math.random())).toString()
@@ -10,13 +10,18 @@ class Player extends Entity {
         this.pressingRight = false
         this.pressingUp = false
         this.pressingDown = false
+        this.pressingFire = false
+        this.mouseAngle = 0
         this.maxSpeed = 10
-        Player.list[id] = this
     }
     // Instance level method to update the player position and velocity
     update() {
         this.updateSpeed()
         super.update()
+
+        if (this.pressingFire) {
+            this.fireProjectile(this.mouseAngle)
+        }
     }
 
     updateSpeed() {
@@ -36,9 +41,16 @@ class Player extends Entity {
         }
     }
 
+    fireProjectile(angle) {
+        const projectile = new Projectile(this.id, angle)
+        projectile.x = this.x
+        projectile.y = this.y
+    }
+
     static onConnect(socket) {
         const player = new Player(socket.id)
-        
+        Player.list[socket.id] = player
+
         socket.on('keyPress', (data) => {
             if (data.inputId === 'left') {
                 player.pressingLeft = data.state
@@ -48,6 +60,10 @@ class Player extends Entity {
                 player.pressingUp = data.state
             } else if (data.inputId === 'down') {
                 player.pressingDown = data.state
+            } else if (data.inputId === 'leftClick') {
+                player.pressingFire = data.state
+            } else if (data.inputId === 'mouseAngle') {
+                player.mouseAngle = data.state
             }
         })
     }
