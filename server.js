@@ -4,8 +4,7 @@ const server = require('http').Server(app)
 const io = require('socket.io')(server, {})
 const PORT = 3000
 
-const Player = require('./server/player.js')
-const Projectile = require('./server/projectile.js')
+const {Player, Projectile} = require('./server/entity.js')
 // IMPORTANT: SET TO FALSE IN PRODUCTION
 const DEBUG = true
 
