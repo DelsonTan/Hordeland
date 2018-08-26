@@ -1,5 +1,5 @@
 const initData = { players: [], projectiles: [] }
-const removeData = {players: [], projectiles: [] }
+const removeData = { players: [], projectiles: [] }
 
 class Entity {
     constructor(id) {
@@ -10,17 +10,13 @@ class Entity {
         this.dy = 0
     }
 
-    update() {
-        this.updatePosition()
-    }
+    update() { this.updatePosition() }
 
     updatePosition() {
         this.x += this.dx
         this.y += this.dy
     }
-    // point object must have x and y properties specifying its coordinates in pixels 
     getDistance(point) {
-        // Pythagoras!
         return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2))
     }
 
@@ -49,7 +45,6 @@ class Entity {
 }
 
 class Player extends Entity {
-
     constructor(id) {
         super(id)
         this.number = (Math.floor(10 * Math.random())).toString()
@@ -60,13 +55,11 @@ class Player extends Entity {
         this.pressingFire = false
         this.mouseAngle = 0
         this.maxSpeed = 10
+        this.currentHp = 10
+        this.maxHp = 10
+        this.score = 0
         Player.list[this.id] = this
-        initData.players.push({
-            id: this.id,
-            x: this.x,
-            y: this.y,
-            number: this.number
-        })
+        initData.players.push(this.initialData)
     }
 
     static onConnect(socket) {
@@ -79,6 +72,10 @@ class Player extends Entity {
             else if (data.inputId === 'leftClick') { player.pressingFire = data.state }
             else if (data.inputId === 'mouseAngle') { player.mouseAngle = data.state }
         })
+        socket.emit('init', {
+            players: Player.getAllInitData(),
+            projectiles: Projectile.getAllInitData()
+        })
     }
 
     static update() {
@@ -86,18 +83,43 @@ class Player extends Entity {
         for (let i in Player.list) {
             let player = Player.list[i]
             player.update()
-            data.push({
-                id: player.id,
-                x: player.x,
-                y: player.y
-            })
+            data.push(player.updateData)
         }
         return data
     }
 
-    static onDisconnect(socket) { 
+    static onDisconnect(socket) {
         delete Player.list[socket.id]
         removeData.players.push(socket.id)
+    }
+
+    static getAllInitData() {
+        const players = []
+        for (let i in Player.list) { players.push(Player.list[i].initialData) }
+        return players
+    }
+
+    get initialData() {
+        return {
+            id: this.id,
+            x: this.x,
+            y: this.y,
+            currentHp: this.currentHp,
+            maxHp: this.maxHp,
+            score: this.score,
+            number: this.number
+        }
+    }
+
+    get updateData() {
+        return {
+            id: this.id,
+            x: this.x,
+            y: this.y,
+            currentHp: this.currentHp,
+            maxHp: this.maxHp,
+            score: this.score
+        }
     }
 
     update() {
@@ -125,11 +147,10 @@ class Player extends Entity {
         projectile.y = this.y
     }
 }
-// Class-level value property: list of players
+// Class-level value property: list of all current players
 Player.list = {}
 
 class Projectile extends Entity {
-    // Adds projectile to Projectile.list upon instantiation
     constructor(source, angle) {
         super()
         // source: the id of the entity that fired this projectile
@@ -140,11 +161,7 @@ class Projectile extends Entity {
         this.timer = 0
         this.toRemove = false
         Projectile.list[this.id] = this
-        initData.projectiles.push({
-            id: this.id,
-            x: this.x,
-            y: this.y
-        })
+        initData.projectiles.push(this.initialData)
     }
 
     static update() {
@@ -156,32 +173,59 @@ class Projectile extends Entity {
                 delete Projectile.list[i]
                 removeData.projectiles.push(projectile.id)
             } else {
-                data.push({
-                    id: projectile.id,
-                    x: projectile.x,
-                    y: projectile.y,
-                })
+                data.push(projectile.updateData)
             }
         }
         return data
     }
+
+    static getAllInitData() {
+        const projectiles = []
+        for (let i in Projectile.list) { projectiles.push(Projectile.list[i].initialData) }
+        return projectiles
+    }
+
+    get initialData() {
+        return {
+            id: this.id,
+            x: this.x,
+            y: this.y
+        }
+    }
+
+    get updateData() {
+        return {
+            id: this.id,
+            x: this.x,
+            y: this.y
+        }
+    }
+
     // Queue projectile for removal when timer exceeds 100
     update() {
         if (this.timer++ > 100) { this.toRemove = true }
         super.update()
         for (let i in Player.list) {
-            const player = Player.list[i]
-            if (this.getDistance(player) < 20 && this.source !== player.id) {
+            const target = Player.list[i]
+            if (this.getDistance(target) < 20 && this.source !== target.id) {
+                target.currentHp -= 1
+                if (target.currentHp <= 0) {
+                    const attacker = Player.list[this.source]
+                    if (attacker) { attacker.score += 1 }
+                    target.currentHp = target.maxHp
+                    target.x = Math.random() * 500
+                    target.y = Math.random() * 500
+                }
                 this.toRemove = true
                 // TODO: handle collision, e.g. subtract hp
             }
         }
     }
 }
-// Class-level value property: list of projectiles
+// Class-level value property: list of all current projectiles
 Projectile.list = {}
-module.exports = { 
-    "Player": Player,
-    "Projectile": Projectile,
+module.exports = {
+    "playerConnect": Player.onConnect,
+    "playerDisconnect": Player.onDisconnect,
     "getFrameUpdateData": Entity.getFrameUpdateData
 }

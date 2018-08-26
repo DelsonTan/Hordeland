@@ -4,18 +4,16 @@ const server = require('http').Server(app)
 const io = require('socket.io')(server, {})
 const PORT = 3000
 
-const { Player, Projectile, getFrameUpdateData } = require('./server/entity.js')
+const { playerDisconnect, playerConnect, getFrameUpdateData } = require('./server/entity.js')
 // IMPORTANT: SET TO FALSE IN PRODUCTION
 const DEBUG = true
 let SOCKET_LIST = {}
 
 io.sockets.on('connection', (socket) => {
-    console.log('Client connected!')
-
     socket.id = Math.random()
     SOCKET_LIST[socket.id] = socket
-    Player.onConnect(socket)
-
+    playerConnect(socket)
+    console.log(`Client${socket.id} connected!`)
     socket.on('evalMessage', (data) => {
         if (!DEBUG) {
             return
@@ -26,7 +24,6 @@ io.sockets.on('connection', (socket) => {
         } catch(error) {
             socket.emit('evalAnswer', `Error, invalid input: /${data.text}`)
         }
-
     })
 
     socket.on('sendMessage', (data) => {
@@ -38,11 +35,9 @@ io.sockets.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         delete SOCKET_LIST[socket.id]
-        Player.onDisconnect(socket)
-        // delete PLAYER_LIST[socket.id]
+        playerDisconnect(socket)
     })
 })
-
 
 setInterval(() => {
     const data = getFrameUpdateData()
@@ -55,11 +50,5 @@ setInterval(() => {
 }, 40)
 
 app.use('/client', express.static(__dirname + '/client'))
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/client/index.html')
-})
-
-server.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}!`)
-})
+app.get('/', (req, res) => { res.sendFile(__dirname + '/client/index.html') })
+server.listen(PORT, () => { console.log(`Server listening on port ${PORT}!`) })

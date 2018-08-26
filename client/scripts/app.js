@@ -4,7 +4,7 @@ $(document).ready(function () {
     // Canvas Selectors and Settings
     var canvas = $('#ctx')
     canvas.attr('tabindex', 0)
-    canvas.contextmenu(function() { return false })    
+    canvas.contextmenu(function () { return false })
     canvas[0].width = 500
     canvas[0].height = 500
     var ctx = canvas[0].getContext("2d")
@@ -15,27 +15,43 @@ $(document).ready(function () {
     chatInput.attr('tabindex', 0)
     var chatForm = $('#chat-form')
 
-    var Player = function(data) {
+    var Player = function (data) {
         var self = {}
         self.id = data.id
         self.number = data.number
         self.x = data.x
         self.y = data.y
+        self.currentHp = data.currentHp
+        self.maxHp = data.maxHp
+        self.score = data.score
+        self.render = function () {
+            var currentHpWidth = 30 * self.currentHp / self.maxHp
+            ctx.fillStyle = "red"
+            ctx.fillRect(self.x - currentHpWidth / 2, self.y - 40, 30, 4)
+            ctx.fillStyle = "darkblue"
+            ctx.fillRect(self.x - currentHpWidth / 2, self.y - 40, currentHpWidth, 4)
+            ctx.fillStyle = "black"
+            ctx.fillText(self.number, self.x, self.y)
+            ctx.fillText(self.score, self.x, self.y - 60)
+        }
         Player.list[self.id] = self
         return self
     }
     Player.list = {}
 
-    var Projectile = function(data) {
+    var Projectile = function (data) {
         var self = {}
         self.id = data.id
         self.x = data.x
         self.y = data.y
+        self.render = function() {
+            ctx.fillRect(self.x, self.y, 10, 5)
+        }
         Projectile.list[self.id] = self
         return self
     }
     Projectile.list = {}
-
+    // 
     socket.on('init', function (data) {
         for (var i = 0; i < data.players.length; i++) {
             new Player(data.players[i])
@@ -52,6 +68,9 @@ $(document).ready(function () {
             if (player) {
                 if (player.x !== undefined) { player.x = newPlayerData.x }
                 if (player.y !== undefined) { player.y = newPlayerData.y }
+                if (player.currentHp !== undefined) { player.currentHp = newPlayerData.currentHp }
+                if (player.maxHp !== undefined) { player.maxHp = newPlayerData.maxHp }
+                if (player.score !== undefined) { player.score = newPlayerData.score }
             }
         }
         for (var i = 0; i < data.projectiles.length; i++) {
@@ -73,7 +92,7 @@ $(document).ready(function () {
         }
     })
 
-    
+
     // ------------------------------------------------ Event Handlers ------------------------------------------------
     // TODO: focus canvas on tabbing into game
     // TODO: cancel all player actions when tabbing out of the game
@@ -81,7 +100,7 @@ $(document).ready(function () {
     var focusCanvas = function () { canvas.focus() }
     var blurCanvas = function () { canvas.blur() }
     var focusChat = function () { chatInput.focus() }
-    var blurChat = function () { chatInput.blur() } 
+    var blurChat = function () { chatInput.blur() }
     // Cancels all player key press events
     cancelPlayerKeyPress = function () {
         socket.emit('keyPress', { inputId: 'left', state: false })
@@ -161,19 +180,11 @@ $(document).ready(function () {
     })
 
     // ------------------------------------------------ Render Logic ------------------------------------------------
-    var renderProjectile = function (xpos, ypos) { ctx.fillRect(xpos, ypos, 10, 5) }
-
-    var renderPlayers = function (val, xpos, ypos) {
-        ctx.strokeRect(xpos - 5, ypos - 25, 30, 30)
-        ctx.fillText(val, xpos, ypos)
-    }
-
     // Initialize scripts
     focusCanvas()
-
     setInterval(function () {
         ctx.clearRect(0, 0, 500, 500)
-        for (var i in Player.list) { renderPlayers(Player.list[i].number, Player.list[i].x, Player.list[i].y) }
-        for (var i in Projectile.list) { renderProjectile(Projectile.list[i].x - 5, Projectile.list[i].y - 5) }
+        for (var i in Player.list) { Player.list[i].render() }
+        for (var i in Projectile.list) { Projectile.list[i].render() }
     }, 40)
 })
