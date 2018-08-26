@@ -4,8 +4,10 @@ $(document).ready(function () {
     var canvas = $('#ctx')
     canvas.attr('tabindex', 0)
     canvas.contextmenu(function () { return false })
-    canvas[0].width = 500
-    canvas[0].height = 500
+    var WIDTH = 500
+    var HEIGHT = 500
+    canvas[0].width = WIDTH
+    canvas[0].height = HEIGHT
     var ctx = canvas[0].getContext("2d")
     ctx.font = '30px Arial'
     // Chat Selectors and Settings
@@ -19,47 +21,64 @@ $(document).ready(function () {
     Img.player.src = '/client/images/player.png'
     Img.bullet = new Image()
     Img.bullet.src = '/client/images/bullet.png'
-    Img.map = new Image()
-    Img.map.src = '/client/images/map.png'
+    Img.map = {}
+    Img.map['field'] = new Image()
+    Img.map['field'].src = '/client/images/map.png'
+    Img.map['forest'] = new Image()
+    Img.map['forest'].src = '/client/images/map2.png'
     // ------------------------------------------------ Game Logic ------------------------------------------------
-    var Player = function (data) {
+    var selfId = null
+    var Player = function (params) {
         var self = {}
-        self.id = data.id
-        self.number = data.number
-        self.x = data.x
-        self.y = data.y
-        self.currentHp = data.currentHp
-        self.maxHp = data.maxHp
-        self.score = data.score
+        self.id = params.id
+        self.number = params.number
+        self.x = params.x
+        self.y = params.y
+        self.currentHp = params.currentHp
+        self.maxHp = params.maxHp
+        self.score = params.score
+        self.map = params.map
         self.render = function () {
-            var currentHpWidth = 30 * self.currentHp / self.maxHp
+            if (Player.list[selfId].map !== self.map) {
+                return
+            }
+            var xpos = self.x - Player.list[selfId].x + WIDTH/2
+            var ypos = self.y - Player.list[selfId].y + HEIGHT/2
             // hp bar
+            var currentHpWidth = 30 * self.currentHp / self.maxHp
             ctx.fillStyle = "darkred"
-            ctx.fillRect(self.x - currentHpWidth / 2, self.y - 40, 30, 4)
+            ctx.fillRect(xpos - currentHpWidth / 2, ypos - 40, 30, 4)
             ctx.fillStyle = "darkblue"
-            ctx.fillRect(self.x - currentHpWidth / 2, self.y - 40, currentHpWidth, 4)
+            ctx.fillRect(xpos - currentHpWidth / 2, ypos - 40, currentHpWidth, 4)
             // player sprite
             var width = Img.player.width * 2
             var height = Img.player.height * 2
+           
             ctx.drawImage(Img.player, 0, 0, Img.player.width, Img.player.height, 
-                self.x - width/2, self.y - height/2, width, height)
-            ctx.fillText(self.score, self.x, self.y - 60)
+                xpos - width/2, ypos - height/2, width, height)
         }
         Player.list[self.id] = self
         return self
     }
     Player.list = {}
 
-    var Projectile = function (data) {
+    var Projectile = function (params) {
         var self = {}
-        self.id = data.id
-        self.x = data.x
-        self.y = data.y
+        self.id = params.id
+        self.x = params.x
+        self.y = params.y
+        self.map = params.map
         self.render = function() {
-            var width = Img.player.width / 2
-            var height = Img.player.height / 2
+            if (Player.list[selfId].map !== self.map) {
+                return
+            }
+            var imgWidth = Img.player.width / 2
+            var imgHeight = Img.player.height / 2
+            var xpos = self.x - Player.list[selfId].x + WIDTH/2
+            var ypos = self.y - Player.list[selfId].y + HEIGHT/2
+
             ctx.drawImage(Img.bullet, 0, 0, Img.bullet.width, Img.bullet.height, 
-                self.x - width/2, self.y - height/2, width, height)
+                xpos - imgWidth/2, ypos - imgHeight/2, imgWidth, imgHeight)
         }
         Projectile.list[self.id] = self
         return self
@@ -67,6 +86,7 @@ $(document).ready(function () {
     Projectile.list = {}
 
     socket.on('init', function (data) {
+        if (data.selfId) { selfId = data.selfId }
         for (var i = 0; i < data.players.length; i++) {
             new Player(data.players[i])
         }
@@ -193,16 +213,20 @@ $(document).ready(function () {
     })
 
     // ------------------------------------------------ Render Logic ------------------------------------------------
-    
     var renderMap = function() {
-        ctx.drawImage(Img.map, 0, 0)
+        var player = Player.list[selfId]
+        var xpos = WIDTH / 2 - Player.list[selfId].x
+        var ypos = HEIGHT / 2 - Player.list[selfId].y
+        ctx.drawImage(Img.map[player.map], xpos, ypos) 
     }
-
+    var renderScore = function() { ctx.fillStyle = "black", ctx.fillText(Player.list[selfId].score, 0, 30) }
     // Initialize scripts
     focusCanvas()
     setInterval(function () {
+        if (!selfId) { return }
         ctx.clearRect(0, 0, 500, 500)
         renderMap()
+        renderScore()
         for (var i in Player.list) { Player.list[i].render() }
         for (var i in Projectile.list) { Projectile.list[i].render() }
     }, 40)

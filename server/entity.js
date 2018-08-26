@@ -2,12 +2,13 @@ const initData = { players: [], projectiles: [] }
 const removeData = { players: [], projectiles: [] }
 
 class Entity {
-    constructor(id) {
-        this.id = id
-        this.x = 250
-        this.y = 250
+    constructor(params) {
+        this.id = params.id || null
+        this.x = params.x || 250
+        this.y = params.y || 250
         this.dx = 0
         this.dy = 0
+        this.map = params.map || 'forest'
     }
 
     update() { this.updatePosition() }
@@ -45,8 +46,8 @@ class Entity {
 }
 
 class Player extends Entity {
-    constructor(id) {
-        super(id)
+    constructor(params) {
+        super(params)
         this.number = (Math.floor(10 * Math.random())).toString()
         this.pressingLeft = false
         this.pressingRight = false
@@ -63,7 +64,14 @@ class Player extends Entity {
     }
 
     static onConnect(socket) {
-        const player = new Player(socket.id)
+        var map = 'forest'
+        if (Math.random() < 0.5) {
+            map = 'field'
+        }
+        const player = new Player({ 
+            id: socket.id, 
+            map: map 
+        })
         socket.on('keyPress', (data) => {
             if (data.inputId === 'left') { player.pressingLeft = data.state }
             else if (data.inputId === 'right') { player.pressingRight = data.state }
@@ -73,6 +81,7 @@ class Player extends Entity {
             else if (data.inputId === 'mouseAngle') { player.mouseAngle = data.state }
         })
         socket.emit('init', {
+            selfId: socket.id,
             players: Player.getAllInitData(),
             projectiles: Projectile.getAllInitData()
         })
@@ -107,7 +116,8 @@ class Player extends Entity {
             currentHp: this.currentHp,
             maxHp: this.maxHp,
             score: this.score,
-            number: this.number
+            number: this.number,
+            map: this.map
         }
     }
 
@@ -142,7 +152,13 @@ class Player extends Entity {
     }
 
     fireProjectile(angle) {
-        const projectile = new Projectile(this.id, angle)
+        const projectile = new Projectile({
+            source: this.id, 
+            angle: angle,
+            x: this.x,
+            y: this.y,
+            map: this.map
+        })
         projectile.x = this.x
         projectile.y = this.y
     }
@@ -151,13 +167,15 @@ class Player extends Entity {
 Player.list = {}
 
 class Projectile extends Entity {
-    constructor(source, angle) {
-        super()
+    constructor(params) {
+        super(params)
         // source: the id of the entity that fired this projectile
-        this.source = source
+        this.source = params.source
         this.id = Math.random()
-        this.dx = Math.cos(angle / 180 * Math.PI) * 10
-        this.dy = Math.sin(angle / 180 * Math.PI) * 10
+        this.angle = params.angle
+        this.dx = Math.cos(params.angle / 180 * Math.PI) * 10
+        this.dy = Math.sin(params.angle / 180 * Math.PI) * 10
+        this.map = params.map
         this.timer = 0
         this.toRemove = false
         Projectile.list[this.id] = this
@@ -189,7 +207,8 @@ class Projectile extends Entity {
         return {
             id: this.id,
             x: this.x,
-            y: this.y
+            y: this.y,
+            map: this.map
         }
     }
 
@@ -207,7 +226,7 @@ class Projectile extends Entity {
         super.update()
         for (let i in Player.list) {
             const target = Player.list[i]
-            if (this.getDistance(target) < 20 && this.source !== target.id) {
+            if (this.map === target.map && this.getDistance(target) < 20 && this.source !== target.id) {
                 target.currentHp -= 1
                 if (target.currentHp <= 0) {
                     const attacker = Player.list[this.source]
