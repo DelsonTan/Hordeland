@@ -1,5 +1,4 @@
 $(document).ready(function () {
-    // ------------------------------------------------ Game Logic ------------------------------------------------
     var socket = io()
     // Canvas Selectors and Settings
     var canvas = $('#ctx')
@@ -14,7 +13,15 @@ $(document).ready(function () {
     var chatInput = $('#chat-input')
     chatInput.attr('tabindex', 0)
     var chatForm = $('#chat-form')
-
+    // Images
+    var Img = {}
+    Img.player = new Image()
+    Img.player.src = '/client/images/player.png'
+    Img.bullet = new Image()
+    Img.bullet.src = '/client/images/bullet.png'
+    Img.map = new Image()
+    Img.map.src = '/client/images/map.png'
+    // ------------------------------------------------ Game Logic ------------------------------------------------
     var Player = function (data) {
         var self = {}
         self.id = data.id
@@ -26,12 +33,16 @@ $(document).ready(function () {
         self.score = data.score
         self.render = function () {
             var currentHpWidth = 30 * self.currentHp / self.maxHp
-            ctx.fillStyle = "red"
+            // hp bar
+            ctx.fillStyle = "darkred"
             ctx.fillRect(self.x - currentHpWidth / 2, self.y - 40, 30, 4)
             ctx.fillStyle = "darkblue"
             ctx.fillRect(self.x - currentHpWidth / 2, self.y - 40, currentHpWidth, 4)
-            ctx.fillStyle = "black"
-            ctx.fillText(self.number, self.x, self.y)
+            // player sprite
+            var width = Img.player.width * 2
+            var height = Img.player.height * 2
+            ctx.drawImage(Img.player, 0, 0, Img.player.width, Img.player.height, 
+                self.x - width/2, self.y - height/2, width, height)
             ctx.fillText(self.score, self.x, self.y - 60)
         }
         Player.list[self.id] = self
@@ -45,13 +56,16 @@ $(document).ready(function () {
         self.x = data.x
         self.y = data.y
         self.render = function() {
-            ctx.fillRect(self.x, self.y, 10, 5)
+            var width = Img.player.width / 2
+            var height = Img.player.height / 2
+            ctx.drawImage(Img.bullet, 0, 0, Img.bullet.width, Img.bullet.height, 
+                self.x - width/2, self.y - height/2, width, height)
         }
         Projectile.list[self.id] = self
         return self
     }
     Projectile.list = {}
-    // 
+
     socket.on('init', function (data) {
         for (var i = 0; i < data.players.length; i++) {
             new Player(data.players[i])
@@ -91,7 +105,6 @@ $(document).ready(function () {
             delete Projectile.list[data.projectiles[i]]
         }
     })
-
 
     // ------------------------------------------------ Event Handlers ------------------------------------------------
     // TODO: focus canvas on tabbing into game
@@ -180,10 +193,16 @@ $(document).ready(function () {
     })
 
     // ------------------------------------------------ Render Logic ------------------------------------------------
+    
+    var renderMap = function() {
+        ctx.drawImage(Img.map, 0, 0)
+    }
+
     // Initialize scripts
     focusCanvas()
     setInterval(function () {
         ctx.clearRect(0, 0, 500, 500)
+        renderMap()
         for (var i in Player.list) { Player.list[i].render() }
         for (var i in Projectile.list) { Projectile.list[i].render() }
     }, 40)
