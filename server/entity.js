@@ -1,4 +1,5 @@
-
+const initData = { players: [], projectiles: [] }
+const removeData = {players: [], projectiles: [] }
 
 class Entity {
     constructor(id) {
@@ -48,20 +49,13 @@ class Player extends Entity {
     }
 
     updateSpeed() {
-        if (this.pressingLeft) {
-            this.dx = -this.maxSpeed
-        } else if (this.pressingRight) {
-            this.dx = this.maxSpeed
-        } else {
-            this.dx = 0
-        }
-        if (this.pressingUp) {
-            this.dy = -this.maxSpeed
-        } else if (this.pressingDown) {
-            this.dy = this.maxSpeed
-        } else {
-            this.dy = 0
-        }
+        if (this.pressingLeft) { this.dx = -this.maxSpeed }
+        else if (this.pressingRight) { this.dx = this.maxSpeed }
+        else { this.dx = 0 }
+
+        if (this.pressingUp) { this.dy = -this.maxSpeed }
+        else if (this.pressingDown) { this.dy = this.maxSpeed }
+        else { this.dy = 0 }
     }
 
     fireProjectile(angle) {
@@ -75,38 +69,30 @@ class Player extends Entity {
         Player.list[socket.id] = player
 
         socket.on('keyPress', (data) => {
-            if (data.inputId === 'left') {
-                player.pressingLeft = data.state
-            } else if (data.inputId === 'right') {
-                player.pressingRight = data.state
-            } else if (data.inputId === 'up') {
-                player.pressingUp = data.state
-            } else if (data.inputId === 'down') {
-                player.pressingDown = data.state
-            } else if (data.inputId === 'leftClick') {
-                player.pressingFire = data.state
-            } else if (data.inputId === 'mouseAngle') {
-                player.mouseAngle = data.state
-            }
+            if (data.inputId === 'left') { player.pressingLeft = data.state }
+            else if (data.inputId === 'right') { player.pressingRight = data.state }
+            else if (data.inputId === 'up') { player.pressingUp = data.state }
+            else if (data.inputId === 'down') { player.pressingDown = data.state }
+            else if (data.inputId === 'leftClick') { player.pressingFire = data.state }
+            else if (data.inputId === 'mouseAngle') { player.mouseAngle = data.state }
         })
     }
 
-    static onDisconnect(socket) {
-        delete Player.list[socket.id]
-    }
+    static onDisconnect(socket) { delete Player.list[socket.id] }
 
     static update() {
-        const pack = []
+        const data = []
         for (let i in Player.list) {
             let player = Player.list[i]
             player.update()
-            pack.push({
+            data.push({
+                id: player.id,
                 x: player.x,
                 y: player.y,
                 number: player.number
             })
         }
-        return pack
+        return data
     }
 }
 // Class-level value property: list of players
@@ -125,24 +111,7 @@ class Projectile extends Entity {
         this.toRemove = false
         Projectile.list[this.id] = this
     }
-    // Queue projectile for removal when timer exceeds 100
-    update() {
-        
-        if (this.timer++ > 100) {
-            this.toRemove = true
-        }
-        super.update()
 
-        for (let i in Player.list) {
-            const player = Player.list[i]
-            
-            if (this.getDistance(player) < 20 && this.source !== player.id) {
-                this.toRemove = true
-                // TODO: handle collision, e.g. subtract hp
-            }
-        }
-    }
-    // Remove projectile from Projectile.list when queued for removal
     static update() {
         const pack = []
         for (let i in Projectile.list) {
@@ -152,12 +121,25 @@ class Projectile extends Entity {
                 delete Projectile.list[i]
             } else {
                 pack.push({
+                    id: projectile.id,
                     x: projectile.x,
                     y: projectile.y,
                 })
             }
         }
         return pack
+    }
+    // Queue projectile for removal when timer exceeds 100
+    update() {
+        if (this.timer++ > 100) { this.toRemove = true }
+        super.update()
+        for (let i in Player.list) {
+            const player = Player.list[i]
+            if (this.getDistance(player) < 20 && this.source !== player.id) {
+                this.toRemove = true
+                // TODO: handle collision, e.g. subtract hp
+            }
+        }
     }
 }
 // Class-level value property: list of projectiles

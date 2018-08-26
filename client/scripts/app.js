@@ -1,6 +1,6 @@
 $(document).ready(function () {
     // ------------------------------------------------ Game Logic ------------------------------------------------
-
+    var socket = io()
     // Canvas Selectors and Settings
     var canvas = $('#ctx')
     canvas.attr('tabindex', 0)
@@ -9,21 +9,82 @@ $(document).ready(function () {
     canvas[0].height = 500
     var ctx = canvas[0].getContext("2d")
     ctx.font = '30px Arial'
-    var socket = io()
     // Chat Selectors and Settings
     var chatText = $('#chat-text')
     var chatInput = $('#chat-input')
     chatInput.attr('tabindex', 0)
     var chatForm = $('#chat-form')
 
+    var Player = function(data) {
+        var self = {}
+        self.id = data.id
+        self.number = data.number
+        self.x = data.x
+        self.y = data.y
+        Player.list[self.id] = self
+        return self
+    }
+    Player.list = {}
+
+    var Projectile = function(data) {
+        var self = {}
+        self.id = data.id
+        self.x = data.x
+        self.y = data.y
+        Projectile.list[self.id] = self
+        return self
+    }
+    Projectile.list = {}
+
+    socket.on('init', function (data) {
+        for (var i = 0; i < data.players.length; i++) {
+            new Player(data.players[i])
+        }
+        for (var i = 0; i < data.projectiles.length; i++) {
+            new Projectile(data.projectiles[i])
+        }
+    })
+
+    socket.on('update', function (data) {
+        for (var i = 0; i < data.players.length; i++) {
+            var newPlayerData = data.players[i]
+            var player = Player.list[newPlayerData.id]
+            if (player) {
+                if (player.x !== undefined) { player.x = newPlayerData.x }
+                if (player.y !== undefined) { player.y = newPlayerData.y }
+            }
+        }
+        for (var i = 0; i < data.projectiles.length; i++) {
+            var newProjectileData = data.projectiles[i]
+            var projectile = Projectile.list[newProjectileData.id]
+            if (projectile) {
+                if (projectile.x !== undefined) { projectile.x = newProjectileData.x }
+                if (projectile.y !== undefined) { projectile.y = newProjectileData.y }
+            }
+        }
+    })
+
+    socket.on('remove', function (data) {
+        for (var i = 0; i < data.players.length; i++) {
+            delete Player.list[data.players[i]]
+        }
+        for (var i = 0; i < data.projectiles.length; i++) {
+            delete Projectile.list[data.projectiles[i]]
+        }
+    })
+
+    var renderProjectile = function (xpos, ypos) { ctx.fillRect(xpos, ypos, 10, 5) }
+
     var renderPlayers = function (val, xpos, ypos) {
         ctx.strokeRect(xpos - 5, ypos - 25, 30, 30)
         ctx.fillText(val, xpos, ypos)
     }
 
-    var renderProjectile = function (xpos, ypos) {
-        ctx.fillRect(xpos, ypos, 10, 5)
-    }
+    setInterval(function () {
+        ctx.clearRect(0, 0, 500, 500)
+        for (var i in Player.list) { renderPlayers(Player.list[i].number, Player.list[i].x, Player.list[i].y) }
+        for (var i in Projectile.list) { renderProjectile(Projectile.list[i].x - 5, Projectile.list[i].y - 5) }
+    }, 40)
 
     var focusCanvas = function () { canvas.focus() }
     var blurCanvas = function () { canvas.blur() }
