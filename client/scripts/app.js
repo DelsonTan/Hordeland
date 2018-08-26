@@ -73,37 +73,15 @@ $(document).ready(function () {
         }
     })
 
-    var renderProjectile = function (xpos, ypos) { ctx.fillRect(xpos, ypos, 10, 5) }
-
-    var renderPlayers = function (val, xpos, ypos) {
-        ctx.strokeRect(xpos - 5, ypos - 25, 30, 30)
-        ctx.fillText(val, xpos, ypos)
-    }
-
-    setInterval(function () {
-        ctx.clearRect(0, 0, 500, 500)
-        for (var i in Player.list) { renderPlayers(Player.list[i].number, Player.list[i].x, Player.list[i].y) }
-        for (var i in Projectile.list) { renderProjectile(Projectile.list[i].x - 5, Projectile.list[i].y - 5) }
-    }, 40)
-
-    var focusCanvas = function () { canvas.focus() }
-    var blurCanvas = function () { canvas.blur() }
-    var focusChat = function () { chatInput.focus() }
-    var blurChat = function () { chatInput.blur() }
-
-    socket.on('newPositions', function (data) {
-        ctx.clearRect(0, 0, 500, 500)
-        for (var i = 0; i < data.players.length; i++) {
-            renderPlayers(data.players[i].number, data.players[i].x, data.players[i].y)
-        }
-        for (var i = 0; i < data.projectiles.length; i++) {
-            renderProjectile(data.projectiles[i].x - 5, data.projectiles[i].y - 5)
-        }
-    })
+    
     // ------------------------------------------------ Event Handlers ------------------------------------------------
     // TODO: focus canvas on tabbing into game
     // TODO: cancel all player actions when tabbing out of the game
-    
+    // TODO: make chat scroll to bottom when new messages arrive
+    var focusCanvas = function () { canvas.focus() }
+    var blurCanvas = function () { canvas.blur() }
+    var focusChat = function () { chatInput.focus() }
+    var blurChat = function () { chatInput.blur() } 
     // Cancels all player key press events
     cancelPlayerKeyPress = function () {
         socket.emit('keyPress', { inputId: 'left', state: false })
@@ -183,10 +161,19 @@ $(document).ready(function () {
     })
 
     // ------------------------------------------------ Render Logic ------------------------------------------------
+    var renderProjectile = function (xpos, ypos) { ctx.fillRect(xpos, ypos, 10, 5) }
 
-
-    // TODO: make chat scroll to bottom when new messages arrive
+    var renderPlayers = function (val, xpos, ypos) {
+        ctx.strokeRect(xpos - 5, ypos - 25, 30, 30)
+        ctx.fillText(val, xpos, ypos)
+    }
 
     // Initialize scripts
     focusCanvas()
+
+    setInterval(function () {
+        ctx.clearRect(0, 0, 500, 500)
+        for (var i in Player.list) { renderPlayers(Player.list[i].number, Player.list[i].x, Player.list[i].y) }
+        for (var i in Projectile.list) { renderProjectile(Projectile.list[i].x - 5, Projectile.list[i].y - 5) }
+    }, 40)
 })

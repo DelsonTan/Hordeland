@@ -23,6 +23,29 @@ class Entity {
         // Pythagoras!
         return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2))
     }
+
+    static getFrameUpdateData() {
+        const data = {
+            init: {
+                players: initData.players,
+                projectiles: initData.projectiles
+            },
+            update: {
+                players: Player.update(),
+                projectiles: Projectile.update()
+            },
+            remove: {
+                players: removeData.players,
+                projectiles: removeData.projectiles
+            }
+        }
+        Object.freeze(data)
+        initData.players = []
+        initData.projectiles = []
+        removeData.players = []
+        removeData.projectiles = []
+        return data
+    }
 }
 
 class Player extends Entity {
@@ -37,8 +60,46 @@ class Player extends Entity {
         this.pressingFire = false
         this.mouseAngle = 0
         this.maxSpeed = 10
+        Player.list[this.id] = this
+        initData.players.push({
+            id: this.id,
+            x: this.x,
+            y: this.y,
+            number: this.number
+        })
     }
-    // Instance level method to update the player position and velocity
+
+    static onConnect(socket) {
+        const player = new Player(socket.id)
+        socket.on('keyPress', (data) => {
+            if (data.inputId === 'left') { player.pressingLeft = data.state }
+            else if (data.inputId === 'right') { player.pressingRight = data.state }
+            else if (data.inputId === 'up') { player.pressingUp = data.state }
+            else if (data.inputId === 'down') { player.pressingDown = data.state }
+            else if (data.inputId === 'leftClick') { player.pressingFire = data.state }
+            else if (data.inputId === 'mouseAngle') { player.mouseAngle = data.state }
+        })
+    }
+
+    static update() {
+        const data = []
+        for (let i in Player.list) {
+            let player = Player.list[i]
+            player.update()
+            data.push({
+                id: player.id,
+                x: player.x,
+                y: player.y
+            })
+        }
+        return data
+    }
+
+    static onDisconnect(socket) { 
+        delete Player.list[socket.id]
+        removeData.players.push(socket.id)
+    }
+
     update() {
         this.updateSpeed()
         super.update()
@@ -63,37 +124,6 @@ class Player extends Entity {
         projectile.x = this.x
         projectile.y = this.y
     }
-
-    static onConnect(socket) {
-        const player = new Player(socket.id)
-        Player.list[socket.id] = player
-
-        socket.on('keyPress', (data) => {
-            if (data.inputId === 'left') { player.pressingLeft = data.state }
-            else if (data.inputId === 'right') { player.pressingRight = data.state }
-            else if (data.inputId === 'up') { player.pressingUp = data.state }
-            else if (data.inputId === 'down') { player.pressingDown = data.state }
-            else if (data.inputId === 'leftClick') { player.pressingFire = data.state }
-            else if (data.inputId === 'mouseAngle') { player.mouseAngle = data.state }
-        })
-    }
-
-    static onDisconnect(socket) { delete Player.list[socket.id] }
-
-    static update() {
-        const data = []
-        for (let i in Player.list) {
-            let player = Player.list[i]
-            player.update()
-            data.push({
-                id: player.id,
-                x: player.x,
-                y: player.y,
-                number: player.number
-            })
-        }
-        return data
-    }
 }
 // Class-level value property: list of players
 Player.list = {}
@@ -110,24 +140,30 @@ class Projectile extends Entity {
         this.timer = 0
         this.toRemove = false
         Projectile.list[this.id] = this
+        initData.projectiles.push({
+            id: this.id,
+            x: this.x,
+            y: this.y
+        })
     }
 
     static update() {
-        const pack = []
+        const data = []
         for (let i in Projectile.list) {
             let projectile = Projectile.list[i]
             projectile.update()
             if (projectile.toRemove) {
                 delete Projectile.list[i]
+                removeData.projectiles.push(projectile.id)
             } else {
-                pack.push({
+                data.push({
                     id: projectile.id,
                     x: projectile.x,
                     y: projectile.y,
                 })
             }
         }
-        return pack
+        return data
     }
     // Queue projectile for removal when timer exceeds 100
     update() {
@@ -144,5 +180,8 @@ class Projectile extends Entity {
 }
 // Class-level value property: list of projectiles
 Projectile.list = {}
-
-module.exports = { Player, Projectile }
+module.exports = { 
+    "Player": Player,
+    "Projectile": Projectile,
+    "getFrameUpdateData": Entity.getFrameUpdateData
+}

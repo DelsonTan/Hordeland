@@ -4,10 +4,9 @@ const server = require('http').Server(app)
 const io = require('socket.io')(server, {})
 const PORT = 3000
 
-const {Player, Projectile} = require('./server/entity.js')
+const { Player, Projectile, getFrameUpdateData } = require('./server/entity.js')
 // IMPORTANT: SET TO FALSE IN PRODUCTION
 const DEBUG = true
-
 let SOCKET_LIST = {}
 
 io.sockets.on('connection', (socket) => {
@@ -46,13 +45,12 @@ io.sockets.on('connection', (socket) => {
 
 
 setInterval(() => {
-    const pack = {
-        players: Player.update(),
-        projectiles: Projectile.update()
-    }
+    const data = getFrameUpdateData()
     for (let i in SOCKET_LIST) {
         let socket = SOCKET_LIST[i]
-        socket.emit('newPositions', pack)
+        socket.emit('init', data.init)
+        socket.emit('update', data.update)
+        socket.emit('remove', data.remove)
     }
 }, 40)
 
