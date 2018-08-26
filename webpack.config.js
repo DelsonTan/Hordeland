@@ -1,0 +1,36 @@
+const path = require('path');
+
+var config = {
+    mode: "development",
+    entry: './client/scripts/index.jsx',
+    output: {
+        path: path.resolve(__dirname, 'client/scripts'),
+        filename: 'main.js'
+    },
+    devServer: {
+        inline: true,
+        port: 3000
+    },
+    module: {
+        rules: [
+            {
+                test: /\.jsx?$/,
+                include: [
+                    path.resolve(__dirname, 'client/scripts')
+                ],
+                loader: 'babel-loader',
+                query: {
+                    presets: ['es2015', 'react']
+                }
+            },
+            {
+                test: /\.css$/, 
+                use: [
+                    'style-loader',
+                    'css-loader'
+                ]
+            }
+        ]
+    }
+}
+module.exports = config;
