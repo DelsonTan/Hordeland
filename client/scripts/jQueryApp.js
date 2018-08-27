@@ -44,18 +44,19 @@ const jQueryApp = function () {
                 }
                 const xpos = this.x - Player.list[selfId].x + canvas[0].width / 2
                 const ypos = this.y - Player.list[selfId].y + canvas[0].height / 2
+                const playerSpriteWidth = Img.player.width * 4
+                const playerSpriteHeight = Img.player.height * 4
                 // hp bar
                 const currentHpWidth = 30 * this.currentHp / this.maxHp
                 ctx.fillStyle = "darkred"
-                ctx.fillRect(xpos - currentHpWidth / 2, ypos - 40, 30, 4)
+                ctx.fillRect(xpos - currentHpWidth / 2, ypos - playerSpriteHeight / 2, 30, 4)
                 ctx.fillStyle = "darkblue"
-                ctx.fillRect(xpos - currentHpWidth / 2, ypos - 40, currentHpWidth, 4)
+                ctx.fillRect(xpos - currentHpWidth / 2, ypos - playerSpriteHeight / 2, currentHpWidth, 4)
                 // player sprite
-                const width = Img.player.width * 2
-                const height = Img.player.height * 2
+                
 
                 ctx.drawImage(Img.player, 0, 0, Img.player.width, Img.player.height,
-                    xpos - width / 2, ypos - height / 2, width, height)
+                    xpos - playerSpriteWidth / 2, ypos - playerSpriteHeight / 2, playerSpriteWidth, playerSpriteHeight)
             }
         }
         Player.list = {}
@@ -72,8 +73,8 @@ const jQueryApp = function () {
                 if (Player.list[selfId].map !== this.map) {
                     return
                 }
-                const imgWidth = Img.player.width / 2
-                const imgHeight = Img.player.height / 2
+                const imgWidth = Img.player.width
+                const imgHeight = Img.player.height
                 const xpos = this.x - Player.list[selfId].x + canvas[0].width / 2
                 const ypos = this.y - Player.list[selfId].y + canvas[0].height / 2
 

@@ -54,10 +54,12 @@ class Player extends Entity {
         this.pressingUp = false
         this.pressingDown = false
         this.pressingFire = false
+        this.allowedToFire = true
+        this.rateOfFire = 200
         this.mouseAngle = 0
-        this.maxSpeed = 10
-        this.currentHp = 10
-        this.maxHp = 10
+        this.maxSpeed = 20
+        this.currentHp = 3
+        this.maxHp = 3
         this.score = 0
         Player.list[this.id] = this
         initData.players.push(this.initialData)
@@ -136,8 +138,10 @@ class Player extends Entity {
         this.updateSpeed()
         super.update()
 
-        if (this.pressingFire) {
+        if (this.allowedToFire && this.pressingFire) {
             this.fireProjectile(this.mouseAngle)
+            this.allowedToFire = false
+            setTimeout(() => { this.allowedToFire = true}, this.rateOfFire)
         }
     }
 
@@ -173,8 +177,9 @@ class Projectile extends Entity {
         this.source = params.source
         this.id = Math.random()
         this.angle = params.angle
-        this.dx = Math.cos(params.angle / 180 * Math.PI) * 10
-        this.dy = Math.sin(params.angle / 180 * Math.PI) * 10
+        this.speed = 96
+        this.dx = Math.cos(params.angle / 180 * Math.PI) * this.speed
+        this.dy = Math.sin(params.angle / 180 * Math.PI) * this.speed
         this.map = params.map
         this.timer = 0
         this.toRemove = false
@@ -222,11 +227,11 @@ class Projectile extends Entity {
 
     // Queue projectile for removal when timer exceeds 100
     update() {
-        if (this.timer++ > 100) { this.toRemove = true }
+        if (this.timer++ > 50) { this.toRemove = true }
         super.update()
         for (let i in Player.list) {
             const target = Player.list[i]
-            if (this.map === target.map && this.getDistance(target) < 20 && this.source !== target.id) {
+            if (this.map === target.map && this.getDistance(target) < 50 && this.source !== target.id) {
                 target.currentHp -= 1
                 if (target.currentHp <= 0) {
                     const attacker = Player.list[this.source]
