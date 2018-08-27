@@ -123,22 +123,24 @@ const jQueryApp = function () {
                 delete Projectile.list[data.projectiles[i]]
             }
         })
-
         // ------------------------------------------------ Event Handlers ------------------------------------------------
-        // TODO: focus canvas on tabbing into game
-        // TODO: cancel all player actions when tabbing out of the game
-        // TODO: make chat scroll to bottom when new messages arrive
-        $(window).resize(function () {
-            canvas[0].height = $(window).height()
-            canvas[0].width = $(window).width()
-            canvas[0].height = $(window).height()
-        });
         // Helpers for syntactic sugar
         const focusCanvas = () => { canvas.focus() }
         const blurCanvas = () => { canvas.blur() }
         const focusChat = () => { chatInput.focus() }
         const blurChat = () => { chatInput.blur() }
         const pressing = (action, bool) => { socket.emit('keyPress', { inputId: action, state: bool }) }
+        // TODO: focus canvas on tabbing into game
+        $(window).focus(() => { focusCanvas() })
+        $(window).blur(function () { blurCanvas() })
+        // TODO: cancel all player actions when tabbing out of the game
+        // TODO: make chat scroll to bottom when new messages arrive
+        $(window).resize(function () {
+            canvas[0].height = $(window).height()
+            canvas[0].width = $(window).width()
+            canvas[0].height = $(window).height()
+        })
+
         // Cancels all player key press events
         const cancelPlayerKeyPress = function () {
             pressing('left', false)
@@ -198,15 +200,19 @@ const jQueryApp = function () {
             const imgHeight = Img.map[player.map].height
             ctx.drawImage(Img.map[player.map], 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 4, imgHeight * 4)
         }
-        // Initialize scripts
+
+        const renderGame = () => {
+            if (selfId) {
+                ctx.clearRect(0, 0, canvas[0].width, canvas[0].height)
+                renderMap()
+                for (let i in Player.list) { Player.list[i].render() }
+                for (let i in Projectile.list) { Projectile.list[i].render() }
+            }
+            requestAnimationFrame(renderGame)
+        }
+        // initialize draw on page load
         focusCanvas()
-        setInterval(function () {
-            if (!selfId) { return }
-            ctx.clearRect(0, 0, canvas[0].width, canvas[0].height)
-            renderMap()
-            for (let i in Player.list) { Player.list[i].render() }
-            for (let i in Projectile.list) { Projectile.list[i].render() }
-        }, 40)
+        renderGame()
     })
 }
 
