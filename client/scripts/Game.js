@@ -4,16 +4,13 @@ $(document).ready(function () {
     var canvas = $('#ctx')
     canvas.attr('tabindex', 0)
     canvas.contextmenu(function () { return false })
-    var WIDTH = 500
-    var HEIGHT = 500
-    canvas[0].width = WIDTH
-    canvas[0].height = HEIGHT
+    var WIDTH = canvas[0].width 
+    var HEIGHT = canvas[0].height 
     var ctx = canvas[0].getContext("2d")
     ctx.font = '30px Arial'
     // Chat Selectors and Settings
     var chatText = $('#chat-text')
     var chatInput = $('#chat-input')
-    chatInput.attr('tabindex', 0)
     var chatForm = $('#chat-form')
     // Images
     var Img = {}
