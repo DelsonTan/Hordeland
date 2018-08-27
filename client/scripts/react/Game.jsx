@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
-
+import Scoreboard from './Scoreboard.jsx'
 class Game extends Component {
     
     constructor(props) {
         super(props)
         this.canvas = React.createRef()
-        this.width = 500
-        this.height = 500
-
+        this.width = window.innerWidth
+        this.height = window.innerHeight
     }
     
     componentDidMount() {
