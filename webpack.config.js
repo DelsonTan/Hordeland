@@ -24,6 +24,16 @@ var config = {
                 }
             },
             {
+                test: /\.js?$/,
+                include: [
+                    path.resolve(__dirname, 'client/scripts')
+                ],
+                loader: 'babel-loader',
+                query: {
+                    presets: ['es2015']
+                }
+            },
+            {
                 test: /\.css$/, 
                 use: [
                     'style-loader',

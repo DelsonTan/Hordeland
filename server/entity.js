@@ -36,6 +36,7 @@ class Entity {
                 projectiles: removeData.projectiles
             }
         }
+        
         Object.freeze(data)
         initData.players = []
         initData.projectiles = []

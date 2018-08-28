@@ -18,11 +18,30 @@ const jQueryApp = function () {
         Img.player.src = '/client/images/player.png'
         Img.bullet = new Image()
         Img.bullet.src = '/client/images/bullet.png'
-        Img.map = {}
-        Img.map['field'] = new Image()
-        Img.map['field'].src = '/client/images/map.png'
-        Img.map['forest'] = new Image()
-        Img.map['forest'].src = '/client/images/map2.png'
+        class Map {
+            constructor(params) {
+                this.name = params.name
+                this.img = new Image()
+                this.img.src = params.imgSrc
+                Map.list[this.name] = this
+            }
+
+            static render() {
+                const player = Player.list[selfId]
+                const xpos = canvas[0].width / 2 - player.x
+                const ypos = canvas[0].height / 2 -player.y
+                // change to this line when server sends map id in map prop of player instead of string
+                // const mapImg = Map.list[player.map].img
+                const mapImg = Map.list[player.map].img
+                const imgWidth = mapImg.width
+                const imgHeight = mapImg.height
+                ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 4, imgHeight * 4)
+            }
+        }
+        Map.list = {}
+        // expect: { name: 'field', imgSrc: '/client/images/map.png'}
+        new Map({ name: 'field', imgSrc: '/client/images/map.png' })
+        new Map({ name: 'forest', imgSrc: '/client/images/map2.png' })
         // ------------------------------------------------ Game Logic ------------------------------------------------
         let selfId = null
         class Player {
@@ -95,18 +114,19 @@ const jQueryApp = function () {
 
         socket.on('update', function (data) {
             const parsedData = JSON.parse(data)
-            console.log("update", parsedData)
-            for (let i = 0; i < parsedData.players.length; i++) {
-                const newPlayerData = parsedData.players[i]
-                const player = Player.list[newPlayerData.id]
-                if (player) {
-                    if (player.x !== undefined) { player.x = newPlayerData.x }
-                    if (player.y !== undefined) { player.y = newPlayerData.y }
-                    if (player.currentHp !== undefined) { player.currentHp = newPlayerData.currentHp }
-                    if (player.maxHp !== undefined) { player.maxHp = newPlayerData.maxHp }
-                    if (player.score !== undefined) { player.score = newPlayerData.score }
+            // console.log("update", parsedData)
+            if (parsedData.players)
+                for (let i = 0; i < parsedData.players.length; i++) {
+                    const newPlayerData = parsedData.players[i]
+                    const player = Player.list[newPlayerData.id]
+                    if (player) {
+                        if (player.x !== undefined) { player.x = newPlayerData.x }
+                        if (player.y !== undefined) { player.y = newPlayerData.y }
+                        if (player.currentHp !== undefined) { player.currentHp = newPlayerData.currentHp }
+                        if (player.maxHp !== undefined) { player.maxHp = newPlayerData.maxHp }
+                        if (player.score !== undefined) { player.score = newPlayerData.score }
+                    }
                 }
-            }
             for (let i = 0; i < parsedData.projectiles.length; i++) {
                 const newProjectileData = parsedData.projectiles[i]
                 const projectile = Projectile.list[newProjectileData.id]
@@ -119,7 +139,7 @@ const jQueryApp = function () {
 
         socket.on('remove', function (data) {
             const parsedData = JSON.parse(data)
-            console.log('remove: ', parsedData)
+            // console.log('remove: ', parsedData)
             for (let i = 0; i < parsedData.players.length; i++) {
                 delete Player.list[parsedData.players[i]]
             }
@@ -197,19 +217,10 @@ const jQueryApp = function () {
         socket.on('addToChat', function (data) { $("<div>").text(data).appendTo(chatText) })
         socket.on('evalAnswer', function (data) { console.log(data) })
         // ------------------------------------------------ Render Logic ------------------------------------------------
-        const renderMap = function () {
-            const player = Player.list[selfId]
-            const xpos = canvas[0].width / 2 - Player.list[selfId].x
-            const ypos = canvas[0].height / 2 - Player.list[selfId].y
-            const imgWidth = Img.map[player.map].width
-            const imgHeight = Img.map[player.map].height
-            ctx.drawImage(Img.map[player.map], 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 4, imgHeight * 4)
-        }
-
         const renderGame = () => {
             if (selfId) {
                 ctx.clearRect(0, 0, canvas[0].width, canvas[0].height)
-                renderMap()
+                Map.render()
                 for (let i in Player.list) { Player.list[i].render() }
                 for (let i in Projectile.list) { Projectile.list[i].render() }
             }
