@@ -2,6 +2,9 @@ class Map {
     constructor(params) {
         this.name = params.name
         this.imgSrc = params.imgSrc
+        this.grid = params.grid
+        this.width = 640 * 4
+        this.height = 480 * 4
         Map.list[this.name] = this
     }
 
@@ -17,11 +20,18 @@ class Map {
             imgSrc: this.imgSrc
         }
     }
-    
+
+    isPositionWall(player) {
+        return (player.x > this.width || 
+            player.x < 0 || 
+            player.y > this.height || 
+            player.y < 0)
+    }
 }
 // Map Choices
 Map.list = {}
-new Map({ name: 'field', imgSrc: '/client/images/map.png' })
-new Map({ name: 'forest', imgSrc: '/client/images/map2.png' })
+Map.tileSize = 32
+new Map({ name: 'field', imgSrc: '/client/images/map.png', grid: [] })
+new Map({ name: 'forest', imgSrc: '/client/images/map2.png', grid: [] })
 
 module.exports = Map

@@ -37,7 +37,7 @@ class Entity {
                 projectiles: removeData.projectiles
             }
         }
-        
+
         Object.freeze(data)
         initData.players = []
         initData.projectiles = []
@@ -72,7 +72,7 @@ class Player extends Entity {
         if (Math.random() < 0.5) {
             map = Map.list['field']
         }
-        
+
         const player = new Player({
             id: socket.id,
             map: map.name
@@ -140,8 +140,17 @@ class Player extends Entity {
     }
 
     update() {
+        const prevX = this.x
+        const prevY = this.y
         this.updateSpeed()
         super.update()
+        // TODO: implement this
+        // if (self.goRight || self.goDown || self.goLeft || self.goUp)
+        //     self.spriteCalc += 0.2;
+        if (Map.list[this.map].isPositionWall(this)) {
+            this.x = prevX
+            this.y = prevY
+        }
 
         if (this.allowedToFire && this.pressingFire) {
             this.fireProjectile(this.mouseAngle)

@@ -10,8 +10,6 @@ class Game extends Component {
     }
     
     componentDidMount() {
-        const canvas = this.canvas.current
-        const ctx = canvas.getContext("2d")
     }
 
     render() {

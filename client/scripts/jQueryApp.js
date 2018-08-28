@@ -33,6 +33,8 @@ const jQueryApp = function () {
                 const mapImg = Map.list[player.map].img
                 const imgWidth = mapImg.width
                 const imgHeight = mapImg.height
+                console.log("width:", imgWidth)
+                console.log("height:", imgHeight)
                 ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 4, imgHeight * 4)
             }
         }
