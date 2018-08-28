@@ -29,9 +29,7 @@ const jQueryApp = function () {
             static render() {
                 const player = Player.list[selfId]
                 const xpos = canvas[0].width / 2 - player.x
-                const ypos = canvas[0].height / 2 -player.y
-                // change to this line when server sends map id in map prop of player instead of string
-                // const mapImg = Map.list[player.map].img
+                const ypos = canvas[0].height / 2 - player.y
                 const mapImg = Map.list[player.map].img
                 const imgWidth = mapImg.width
                 const imgHeight = mapImg.height
@@ -39,9 +37,6 @@ const jQueryApp = function () {
             }
         }
         Map.list = {}
-        // expect: { name: 'field', imgSrc: '/client/images/map.png'}
-        new Map({ name: 'field', imgSrc: '/client/images/map.png' })
-        new Map({ name: 'forest', imgSrc: '/client/images/map2.png' })
         // ------------------------------------------------ Game Logic ------------------------------------------------
         let selfId = null
         class Player {
@@ -109,6 +104,11 @@ const jQueryApp = function () {
             }
             for (let i = 0; i < parsedData.projectiles.length; i++) {
                 new Projectile(parsedData.projectiles[i])
+            }
+            if (parsedData.maps) {
+                for (let i = 0; i < parsedData.maps.length; i++)  {
+                    new Map(parsedData.maps[i])
+                }
             }
         })
 

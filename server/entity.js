@@ -1,3 +1,4 @@
+const Map = require('./map.js')
 const initData = { players: [], projectiles: [] }
 const removeData = { players: [], projectiles: [] }
 
@@ -67,13 +68,14 @@ class Player extends Entity {
     }
 
     static onConnect(socket) {
-        var map = 'forest'
+        var map = Map.list['forest']
         if (Math.random() < 0.5) {
-            map = 'field'
+            map = Map.list['field']
         }
+        
         const player = new Player({
             id: socket.id,
-            map: map
+            map: map.name
         })
         socket.on('keyPress', (data) => {
             if (data.inputId === 'left') { player.pressingLeft = data.state }
@@ -86,7 +88,8 @@ class Player extends Entity {
         socket.emit('init', JSON.stringify({
             selfId: socket.id,
             players: Player.getAllInitData(),
-            projectiles: Projectile.getAllInitData()
+            projectiles: Projectile.getAllInitData(),
+            maps: Map.getAllInitData()
         }))
 
     }
@@ -95,12 +98,8 @@ class Player extends Entity {
         const data = []
         for (let i in Player.list) {
             const player = Player.list[i]
-            // const prevPlayerData = JSON.stringify(player)
             player.update()
-            // const newPlayerData = JSON.stringify(player)
-            // if (prevPlayerData !== newPlayerData) {
             data.push(player.updateData)
-            // }
         }
         return data
     }
@@ -246,8 +245,6 @@ class Projectile extends Entity {
                     target.x = Math.random() * 500
                     target.y = Math.random() * 500
                 }
-                // update only the target and attacker
-
                 this.toRemove = true
             }
         }
@@ -258,5 +255,5 @@ Projectile.list = {}
 module.exports = {
     "playerConnect": Player.onConnect,
     "playerDisconnect": Player.onDisconnect,
-    "getFrameUpdateData": Entity.getFrameUpdateData
+    "getFrameUpdateData": Entity.getFrameUpdateData,
 }
