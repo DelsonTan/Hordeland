@@ -52,9 +52,6 @@ const jQueryApp = function () {
                 ctx.fillRect(xpos - currentHpWidth / 2, ypos - playerSpriteHeight / 2, 30, 4)
                 ctx.fillStyle = "darkblue"
                 ctx.fillRect(xpos - currentHpWidth / 2, ypos - playerSpriteHeight / 2, currentHpWidth, 4)
-                // player sprite
-                
-
                 ctx.drawImage(Img.player, 0, 0, Img.player.width, Img.player.height,
                     xpos - playerSpriteWidth / 2, ypos - playerSpriteHeight / 2, playerSpriteWidth, playerSpriteHeight)
             }
@@ -85,18 +82,22 @@ const jQueryApp = function () {
         Projectile.list = {}
 
         socket.on('init', function (data) {
-            if (data.selfId) { selfId = data.selfId }
-            for (let i = 0; i < data.players.length; i++) {
-                new Player(data.players[i])
+            const parsedData = JSON.parse(data)
+            console.log("init:", parsedData)
+            if (parsedData.selfId) { selfId = parsedData.selfId }
+            for (let i = 0; i < parsedData.players.length; i++) {
+                new Player(parsedData.players[i])
             }
-            for (let i = 0; i < data.projectiles.length; i++) {
-                new Projectile(data.projectiles[i])
+            for (let i = 0; i < parsedData.projectiles.length; i++) {
+                new Projectile(parsedData.projectiles[i])
             }
         })
 
         socket.on('update', function (data) {
-            for (let i = 0; i < data.players.length; i++) {
-                const newPlayerData = data.players[i]
+            const parsedData = JSON.parse(data)
+            console.log("update", parsedData)
+            for (let i = 0; i < parsedData.players.length; i++) {
+                const newPlayerData = parsedData.players[i]
                 const player = Player.list[newPlayerData.id]
                 if (player) {
                     if (player.x !== undefined) { player.x = newPlayerData.x }
@@ -106,8 +107,8 @@ const jQueryApp = function () {
                     if (player.score !== undefined) { player.score = newPlayerData.score }
                 }
             }
-            for (let i = 0; i < data.projectiles.length; i++) {
-                const newProjectileData = data.projectiles[i]
+            for (let i = 0; i < parsedData.projectiles.length; i++) {
+                const newProjectileData = parsedData.projectiles[i]
                 const projectile = Projectile.list[newProjectileData.id]
                 if (projectile) {
                     if (projectile.x !== undefined) { projectile.x = newProjectileData.x }
@@ -117,11 +118,13 @@ const jQueryApp = function () {
         })
 
         socket.on('remove', function (data) {
-            for (let i = 0; i < data.players.length; i++) {
-                delete Player.list[data.players[i]]
+            const parsedData = JSON.parse(data)
+            console.log('remove: ', parsedData)
+            for (let i = 0; i < parsedData.players.length; i++) {
+                delete Player.list[parsedData.players[i]]
             }
-            for (let i = 0; i < data.projectiles.length; i++) {
-                delete Projectile.list[data.projectiles[i]]
+            for (let i = 0; i < parsedData.projectiles.length; i++) {
+                delete Projectile.list[parsedData.projectiles[i]]
             }
         })
         // ------------------------------------------------ Event Handlers ------------------------------------------------
@@ -131,18 +134,6 @@ const jQueryApp = function () {
         const focusChat = () => { chatInput.focus() }
         const blurChat = () => { chatInput.blur() }
         const pressing = (action, bool) => { socket.emit('keyPress', { inputId: action, state: bool }) }
-        // TODO: focus canvas on tabbing into game
-        $(window).focus(() => { focusCanvas() })
-        $(window).blur(function () { blurCanvas() })
-        // TODO: cancel all player actions when tabbing out of the game
-        // TODO: make chat scroll to bottom when new messages arrive
-        $(window).resize(function () {
-            canvas[0].height = $(window).height()
-            canvas[0].width = $(window).width()
-            canvas[0].height = $(window).height()
-        })
-
-        // Cancels all player key press events
         const cancelPlayerKeyPress = function () {
             pressing('left', false)
             pressing('right', false)
@@ -150,6 +141,19 @@ const jQueryApp = function () {
             pressing('down', false)
             pressing('leftClick', false)
         }
+        // TODO: focus canvas on tabbing into game
+        $(window).focus(() => { focusCanvas() })
+        $(window).blur(function () {
+            cancelPlayerKeyPress()
+            blurCanvas()
+        })
+        // TODO: cancel all player actions when tabbing out of the game
+        // TODO: make chat scroll to bottom when new messages arrive
+        $(window).resize(function () {
+            canvas[0].height = $(window).height()
+            canvas[0].width = $(window).width()
+            canvas[0].height = $(window).height()
+        })
 
         canvas.on("keydown", function (event) {
             if (event.which === 65) { pressing('left', true) }

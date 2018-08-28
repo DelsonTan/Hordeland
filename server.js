@@ -41,11 +41,14 @@ io.sockets.on('connection', (socket) => {
 
 setInterval(() => {
     const data = getFrameUpdateData()
+    const initData = JSON.stringify(data.init)
+    const updateData = JSON.stringify(data.update)
+    const removeData = JSON.stringify(data.remove)
     for (let i in SOCKET_LIST) {
         let socket = SOCKET_LIST[i]
-        socket.emit('init', data.init)
-        socket.emit('update', data.update)
-        socket.emit('remove', data.remove)
+        if (data.init.players.length > 0 || data.init.projectiles.length > 0) { socket.emit('init', initData) }
+        socket.emit('update', updateData)
+        if (data.remove.players.length > 0 || data.remove.projectiles.length > 0) { socket.emit('remove', removeData) }
     }
 }, 40)
 

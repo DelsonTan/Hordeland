@@ -70,9 +70,9 @@ class Player extends Entity {
         if (Math.random() < 0.5) {
             map = 'field'
         }
-        const player = new Player({ 
-            id: socket.id, 
-            map: map 
+        const player = new Player({
+            id: socket.id,
+            map: map
         })
         socket.on('keyPress', (data) => {
             if (data.inputId === 'left') { player.pressingLeft = data.state }
@@ -82,19 +82,24 @@ class Player extends Entity {
             else if (data.inputId === 'leftClick') { player.pressingFire = data.state }
             else if (data.inputId === 'mouseAngle') { player.mouseAngle = data.state }
         })
-        socket.emit('init', {
+        socket.emit('init', JSON.stringify({
             selfId: socket.id,
             players: Player.getAllInitData(),
             projectiles: Projectile.getAllInitData()
-        })
+        }))
+
     }
 
     static update() {
         const data = []
         for (let i in Player.list) {
-            let player = Player.list[i]
+            const player = Player.list[i]
+            // const prevPlayerData = JSON.stringify(player)
             player.update()
+            // const newPlayerData = JSON.stringify(player)
+            // if (prevPlayerData !== newPlayerData) {
             data.push(player.updateData)
+            // }
         }
         return data
     }
@@ -141,7 +146,7 @@ class Player extends Entity {
         if (this.allowedToFire && this.pressingFire) {
             this.fireProjectile(this.mouseAngle)
             this.allowedToFire = false
-            setTimeout(() => { this.allowedToFire = true}, this.rateOfFire)
+            setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
         }
     }
 
@@ -157,7 +162,7 @@ class Player extends Entity {
 
     fireProjectile(angle) {
         const projectile = new Projectile({
-            source: this.id, 
+            source: this.id,
             angle: angle,
             x: this.x,
             y: this.y,
@@ -225,7 +230,7 @@ class Projectile extends Entity {
         }
     }
 
-    // Queue projectile for removal when timer exceeds 100
+    // Queue projectile for removal when timer exceeds 50
     update() {
         if (this.timer++ > 50) { this.toRemove = true }
         super.update()
@@ -240,8 +245,9 @@ class Projectile extends Entity {
                     target.x = Math.random() * 500
                     target.y = Math.random() * 500
                 }
+                // update only the target and attacker
+
                 this.toRemove = true
-                // TODO: handle collision, e.g. subtract hp
             }
         }
     }
