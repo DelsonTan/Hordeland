@@ -172,7 +172,6 @@ const jQueryApp = function () {
         $(window).resize(function () {
             canvas[0].height = $(window).height()
             canvas[0].width = $(window).width()
-            canvas[0].height = $(window).height()
         })
 
         canvas.on("keydown", function (event) {
