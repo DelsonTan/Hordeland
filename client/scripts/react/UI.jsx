@@ -25,8 +25,18 @@ class UI extends Component {
             for (let i = 0; i < parsedData.players.length; i++) {
                 updatedPlayers.push(parsedData.players[i])
             }
-            this.setState( { players: updatedPlayers })
-
+            this.setState({ players: updatedPlayers })
+        })
+        this.props.socket.on("remove", (data) => {
+            const parsedData = BISON.decode(data)
+            for (let i = 0; i < parsedData.players.length; i++) {
+                this.setState({
+                    players: this.state.players.filter((player) => {
+                        return player.id !== parsedData.players[i]
+                    })
+                })
+            }
+            
         })
     }
 
