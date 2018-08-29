@@ -60,7 +60,7 @@ class Player extends Entity {
     this.allowedToFire = true
     this.rateOfFire = 100
     this.mouseAngle = 0
-    this.maxSpeed = 20
+    this.speed = Player.maxSpeed
     this.currentHp = 20
     this.maxHp = 20
     this.score = 0
@@ -78,6 +78,14 @@ class Player extends Entity {
     })
 
     socket.on('keyPress', (data) => {
+      if (data.inputId === 'leftClick') {
+        if (data.state) {
+          player.speed = Math.floor(Player.maxSpeed * 0.60)
+        } else {
+          console.log("something")
+          player.speed = Math.floor(Player.maxSpeed)
+        }
+      }
       if (data.inputId === 'left') {
         player.mouseAngle = 135
         player.pressingLeft = data.state
@@ -206,9 +214,9 @@ class Player extends Entity {
   }
 
   updateSpeed() {
-    if (this.pressingLeft) { this.dx = -this.maxSpeed } else if (this.pressingRight) { this.dx = this.maxSpeed } else { this.dx = 0 }
+    if (this.pressingLeft) { this.dx = -this.speed } else if (this.pressingRight) { this.dx = this.speed } else { this.dx = 0 }
 
-    if (this.pressingUp) { this.dy = -this.maxSpeed } else if (this.pressingDown) { this.dy = this.maxSpeed } else { this.dy = 0 }
+    if (this.pressingUp) { this.dy = -this.speed } else if (this.pressingDown) { this.dy = this.speed } else { this.dy = 0 }
   }
 
   fireProjectile(angle) {
@@ -226,6 +234,7 @@ class Player extends Entity {
 // Class-level value property: list of all current players
 Player.list = {}
 Player.socketList = {}
+Player.maxSpeed = 20
 
 class Projectile extends Entity {
   constructor(params) {
