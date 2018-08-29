@@ -42,7 +42,7 @@ const jQueryApp = function (socket) {
                 const mapImg = Map.list[player.map].img
                 const imgWidth = mapImg.width
                 const imgHeight = mapImg.height
-                ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 4, imgHeight * 4)
+                ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
                 ctx.mozImageSmoothingEnabled = false
                 ctx.msImageSmoothingEnabled = false
                 ctx.imageSmoothingEnabled = false

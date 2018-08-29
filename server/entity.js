@@ -225,7 +225,12 @@ class Projectile extends Entity {
     const data = []
     for (let i in Projectile.list) {
       let projectile = Projectile.list[i]
-      projectile.update()
+      projectile.update();
+      console.log(Map.list[projectile.map].isPositionWall(projectile))
+      let projPos = Map.list[projectile.map].isPositionWall(projectile);
+      if (projPos && projPos === 468) {
+        projectile.toRemove = true;
+      }
       if (projectile.toRemove) {
         delete Projectile.list[i]
         removeData.projectiles.push(projectile.id)
@@ -295,11 +300,11 @@ class Projectile extends Entity {
     }
   }
 }
-  // Class-level value property: list of all current projectiles
-  Projectile.list = {}
-  module.exports = {
-    "playerConnect": Player.onConnect,
-    "playerDisconnect": Player.onDisconnect,
-    "getFrameUpdateData": Entity.getFrameUpdateData,
-    "SOCKET_LIST": Player.socketList
-  }
+// Class-level value property: list of all current projectiles
+Projectile.list = {}
+module.exports = {
+  "playerConnect": Player.onConnect,
+  "playerDisconnect": Player.onDisconnect,
+  "getFrameUpdateData": Entity.getFrameUpdateData,
+  "SOCKET_LIST": Player.socketList
+}
