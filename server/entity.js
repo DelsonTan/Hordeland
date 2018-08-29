@@ -82,7 +82,6 @@ class Player extends Entity {
         if (data.state) {
           player.speed = Math.floor(Player.maxSpeed * 0.60)
         } else {
-          console.log("something")
           player.speed = Math.floor(Player.maxSpeed)
         }
       }

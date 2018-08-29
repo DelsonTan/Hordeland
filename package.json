@@ -2,7 +2,7 @@
   "name": "alpha",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "build": "webpack"
@@ -19,6 +19,9 @@
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "socket.io": "^2.1.1"
+  },
+  "engines": {
+    "node": "8.9.x"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
