@@ -14,17 +14,22 @@
 
 
 #ctx,
-#ctx-ent{
+#ctx-ent {
   position: absolute;
   border: 1px solid black;
 }
 
-#ctx{
+#ctx {
   background-color: black;
 }
 
-#game{
+#game {
   position: absolute;
   width: 1300px;
   height: 100px;
+}
+
+#scoreboard {
+  position: absolute;
+  background-color: white;
 }

@@ -4,10 +4,10 @@ const server = require('http').Server(app)
 const io = require('socket.io')(server, {});
 const PORT = 3000
 
-const { playerDisconnect, playerConnect, getFrameUpdateData } = require('./server/entity.js')
+const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData } = require('./server/entity.js')
 // IMPORTANT: SET TO FALSE IN PRODUCTION
 const DEBUG = true
-let SOCKET_LIST = {}
+// let SOCKET_LIST = {}
 
 io.sockets.on('connection', (socket) => {
     socket.id = Math.random()

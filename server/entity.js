@@ -63,9 +63,9 @@ class Player extends Entity {
         this.currentHp = 20
         this.maxHp = 20
         this.score = 0
-        this.spriteCalc = 0;
-        this.bulletAngle = 0;
-        this.playername = 'Joel';
+        this.spriteCalc = 0
+        this.bulletAngle = 0
+        this.name = 'Joel'
         Player.list[this.id] = this
         initData.players.push(this.initialData)
     }
@@ -75,22 +75,21 @@ class Player extends Entity {
             id: socket.id,
             map: 'field'
         })
-        console.log(player.map)
         socket.on('keyPress', (data) => {
             if (data.inputId === 'left') {
-                player.mouseAngle = 135;
+                player.mouseAngle = 135
                 player.pressingLeft = data.state }
             else if (data.inputId === 'right') {
-                player.mouseAngle = 44;
+                player.mouseAngle = 44
                 player.pressingRight = data.state }
             else if (data.inputId === 'up') {
-                player.mouseAngle = 225;
+                player.mouseAngle = 225
                 player.pressingUp = data.state }
             else if (data.inputId === 'down') {
-                player.mouseAngle = 45;
+                player.mouseAngle = 45
                 player.pressingDown = data.state }
             else if (data.inputId === 'leftClick') {
-                player.pressingFire = data.state;
+                player.pressingFire = data.state
                 player.mouseAngle = data.angle }
             else if (data.inputId === 'mouseAngle') {
                 player.bulletAngle = data.state }
@@ -101,7 +100,6 @@ class Player extends Entity {
             projectiles: Projectile.getAllInitData(),
             maps: Map.getAllInitData()
         }))
-
     }
 
     static update() {
@@ -137,7 +135,7 @@ class Player extends Entity {
             map: this.map,
             spriteCalc: this.spriteCalc,
             bulletAngle: this.bulletAngle,
-            playername: this.playername
+            name: this.name
         }
     }
 
@@ -163,7 +161,7 @@ class Player extends Entity {
         super.update()
 
         if (this.pressingRight || this.pressingDown || this.pressingLeft || this.pressingUp)
-            this.spriteCalc += 0.25;
+            this.spriteCalc += 0.25
         if (Map.list[this.map].isPositionWall(this)) {
             this.x = prevX
             this.y = prevY
@@ -200,7 +198,7 @@ class Player extends Entity {
 }
 // Class-level value property: list of all current players
 Player.list = {}
-
+Player.socketList = {}
 class Projectile extends Entity {
     constructor(params) {
         super(params)
@@ -282,4 +280,5 @@ module.exports = {
     "playerConnect": Player.onConnect,
     "playerDisconnect": Player.onDisconnect,
     "getFrameUpdateData": Entity.getFrameUpdateData,
+    "SOCKET_LIST": Player.socketList
 }

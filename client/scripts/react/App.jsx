@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import Game from './Game.jsx'
 import Chat from './Chat.jsx'
+import Scoreboard from './Scoreboard.jsx'
 
-// import Scoreboard from './Scoreboard.jsx'
 class App extends Component {
 
     constructor(props) {
@@ -25,7 +25,7 @@ class App extends Component {
         <div>
             <Game socket={this.state.socket}/>
             <Chat/>
-
+            <Scoreboard socket={this.state.socket}/>
         </div>
         )
     }

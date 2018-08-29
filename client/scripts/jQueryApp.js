@@ -4,7 +4,7 @@ const jQueryApp = function (socket) {
         // Canvas Selectors and Settings
         const game = $('#game')
         game.oncontextmenu = function(event) {
-            event.preventDefault();
+            event.preventDefault()
         }
         const canvas = $('#ctx')
         const canvasEnt = $('#ctx-ent')
@@ -36,7 +36,6 @@ const jQueryApp = function (socket) {
             }
 
             static render() {
-                console.log(Map.list)
                 const player = Player.list[selfId]
                 const xpos = canvas[0].width / 2 - player.x
                 const ypos = canvas[0].height / 2 - player.y
@@ -44,14 +43,14 @@ const jQueryApp = function (socket) {
                 const imgWidth = mapImg.width
                 const imgHeight = mapImg.height
                 ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 4, imgHeight * 4)
-                ctx.mozImageSmoothingEnabled = false;
-                ctx.msImageSmoothingEnabled = false;
-                ctx.imageSmoothingEnabled = false;
+                ctx.mozImageSmoothingEnabled = false
+                ctx.msImageSmoothingEnabled = false
+                ctx.imageSmoothingEnabled = false
             }
         }
         Map.list = {}
         // ------------------------------------------------ Game Logic ------------------------------------------------
-        let selfId = null;
+        let selfId = null
         class Player {
             constructor(params) {
                 this.id = params.id
@@ -62,10 +61,10 @@ const jQueryApp = function (socket) {
                 this.maxHp = params.maxHp
                 this.score = params.score
                 this.map = params.map
-                this.mouseAngle = params.mouseAngle;
-                this.spriteCalc = params.spriteCalc;
-                this.bulletAngle = params.bulletAngle;
-                this.playername = 'Joel'
+                this.mouseAngle = params.mouseAngle
+                this.spriteCalc = params.spriteCalc
+                this.bulletAngle = params.bulletAngle
+                this.name = 'Joel'
                 Player.list[this.id] = this
             }
 
@@ -83,28 +82,28 @@ const jQueryApp = function (socket) {
                 ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, currentHpWidth, 4)
 
                 //player Name
-                ctxEnt.fillStyle = 'black';
+                ctxEnt.fillStyle = 'black'
                 ctxEnt.font = '18px Arial'
-                ctxEnt.fillText(this.playername,xpos - 40/2,ypos - 40);
+                ctxEnt.fillText(this.name,xpos - 40/2,ypos - 40)
 
                 const playerSpriteWidth = Img.player.width / 1.2
                 const playerSpriteHeight = Img.player.height / 1.5
-                const frameWidth = Img.player.width/3;
-                const frameHeight = Img.player.height/3.9;
-                let directionMod = 3;
-                let angle = this.mouseAngle;
+                const frameWidth = Img.player.width/3
+                const frameHeight = Img.player.height/3.9
+                let directionMod = 3
+                let angle = this.mouseAngle
 
                 if(angle < 0)
-                angle = 360 + angle;
+                angle = 360 + angle
 
                 if(angle >= 45 && angle < 135 )
-                    directionMod = 2;
+                    directionMod = 2
                 else if(angle >= 135 && angle < 225 )
-                    directionMod = 1;
+                    directionMod = 1
                 else if(angle >= 225 && angle < 315 )
-                    directionMod = 0;
+                    directionMod = 0
 
-                let walkingMod = Math.floor(this.spriteCalc) % 3;
+                let walkingMod = Math.floor(this.spriteCalc) % 3
 
 
                 ctxEnt.drawImage(Img.player, walkingMod*frameWidth, directionMod*frameHeight, frameWidth, frameHeight,
@@ -139,7 +138,7 @@ const jQueryApp = function (socket) {
 
         socket.on('init', function (data) {
             const parsedData = JSON.parse(data)
-            console.log("init:", parsedData)
+            // console.log("init:", parsedData)
             if (parsedData.selfId) { selfId = parsedData.selfId }
             for (let i = 0; i < parsedData.players.length; i++) {
                 new Player(parsedData.players[i])
@@ -148,7 +147,6 @@ const jQueryApp = function (socket) {
                 new Projectile(parsedData.projectiles[i])
             }
             if (parsedData.maps) {
-                console.log(parsedData.maps);
                 for (let i = 0; i < parsedData.maps.length; i++)  {
                     new Map(parsedData.maps[i])
                 }
@@ -172,11 +170,11 @@ const jQueryApp = function (socket) {
                         if (newPlayerData.score !== undefined) {
                             player.score = newPlayerData.score }
                         if (newPlayerData.mouseAngle !== undefined)
-                          player.mouseAngle = newPlayerData.mouseAngle;
+                          player.mouseAngle = newPlayerData.mouseAngle
                         if (newPlayerData.spriteCalc !== undefined)
-                          player.spriteCalc = newPlayerData.spriteCalc;
+                          player.spriteCalc = newPlayerData.spriteCalc
                         if (newPlayerData.bulletAngle !== undefined)
-                          player.bulletAngle = newPlayerData.bulletAngle;
+                          player.bulletAngle = newPlayerData.bulletAngle
                     }
                 }
             for (let i = 0; i < parsedData.projectiles.length; i++) {
@@ -253,7 +251,7 @@ const jQueryApp = function (socket) {
             const x = -canvas[0].width / 2 + event.clientX - 8
             const y = -canvas[0].height / 2 + event.clientY - 8
             const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
-            socket.emit('keyPress', {inputId: 'leftClick', state:true, angle:angle}); } })
+            socket.emit('keyPress', {inputId: 'leftClick', state:true, angle:angle}) } })
 
         game.mouseup(function (event) { if (event.which === 1) { pressing('leftClick', false) } })
 
