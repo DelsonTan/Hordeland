@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import Scoreboard from './Scoreboard.jsx'
+import jQueryApp from '../jQueryApp.js'
+
 class Game extends Component {
 
     constructor(props) {
@@ -13,6 +14,7 @@ class Game extends Component {
     }
 
     render() {
+        jQueryApp(this.props.socket)
         return (
             <div id="game"tabIndex="0">
             <canvas id="ctx" width={this.width} height={this.height}/>

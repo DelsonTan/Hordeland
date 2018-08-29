@@ -1,8 +1,6 @@
-const jQueryApp = function () {
+const jQueryApp = function (socket) {
+
     $(document).ready(function () {
-        const socket = io('http://localhost:3000/', {
-        path: '/socket.io-client',
-        transports: ['websocket']});
         // Canvas Selectors and Settings
         const game = $('#game')
         game.oncontextmenu = function(event) {
@@ -38,14 +36,13 @@ const jQueryApp = function () {
             }
 
             static render() {
+                console.log(Map.list)
                 const player = Player.list[selfId]
                 const xpos = canvas[0].width / 2 - player.x
                 const ypos = canvas[0].height / 2 - player.y
                 const mapImg = Map.list[player.map].img
                 const imgWidth = mapImg.width
                 const imgHeight = mapImg.height
-                console.log("width:", imgWidth)
-                console.log("height:", imgHeight)
                 ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 4, imgHeight * 4)
                 ctx.mozImageSmoothingEnabled = false;
                 ctx.msImageSmoothingEnabled = false;
@@ -54,7 +51,7 @@ const jQueryApp = function () {
         }
         Map.list = {}
         // ------------------------------------------------ Game Logic ------------------------------------------------
-        let selfId = null
+        let selfId = null;
         class Player {
             constructor(params) {
                 this.id = params.id
@@ -133,6 +130,7 @@ const jQueryApp = function () {
                 const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
                 const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
 
+
                 ctxEnt.drawImage(Img.bullet, 0, 0, Img.bullet.width, Img.bullet.height,
                     xpos - imgWidth / 2, ypos - imgHeight / 2, imgWidth, imgHeight)
             }
@@ -150,6 +148,7 @@ const jQueryApp = function () {
                 new Projectile(parsedData.projectiles[i])
             }
             if (parsedData.maps) {
+                console.log(parsedData.maps);
                 for (let i = 0; i < parsedData.maps.length; i++)  {
                     new Map(parsedData.maps[i])
                 }

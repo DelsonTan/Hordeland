@@ -71,15 +71,11 @@ class Player extends Entity {
     }
 
     static onConnect(socket) {
-        var map = Map.list['forest']
-        if (Math.random() < 0.5) {
-            map = Map.list['field']
-        }
-
         const player = new Player({
             id: socket.id,
-            map: map.name
+            map: 'field'
         })
+        console.log(player.map)
         socket.on('keyPress', (data) => {
             if (data.inputId === 'left') {
                 player.mouseAngle = 135;

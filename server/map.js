@@ -32,6 +32,5 @@ class Map {
 Map.list = {}
 Map.tileSize = 32
 new Map({ name: 'field', imgSrc: '/client/images/map.png', grid: [] })
-new Map({ name: 'forest', imgSrc: '/client/images/map2.png', grid: [] })
 
 module.exports = Map
