@@ -12,14 +12,21 @@ class UI extends Component {
 
     componentDidMount() {
         this.props.socket.on('initUI', (data) => {
-            if (this.state.players.length === 0) {
-                const allPlayers = []
-                const parsedData = JSON.parse(data)
-                for (let i = 0; i < parsedData.players.length; i++) {
-                    allPlayers.push(parsedData.players[i])
-                }
-                this.setState({ players: allPlayers })
+            const allPlayers = []
+            const parsedData = JSON.parse(data)
+            for (let i = 0; i < parsedData.players.length; i++) {
+                allPlayers.push(parsedData.players[i])
             }
+            this.setState({ players: allPlayers })
+        })
+        this.props.socket.on('updateUI', (data) => {
+            const parsedData = JSON.parse(data)
+            const updatedPlayers = this.state.players
+            for (let i = 0; i < parsedData.players.length; i++) {
+                updatedPlayers.push(parsedData.players[i])
+            }
+            this.setState( { players: updatedPlayers })
+
         })
     }
 

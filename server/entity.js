@@ -76,7 +76,6 @@ class Player extends Entity {
       id: socket.id,
       map: 'field'
     })
-    Player.socketList[socket.id] = socket
 
     socket.on('keyPress', (data) => {
       if (data.inputId === 'left') {
@@ -107,6 +106,13 @@ class Player extends Entity {
     socket.emit('initUI', JSON.stringify({
       players: Player.getAllInitUIData()
     }))
+    for (let i in Player.socketList) {
+      const otherSocket = Player.socketList[i]
+      otherSocket.emit('updateUI', JSON.stringify({
+        players: [player.initUIData]
+      }))
+    }
+    Player.socketList[socket.id] = socket
 
   }
 
@@ -241,7 +247,7 @@ class Projectile extends Entity {
   static updateAll() {
     const data = []
     for (let i in Projectile.list) {
-      let projectile = Projectile.list[i]
+      const projectile = Projectile.list[i]
       projectile.update()
       if (projectile.toRemove) {
         delete Projectile.list[i]

@@ -27,8 +27,6 @@ class Scoreboard extends Component {
             })
         }
 
-        console.log(playerTableRows)
-
         return (
         <table id="scoreboard">
             <thead>
