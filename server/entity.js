@@ -30,8 +30,8 @@ class Entity {
         projectiles: initData.projectiles
       },
       update: {
-        players: Player.update(),
-        projectiles: Projectile.update()
+        players: Player.updateAll(),
+        projectiles: Projectile.updateAll()
       },
       remove: {
         players: removeData.players,
@@ -107,7 +107,7 @@ class Player extends Entity {
 
   }
 
-  static update() {
+  static updateAll() {
     const data = []
     for (let i in Player.list) {
       const player = Player.list[i]
@@ -221,7 +221,7 @@ class Projectile extends Entity {
     initData.projectiles.push(this.initialData)
   }
 
-  static update() {
+  static updateAll() {
     const data = []
     for (let i in Projectile.list) {
       let projectile = Projectile.list[i]
