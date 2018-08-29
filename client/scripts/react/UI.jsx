@@ -27,6 +27,17 @@ class UI extends Component {
             }
             this.setState({ players: updatedPlayers })
         })
+        this.props.socket.on("updateScore", (data) => {
+            const parsedData = BISON.decode(data)
+            const updatedPlayers = this.state.players
+            this.state.players.find((player, index) => {
+                if (player.id === parsedData.players[0].id) {
+                    updatedPlayers[index].score = parsedData.players[0].score
+                    return true
+                }
+            })
+            this.setState({ players: updatedPlayers })
+        })
         this.props.socket.on("remove", (data) => {
             const parsedData = BISON.decode(data)
             for (let i = 0; i < parsedData.players.length; i++) {
@@ -36,7 +47,6 @@ class UI extends Component {
                     })
                 })
             }
-            
         })
     }
 

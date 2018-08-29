@@ -109,7 +109,7 @@ class Player extends Entity {
     for (let i in Player.socketList) {
       const otherSocket = Player.socketList[i]
       otherSocket.emit('updateUI', JSON.stringify({
-        players: [player.initUIData]
+        players: [player.UIData]
       }))
     }
     Player.socketList[socket.id] = socket
@@ -143,7 +143,7 @@ class Player extends Entity {
 
   static getAllInitUIData() {
     const players = []
-    for (let i in Player.list) { players.push(Player.list[i].initUIData) }
+    for (let i in Player.list) { players.push(Player.list[i].UIData) }
     return players
   }
 
@@ -163,7 +163,7 @@ class Player extends Entity {
     }
   }
 
-  get initUIData() {
+  get UIData() {
     return {
       id: this.id,
       name: this.name,
@@ -297,6 +297,10 @@ class Projectile extends Entity {
           target.x = Math.floor(Math.random() * Map.list[target.map].width)
           target.y = Math.floor(Math.random() * Map.list[target.map].height)
           this.toRemove = true
+          for (let i in Player.socketList) {
+            let socket = Player.socketList[i]
+            socket.emit('updateScore', BISON.encode({ players: [attacker.UIData] }))
+          }
         }
         for (let i in Player.socketList) {
           let socket = Player.socketList[i]
@@ -317,11 +321,11 @@ class Projectile extends Entity {
     }
   }
 }
-  // Class-level value property: list of all current projectiles
-  Projectile.list = {}
-  module.exports = {
-    "playerConnect": Player.onConnect,
-    "playerDisconnect": Player.onDisconnect,
-    "getFrameUpdateData": Entity.getFrameUpdateData,
-    "SOCKET_LIST": Player.socketList
-  }
+// Class-level value property: list of all current projectiles
+Projectile.list = {}
+module.exports = {
+  "playerConnect": Player.onConnect,
+  "playerDisconnect": Player.onDisconnect,
+  "getFrameUpdateData": Entity.getFrameUpdateData,
+  "SOCKET_LIST": Player.socketList
+}
