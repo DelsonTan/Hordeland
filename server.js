@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const server = require('http').Server(app)
 const io = require('socket.io')(server, {})
-const PORT = 3000
+const PORT = process.env.PORT || 3000;
 const BISON = require('./client/vendor/bison.js')
 
 const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData } = require('./server/entity.js')
