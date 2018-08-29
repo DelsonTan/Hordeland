@@ -36,7 +36,6 @@ const jQueryApp = function (socket) {
             }
 
             static render() {
-                console.log(Map.list)
                 const player = Player.list[selfId]
                 const xpos = canvas[0].width / 2 - player.x
                 const ypos = canvas[0].height / 2 - player.y
@@ -77,9 +76,9 @@ const jQueryApp = function (socket) {
                 const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
                 // hp bar
                 const currentHpWidth = 40 * this.currentHp / this.maxHp
-                ctxEnt.fillStyle = "darkred"
+                ctxEnt.fillStyle = "red"
                 ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, 40, 4)
-                ctxEnt.fillStyle = "darkblue"
+                ctxEnt.fillStyle = "blue"
                 ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, currentHpWidth, 4)
 
                 //player Name
@@ -139,7 +138,7 @@ const jQueryApp = function (socket) {
 
         socket.on('init', function (data) {
             const parsedData = JSON.parse(data)
-            console.log("init:", parsedData)
+            console.log(parsedData);
             if (parsedData.selfId) { selfId = parsedData.selfId }
             for (let i = 0; i < parsedData.players.length; i++) {
                 new Player(parsedData.players[i])
@@ -156,7 +155,7 @@ const jQueryApp = function (socket) {
         })
 
         socket.on('update', function (data) {
-            const parsedData = JSON.parse(data)
+            const parsedData = BISON.decode(data)
             // console.log("update", parsedData)
             if (parsedData.players)
                 for (let i = 0; i < parsedData.players.length; i++) {
@@ -179,18 +178,20 @@ const jQueryApp = function (socket) {
                           player.bulletAngle = newPlayerData.bulletAngle;
                     }
                 }
-            for (let i = 0; i < parsedData.projectiles.length; i++) {
-                const newProjectileData = parsedData.projectiles[i]
-                const projectile = Projectile.list[newProjectileData.id]
-                if (projectile) {
-                    if (newProjectileData.x !== undefined) { projectile.x = newProjectileData.x }
-                    if (newProjectileData.y !== undefined) { projectile.y = newProjectileData.y }
+            if(parsedData.projectiles){
+                for (let i = 0; i < parsedData.projectiles.length; i++) {
+                    const newProjectileData = parsedData.projectiles[i]
+                    const projectile = Projectile.list[newProjectileData.id]
+                    if (projectile) {
+                        if (newProjectileData.x !== undefined) { projectile.x = newProjectileData.x }
+                        if (newProjectileData.y !== undefined) { projectile.y = newProjectileData.y }
+                    }
                 }
             }
         })
 
         socket.on('remove', function (data) {
-            const parsedData = JSON.parse(data)
+            const parsedData = BISON.decode(data)
             // console.log('remove: ', parsedData)
             for (let i = 0; i < parsedData.players.length; i++) {
                 delete Player.list[parsedData.players[i]]
