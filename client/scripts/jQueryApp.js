@@ -59,7 +59,6 @@ const jQueryApp = function (socket) {
                 this.y = params.y
                 this.currentHp = params.currentHp
                 this.maxHp = params.maxHp
-                this.score = params.score
                 this.map = params.map
                 this.mouseAngle = params.mouseAngle
                 this.spriteCalc = params.spriteCalc
@@ -138,7 +137,7 @@ const jQueryApp = function (socket) {
 
         socket.on('init', function (data) {
             const parsedData = JSON.parse(data)
-            console.log("init:", parsedData)
+            // console.log("init:", parsedData)
             if (parsedData.selfId) { selfId = parsedData.selfId }
             for (let i = 0; i < parsedData.players.length; i++) {
                 new Player(parsedData.players[i])
@@ -167,8 +166,6 @@ const jQueryApp = function (socket) {
                             player.y = newPlayerData.y }
                         if (newPlayerData.currentHp !== undefined) {
                             player.currentHp = newPlayerData.currentHp }
-                        if (newPlayerData.score !== undefined) {
-                            player.score = newPlayerData.score }
                         if (newPlayerData.mouseAngle !== undefined)
                           player.mouseAngle = newPlayerData.mouseAngle
                         if (newPlayerData.spriteCalc !== undefined)

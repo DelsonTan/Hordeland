@@ -2,27 +2,23 @@ import React, { Component } from 'react'
 
 class Scoreboard extends Component {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            players: []
-        }
-    }
-
-    componentDidMount() {
-        this.props.socket.on('score', (data)=> {
-            const newPlayers = this.state.players
-            newPlayers.push(JSON.parse(data))
-            console.log(newPlayers)
-            this.setState({players: newPlayers})
-        }) 
-    }
+    // componentDidUpdate(prevProps) {
+    //     console.log("Scoreboard update:", this.state.players)
+        // if (prevProps.players.length === 0) {
+        //     console.log("Scoreboard: ", this.props.players)
+        // }
+        //     const newPlayers = this.state.players
+        //     newPlayers.push(JSON.parse(data))
+        //     console.log(newPlayers)
+        //     this.setState({players: newPlayers})
+        // }) 
+    // }
 
     render() {
         let playerTableRows = null
         
-        if (this.state.players.length > 0) {
-            playerTableRows = this.state.players.map((player) => {
+        if (this.props.players.length > 0) {
+            playerTableRows = this.props.players.map((player) => {
             return (
             <tr key={player.id}>
                 <td>{player.name}</td>

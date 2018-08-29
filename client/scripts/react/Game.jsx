@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import jQueryApp from '../jQueryApp.js'
 
+
 class Game extends Component {
 
     constructor(props) {

@@ -104,6 +104,9 @@ class Player extends Entity {
       projectiles: Projectile.getAllInitData(),
       maps: Map.getAllInitData()
     }))
+    socket.emit('initUI', JSON.stringify({
+      players: Player.getAllInitUIData()
+    }))
 
   }
 
@@ -111,10 +114,10 @@ class Player extends Entity {
     const data = []
     for (let i in Player.list) {
       const player = Player.list[i]
-      let playerOld = JSON.stringify(player)
+      let oldPlayerData = JSON.stringify(player)
       player.update()
-      let newPlayerUpdated = JSON.stringify(player)
-      if (newPlayerUpdated !== playerOld) {
+      let newPlayerData = JSON.stringify(player)
+      if (newPlayerData !== oldPlayerData) {
         data.push(player.updateData)
       }
     }
@@ -132,6 +135,12 @@ class Player extends Entity {
     return players
   }
 
+  static getAllInitUIData() {
+    const players = []
+    for (let i in Player.list) { players.push(Player.list[i].initUIData) }
+    return players
+  }
+
   get initialData() {
     return {
       id: this.id,
@@ -145,6 +154,14 @@ class Player extends Entity {
       spriteCalc: this.spriteCalc,
       bulletAngle: this.bulletAngle,
       name: this.name
+    }
+  }
+
+  get initUIData() {
+    return {
+      id: this.id,
+      name: this.name,
+      score: this.score
     }
   }
 
