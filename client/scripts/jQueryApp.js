@@ -88,7 +88,7 @@ const jQueryApp = function () {
                 //player Name
                 ctxEnt.fillStyle = 'black';
                 ctxEnt.font = '18px Arial'
-                ctxEnt.fillText(this.playername,x - 40/2,y - 80);
+                ctxEnt.fillText(this.playername,xpos - 40/2,ypos - 40);
 
                 const playerSpriteWidth = Img.player.width / 1.2
                 const playerSpriteHeight = Img.player.height / 1.5
@@ -164,18 +164,28 @@ const jQueryApp = function () {
                     const newPlayerData = parsedData.players[i]
                     const player = Player.list[newPlayerData.id]
                     if (player) {
-                        if (player.x !== undefined) { player.x = newPlayerData.x }
-                        if (player.y !== undefined) { player.y = newPlayerData.y }
-                        if (player.currentHp !== undefined) { player.currentHp = newPlayerData.currentHp }
-                        if (player.score !== undefined) { player.score = newPlayerData.score }
+                        if (newPlayerData.x !== undefined) {
+                            player.x = newPlayerData.x }
+                        if (newPlayerData.y !== undefined) {
+                            player.y = newPlayerData.y }
+                        if (newPlayerData.currentHp !== undefined) {
+                            player.currentHp = newPlayerData.currentHp }
+                        if (newPlayerData.score !== undefined) {
+                            player.score = newPlayerData.score }
+                        if (newPlayerData.mouseAngle !== undefined)
+                          player.mouseAngle = newPlayerData.mouseAngle;
+                        if (newPlayerData.spriteCalc !== undefined)
+                          player.spriteCalc = newPlayerData.spriteCalc;
+                        if (newPlayerData.bulletAngle !== undefined)
+                          player.bulletAngle = newPlayerData.bulletAngle;
                     }
                 }
             for (let i = 0; i < parsedData.projectiles.length; i++) {
                 const newProjectileData = parsedData.projectiles[i]
                 const projectile = Projectile.list[newProjectileData.id]
                 if (projectile) {
-                    if (projectile.x !== undefined) { projectile.x = newProjectileData.x }
-                    if (projectile.y !== undefined) { projectile.y = newProjectileData.y }
+                    if (newProjectileData.x !== undefined) { projectile.x = newProjectileData.x }
+                    if (newProjectileData.y !== undefined) { projectile.y = newProjectileData.y }
                 }
             }
         })
@@ -240,13 +250,18 @@ const jQueryApp = function () {
             else if (event.which === 83) { pressing('down', false) }
         })
 
-        game.mousedown(function (event) { if (event.which === 1) { pressing('leftClick', true) } })
+        game.mousedown(function (event) { if (event.which === 1) {
+            const x = -canvas[0].width / 2 + event.clientX - 8
+            const y = -canvas[0].height / 2 + event.clientY - 8
+            const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
+            socket.emit('keyPress', {inputId: 'leftClick', state:true, angle:angle}); } })
+
         game.mouseup(function (event) { if (event.which === 1) { pressing('leftClick', false) } })
 
         game.mousemove(function (event) {
             const x = -canvas[0].width / 2 + event.clientX - 8
             const y = -canvas[0].height / 2 + event.clientY - 8
-            const angle = Math.atan2(y, x) / Math.PI * 180
+            const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
             socket.emit('keyPress', { inputId: 'mouseAngle', state: angle })
         })
         // Chat

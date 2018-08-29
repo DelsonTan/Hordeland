@@ -5,8 +5,8 @@ const removeData = { players: [], projectiles: [] }
 class Entity {
     constructor(params) {
         this.id = params.id || null
-        this.x = params.x || 250
-        this.y = params.y || 250
+        this.x = params.x || 500
+        this.y = params.y || 500
         this.dx = 0
         this.dy = 0
         this.map = params.map || 'forest'
@@ -57,11 +57,11 @@ class Player extends Entity {
         this.pressingDown = false
         this.pressingFire = false
         this.allowedToFire = true
-        this.rateOfFire = 200
+        this.rateOfFire = 100
         this.mouseAngle = 0
         this.maxSpeed = 20
-        this.currentHp = 3
-        this.maxHp = 3
+        this.currentHp = 20
+        this.maxHp = 20
         this.score = 0
         this.spriteCalc = 0;
         this.bulletAngle = 0;
@@ -81,12 +81,23 @@ class Player extends Entity {
             map: map.name
         })
         socket.on('keyPress', (data) => {
-            if (data.inputId === 'left') { player.pressingLeft = data.state }
-            else if (data.inputId === 'right') { player.pressingRight = data.state }
-            else if (data.inputId === 'up') { player.pressingUp = data.state }
-            else if (data.inputId === 'down') { player.pressingDown = data.state }
-            else if (data.inputId === 'leftClick') { player.pressingFire = data.state }
-            else if (data.inputId === 'mouseAngle') { player.mouseAngle = data.state }
+            if (data.inputId === 'left') {
+                player.mouseAngle = 135;
+                player.pressingLeft = data.state }
+            else if (data.inputId === 'right') {
+                player.mouseAngle = 44;
+                player.pressingRight = data.state }
+            else if (data.inputId === 'up') {
+                player.mouseAngle = 225;
+                player.pressingUp = data.state }
+            else if (data.inputId === 'down') {
+                player.mouseAngle = 45;
+                player.pressingDown = data.state }
+            else if (data.inputId === 'leftClick') {
+                player.pressingFire = data.state;
+                player.mouseAngle = data.angle }
+            else if (data.inputId === 'mouseAngle') {
+                player.bulletAngle = data.state }
         })
         socket.emit('init', JSON.stringify({
             selfId: socket.id,
@@ -154,16 +165,16 @@ class Player extends Entity {
         const prevY = this.y
         this.updateSpeed()
         super.update()
-        // TODO: implement this
-        // if (self.goRight || self.goDown || self.goLeft || self.goUp)
-        //     self.spriteCalc += 0.2;
+
+        if (this.pressingRight || this.pressingDown || this.pressingLeft || this.pressingUp)
+            this.spriteCalc += 0.25;
         if (Map.list[this.map].isPositionWall(this)) {
             this.x = prevX
             this.y = prevY
         }
 
         if (this.allowedToFire && this.pressingFire) {
-            this.fireProjectile(this.mouseAngle)
+            this.fireProjectile(this.bulletAngle)
             this.allowedToFire = false
             setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
         }
@@ -199,11 +210,11 @@ class Projectile extends Entity {
         super(params)
         // source: the id of the entity that fired this projectile
         this.source = params.source
-        this.id = Math.random()
+        this.id = Math.floor(Math.random() * 1000)
         this.angle = params.angle
-        this.speed = 96
-        this.dx = Math.cos(params.angle / 180 * Math.PI) * this.speed
-        this.dy = Math.sin(params.angle / 180 * Math.PI) * this.speed
+        this.speed = 50
+        this.dx = Math.floor(Math.cos(params.angle / 180 * Math.PI) * this.speed)
+        this.dy = Math.floor(Math.sin(params.angle / 180 * Math.PI) * this.speed)
         this.map = params.map
         this.timer = 0
         this.toRemove = false
@@ -251,18 +262,18 @@ class Projectile extends Entity {
 
     // Queue projectile for removal when timer exceeds 50
     update() {
-        if (this.timer++ > 50) { this.toRemove = true }
+        if (this.timer++ > 15) { this.toRemove = true }
         super.update()
         for (let i in Player.list) {
             const target = Player.list[i]
-            if (this.map === target.map && this.getDistance(target) < 50 && this.source !== target.id) {
+            if (this.map === target.map && this.getDistance(target) < 30 && this.source !== target.id) {
                 target.currentHp -= 1
                 if (target.currentHp <= 0) {
                     const attacker = Player.list[this.source]
                     if (attacker) { attacker.score += 1 }
                     target.currentHp = target.maxHp
-                    target.x = Math.random() * 500
-                    target.y = Math.random() * 500
+                    target.x = Math.random() * 1000
+                    target.y = Math.random() * 1000
                 }
                 this.toRemove = true
             }
