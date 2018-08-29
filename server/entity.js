@@ -276,6 +276,7 @@ class Projectile extends Entity {
           this.toRemove = true
         }
         for (let i in Player.socketList) {
+
           let socket = Player.socketList[i]
           let data = {
             players: [{

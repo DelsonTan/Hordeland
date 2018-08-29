@@ -138,7 +138,6 @@ const jQueryApp = function (socket) {
 
         socket.on('init', function (data) {
             const parsedData = JSON.parse(data)
-            console.log("init:", parsedData)
             if (parsedData.selfId) { selfId = parsedData.selfId }
             for (let i = 0; i < parsedData.players.length; i++) {
                 new Player(parsedData.players[i])
