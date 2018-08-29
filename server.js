@@ -1,17 +1,16 @@
 const express = require('express')
 const app = express()
 const server = require('http').Server(app)
-const io = require('socket.io')(server, {});
+const io = require('socket.io')(server, {})
 const PORT = 3000
+const BISON = require('./client/vendor/bison.js')
 
 const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData } = require('./server/entity.js')
 // IMPORTANT: SET TO FALSE IN PRODUCTION
 const DEBUG = true
-// let SOCKET_LIST = {}
 
 io.sockets.on('connection', (socket) => {
-    socket.id = Math.random()
-    SOCKET_LIST[socket.id] = socket
+    socket.id = Math.floor(Math.random() * 1000)
     playerConnect(socket)
     console.log(`Client${socket.id} connected!`)
     socket.on('evalMessage', (data) => {
@@ -42,12 +41,12 @@ io.sockets.on('connection', (socket) => {
 setInterval(() => {
     const data = getFrameUpdateData()
     const initData = JSON.stringify(data.init)
-    const updateData = JSON.stringify(data.update)
-    const removeData = JSON.stringify(data.remove)
+    const updateData = BISON.encode(data.update)
+    const removeData = BISON.encode(data.remove)
     for (let i in SOCKET_LIST) {
         let socket = SOCKET_LIST[i]
         if (data.init.players.length > 0 || data.init.projectiles.length > 0) { socket.emit('init', initData) }
-        socket.emit('update', updateData)
+        if (data.update.players.length > 0 || data.update.projectiles.length > 0) { socket.emit('update', updateData) }
         if (data.remove.players.length > 0 || data.remove.projectiles.length > 0) { socket.emit('remove', removeData) }
     }
 }, 40)
