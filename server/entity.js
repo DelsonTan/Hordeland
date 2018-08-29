@@ -247,8 +247,12 @@ class Projectile extends Entity {
   static updateAll() {
     const data = []
     for (let i in Projectile.list) {
-      const projectile = Projectile.list[i]
-      projectile.update()
+      let projectile = Projectile.list[i]
+      projectile.update();
+      let projPos = Map.list[projectile.map].isPositionWall(projectile)
+      if (projPos && projPos === 468) {
+        projectile.toRemove = true
+      }
       if (projectile.toRemove) {
         delete Projectile.list[i]
         removeData.projectiles.push(projectile.id)
@@ -303,6 +307,7 @@ class Projectile extends Entity {
           }
         }
         for (let i in Player.socketList) {
+
           let socket = Player.socketList[i]
           let data = {
             players: [{
