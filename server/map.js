@@ -3,8 +3,8 @@ class Map {
         this.name = params.name
         this.imgSrc = params.imgSrc
         this.grid = params.grid
-        this.width = 640 * 4
-        this.height = 480 * 4
+        this.width = 800 * 4
+        this.height = 800 * 4
         Map.list[this.name] = this
     }
 
@@ -31,7 +31,7 @@ class Map {
 // Map Choices
 Map.list = {}
 Map.tileSize = 32
-new Map({ name: 'field', imgSrc: '/client/images/map.png', grid: [] })
-new Map({ name: 'forest', imgSrc: '/client/images/map2.png', grid: [] })
+new Map({ name: 'field', imgSrc: '/client/images/map3.png', grid: [] })
+new Map({ name: 'forest', imgSrc: '/client/images/map3.png', grid: [] })
 
 module.exports = Map

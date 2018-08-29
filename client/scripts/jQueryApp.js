@@ -1,6 +1,7 @@
-const jQueryApp = function () {
+const jQueryApp = function (socket) {
+    
     $(document).ready(function () {
-        const socket = io()
+        console.log(socket)
         // Canvas Selectors and Settings
         const canvas = $('#ctx')
         canvas.contextmenu(function () { return false })
@@ -33,8 +34,6 @@ const jQueryApp = function () {
                 const mapImg = Map.list[player.map].img
                 const imgWidth = mapImg.width
                 const imgHeight = mapImg.height
-                console.log("width:", imgWidth)
-                console.log("height:", imgHeight)
                 ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 4, imgHeight * 4)
             }
         }
@@ -86,8 +85,8 @@ const jQueryApp = function () {
                 if (Player.list[selfId].map !== this.map) {
                     return
                 }
-                const imgWidth = Img.player.width
-                const imgHeight = Img.player.height
+                const imgWidth = Img.bullet.width / 2 
+                const imgHeight = Img.bullet.height / 2
                 const xpos = this.x - Player.list[selfId].x + canvas[0].width / 2
                 const ypos = this.y - Player.list[selfId].y + canvas[0].height / 2
 
@@ -99,7 +98,7 @@ const jQueryApp = function () {
 
         socket.on('init', function (data) {
             const parsedData = JSON.parse(data)
-            console.log("init:", parsedData)
+            // console.log("init:", parsedData)
             if (parsedData.selfId) { selfId = parsedData.selfId }
             for (let i = 0; i < parsedData.players.length; i++) {
                 new Player(parsedData.players[i])
