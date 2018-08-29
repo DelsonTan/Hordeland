@@ -1,13 +1,23 @@
 const jQueryApp = function () {
     $(document).ready(function () {
-        const socket = io()
+        const socket = io('http://localhost:3000/', {
+        path: '/socket.io-client',
+        transports: ['websocket']});
         // Canvas Selectors and Settings
+        const game = $('#game')
+        game.oncontextmenu = function(event) {
+            event.preventDefault();
+        }
         const canvas = $('#ctx')
-        canvas.contextmenu(function () { return false })
+        const canvasEnt = $('#ctx-ent')
         canvas[0].width = $(window).width()
         canvas[0].height = $(window).height()
+        canvasEnt[0].width = $(window).width()
+        canvasEnt[0].height = $(window).height()
         const ctx = canvas[0].getContext("2d")
+        const ctxEnt = canvasEnt[0].getContext("2d")
         ctx.font = '30px Arial'
+        ctxEnt.font = '30px Arial'
         // Chat Selectors and Settings
         const chatText = $('#chat-text')
         const chatInput = $('#chat-input')
@@ -15,9 +25,10 @@ const jQueryApp = function () {
         // Images
         const Img = {}
         Img.player = new Image()
-        Img.player.src = '/client/images/player.png'
+        Img.player.src = '/client/images/player1.png'
         Img.bullet = new Image()
         Img.bullet.src = '/client/images/bullet.png'
+
         class Map {
             constructor(params) {
                 this.name = params.name
@@ -36,6 +47,9 @@ const jQueryApp = function () {
                 console.log("width:", imgWidth)
                 console.log("height:", imgHeight)
                 ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 4, imgHeight * 4)
+                ctx.mozImageSmoothingEnabled = false;
+                ctx.msImageSmoothingEnabled = false;
+                ctx.imageSmoothingEnabled = false;
             }
         }
         Map.list = {}
@@ -51,6 +65,10 @@ const jQueryApp = function () {
                 this.maxHp = params.maxHp
                 this.score = params.score
                 this.map = params.map
+                this.mouseAngle = params.mouseAngle;
+                this.spriteCalc = params.spriteCalc;
+                this.bulletAngle = params.bulletAngle;
+                this.playername = 'Joel'
                 Player.list[this.id] = this
             }
 
@@ -58,17 +76,41 @@ const jQueryApp = function () {
                 if (Player.list[selfId].map !== this.map) {
                     return
                 }
-                const xpos = this.x - Player.list[selfId].x + canvas[0].width / 2
-                const ypos = this.y - Player.list[selfId].y + canvas[0].height / 2
-                const playerSpriteWidth = Img.player.width * 4
-                const playerSpriteHeight = Img.player.height * 4
+                const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
+                const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
                 // hp bar
-                const currentHpWidth = 30 * this.currentHp / this.maxHp
-                ctx.fillStyle = "darkred"
-                ctx.fillRect(xpos - currentHpWidth / 2, ypos - playerSpriteHeight / 2, 30, 4)
-                ctx.fillStyle = "darkblue"
-                ctx.fillRect(xpos - currentHpWidth / 2, ypos - playerSpriteHeight / 2, currentHpWidth, 4)
-                ctx.drawImage(Img.player, 0, 0, Img.player.width, Img.player.height,
+                const currentHpWidth = 40 * this.currentHp / this.maxHp
+                ctxEnt.fillStyle = "darkred"
+                ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, 40, 4)
+                ctxEnt.fillStyle = "darkblue"
+                ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, currentHpWidth, 4)
+
+                //player Name
+                ctxEnt.fillStyle = 'black';
+                ctxEnt.font = '18px Arial'
+                ctxEnt.fillText(this.playername,x - 40/2,y - 80);
+
+                const playerSpriteWidth = Img.player.width / 1.2
+                const playerSpriteHeight = Img.player.height / 1.5
+                const frameWidth = Img.player.width/3;
+                const frameHeight = Img.player.height/3.9;
+                let directionMod = 3;
+                let angle = this.mouseAngle;
+
+                if(angle < 0)
+                angle = 360 + angle;
+
+                if(angle >= 45 && angle < 135 )
+                    directionMod = 2;
+                else if(angle >= 135 && angle < 225 )
+                    directionMod = 1;
+                else if(angle >= 225 && angle < 315 )
+                    directionMod = 0;
+
+                let walkingMod = Math.floor(this.spriteCalc) % 3;
+
+
+                ctxEnt.drawImage(Img.player, walkingMod*frameWidth, directionMod*frameHeight, frameWidth, frameHeight,
                     xpos - playerSpriteWidth / 2, ypos - playerSpriteHeight / 2, playerSpriteWidth, playerSpriteHeight)
             }
         }
@@ -86,12 +128,12 @@ const jQueryApp = function () {
                 if (Player.list[selfId].map !== this.map) {
                     return
                 }
-                const imgWidth = Img.player.width
-                const imgHeight = Img.player.height
-                const xpos = this.x - Player.list[selfId].x + canvas[0].width / 2
-                const ypos = this.y - Player.list[selfId].y + canvas[0].height / 2
+                const imgWidth = Img.bullet.width/2
+                const imgHeight = Img.bullet.height/2
+                const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
+                const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
 
-                ctx.drawImage(Img.bullet, 0, 0, Img.bullet.width, Img.bullet.height,
+                ctxEnt.drawImage(Img.bullet, 0, 0, Img.bullet.width, Img.bullet.height,
                     xpos - imgWidth / 2, ypos - imgHeight / 2, imgWidth, imgHeight)
             }
         }
@@ -125,7 +167,6 @@ const jQueryApp = function () {
                         if (player.x !== undefined) { player.x = newPlayerData.x }
                         if (player.y !== undefined) { player.y = newPlayerData.y }
                         if (player.currentHp !== undefined) { player.currentHp = newPlayerData.currentHp }
-                        if (player.maxHp !== undefined) { player.maxHp = newPlayerData.maxHp }
                         if (player.score !== undefined) { player.score = newPlayerData.score }
                     }
                 }
@@ -151,8 +192,8 @@ const jQueryApp = function () {
         })
         // ------------------------------------------------ Event Handlers ------------------------------------------------
         // Helpers for syntactic sugar
-        const focusCanvas = () => { canvas.focus() }
-        const blurCanvas = () => { canvas.blur() }
+        const focusCanvas = () => { game.focus() }
+        const blurCanvas = () => { game.blur() }
         const focusChat = () => { chatInput.focus() }
         const blurChat = () => { chatInput.blur() }
         const pressing = (action, bool) => { socket.emit('keyPress', { inputId: action, state: bool }) }
@@ -174,9 +215,12 @@ const jQueryApp = function () {
         $(window).resize(function () {
             canvas[0].height = $(window).height()
             canvas[0].width = $(window).width()
+            canvasEnt[0].height = $(window).height()
+            canvasEnt[0].width = $(window).width()
         })
 
-        canvas.on("keydown", function (event) {
+
+        game.on("keydown", function (event) {
             if (event.which === 65) { pressing('left', true) }
             else if (event.which === 68) { pressing('right', true) }
             else if (event.which === 87) { pressing('up', true) }
@@ -189,17 +233,17 @@ const jQueryApp = function () {
             }
         })
 
-        canvas.on("keyup", function (event) {
+        game.on("keyup", function (event) {
             if (event.which === 65) { pressing('left', false) }
             else if (event.which === 68) { pressing('right', false) }
             else if (event.which === 87) { pressing('up', false) }
             else if (event.which === 83) { pressing('down', false) }
         })
 
-        canvas.mousedown(function (event) { if (event.which === 1) { pressing('leftClick', true) } })
-        canvas.mouseup(function (event) { if (event.which === 1) { pressing('leftClick', false) } })
+        game.mousedown(function (event) { if (event.which === 1) { pressing('leftClick', true) } })
+        game.mouseup(function (event) { if (event.which === 1) { pressing('leftClick', false) } })
 
-        canvas.mousemove(function (event) {
+        game.mousemove(function (event) {
             const x = -canvas[0].width / 2 + event.clientX - 8
             const y = -canvas[0].height / 2 + event.clientY - 8
             const angle = Math.atan2(y, x) / Math.PI * 180
@@ -221,6 +265,7 @@ const jQueryApp = function () {
         const renderGame = () => {
             if (selfId) {
                 ctx.clearRect(0, 0, canvas[0].width, canvas[0].height)
+                ctxEnt.clearRect(0, 0, canvas[0].width, canvas[0].height)
                 Map.render()
                 for (let i in Player.list) { Player.list[i].render() }
                 for (let i in Projectile.list) { Projectile.list[i].render() }

@@ -1,7 +1,9 @@
 const express = require('express')
 const app = express()
 const server = require('http').Server(app)
-const io = require('socket.io')(server, {})
+const io = require('socket.io')(server, {
+  path: '/socket.io-client'
+});
 const PORT = 3000
 
 const { playerDisconnect, playerConnect, getFrameUpdateData } = require('./server/entity.js')

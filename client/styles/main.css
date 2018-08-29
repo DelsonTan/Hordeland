@@ -11,3 +11,20 @@
 #chat-input {
     width: 500px;
 }
+
+
+#ctx,
+#ctx-ent{
+  position: absolute;
+  border: 1px solid black;
+}
+
+#ctx{
+  background-color: black;
+}
+
+#game{
+  position: absolute;
+  width: 1300px;
+  height: 100px;
+}

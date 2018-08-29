@@ -63,6 +63,9 @@ class Player extends Entity {
         this.currentHp = 3
         this.maxHp = 3
         this.score = 0
+        this.spriteCalc = 0;
+        this.bulletAngle = 0;
+        this.playername = 'Joel';
         Player.list[this.id] = this
         initData.players.push(this.initialData)
     }
@@ -124,7 +127,10 @@ class Player extends Entity {
             maxHp: this.maxHp,
             score: this.score,
             number: this.number,
-            map: this.map
+            map: this.map,
+            spriteCalc: this.spriteCalc,
+            bulletAngle: this.bulletAngle,
+            playername: this.playername
         }
     }
 
@@ -134,8 +140,12 @@ class Player extends Entity {
             x: this.x,
             y: this.y,
             currentHp: this.currentHp,
-            maxHp: this.maxHp,
-            score: this.score
+            maxHp: this.maxHP,
+            score: this.score,
+            map: this.map,
+            mouseAngle: this.mouseAngle,
+            spriteCalc: this.spriteCalc,
+            bulletAngle: this.bulletAngle
         }
     }
 
