@@ -23,7 +23,7 @@ const jQueryApp = function (socket) {
         // Images
         const Img = {}
         Img.player = new Image()
-        Img.player.src = '/client/images/player1.png'
+        Img.player.src = '/client/images/player.png'
         Img.bullet = new Image()
         Img.bullet.src = '/client/images/bullet.png'
 

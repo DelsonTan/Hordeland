@@ -271,9 +271,8 @@ class Projectile extends Entity {
           const attacker = Player.list[this.source]
           if (attacker) { attacker.score += 1 }
           target.currentHp = target.maxHp
-          target.x = Math.floor(Math.random() * 1000)
-          target.y = Math.floor(Math.random() * 1000)
-
+          target.x = Math.floor(Math.random() * Map.list[target.map].width)
+          target.y = Math.floor(Math.random() * Map.list[target.map].height)
           this.toRemove = true
         }
         for (let i in Player.socketList) {
