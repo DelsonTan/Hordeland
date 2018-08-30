@@ -103,6 +103,7 @@ class Player extends Entity {
       } else if (data.inputId === 'leftClick') {
         player.pressingFire = data.state
         player.mouseAngle = data.angle
+        player.projectileAngle = data.angle
       } else if (data.inputId === 'mouseAngle') {
         player.projectileAngle = data.state
       }

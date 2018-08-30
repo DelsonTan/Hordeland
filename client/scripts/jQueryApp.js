@@ -312,12 +312,12 @@ const jQueryApp = function (socket) {
         })
 
         game.mousemove((event) => {
-            // if (clicking) {
+            if (clicking) {
                 const x = -canvas[0].width / 2 + event.clientX - 8
                 const y = -canvas[0].height / 2 + event.clientY - 8
                 const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
                 socket.emit('keyPress', { inputId: 'mouseAngle', state: angle })
-            // }
+            }
         })
         // Chat
         chatForm.submit((event) => {
