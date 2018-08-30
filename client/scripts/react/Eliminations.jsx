@@ -10,7 +10,6 @@ class Eliminations extends Component {
                 return (<span key={Math.floor(Math.random() * 1000)}>{attacker.name} eliminated {target.name}<br/></span>)
             })
         }
-        console.log(this.props)
         return (
             <div id="eliminations">
                 {messages}

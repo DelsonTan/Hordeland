@@ -6,11 +6,11 @@ const jQueryApp = function (socket) {
         game.oncontextmenu = function(event) {
             event.preventDefault()
         }
-        const signDiv = $('#signDiv');
+        const signDiv = $('#signDiv')
         signDiv.css('height',$(window).height())
         signDiv.css('width',$(window).width())
-        const signDivUsername = $('#signDiv-username');
-        const signDivSignIn = $('#signDiv-signIn');
+        const signDivUsername = $('#signDiv-username')
+        const signDivSignIn = $('#signDiv-signIn')
         const canvas = $('#ctx')
         const canvasEnt = $('#ctx-ent')
         canvas[0].width = $(window).width()
@@ -55,7 +55,9 @@ const jQueryApp = function (socket) {
         }
         Map.list = {}
         // ------------------------------------------------ Game Logic ------------------------------------------------
+        // Client specific params TODO: refactor to remove from file level scope
         let selfId = null
+        let clicking = false
         class Player {
             constructor(params) {
                 this.id = params.id
@@ -67,7 +69,7 @@ const jQueryApp = function (socket) {
                 this.map = params.map
                 this.mouseAngle = params.mouseAngle
                 this.spriteCalc = params.spriteCalc
-                this.bulletAngle = params.bulletAngle
+                this.projectileAngle = params.projectileAngle
                 this.name = params.name
                 Player.list[this.id] = this
             }
@@ -175,8 +177,8 @@ const jQueryApp = function (socket) {
                           player.mouseAngle = newPlayerData.mouseAngle
                         if (newPlayerData.spriteCalc !== undefined)
                           player.spriteCalc = newPlayerData.spriteCalc
-                        if (newPlayerData.bulletAngle !== undefined)
-                          player.bulletAngle = newPlayerData.bulletAngle
+                        if (newPlayerData.projectileAngle !== undefined)
+                          player.projectileAngle = newPlayerData.projectileAngle
                     }
                 }
             if(parsedData.projectiles){
@@ -204,10 +206,10 @@ const jQueryApp = function (socket) {
 
         socket.on('signInResponse', function(data){
             if(data.success){
-              signDiv.hide();
-              focusCanvas();
+              signDiv.hide()
+              focusCanvas()
             } else {
-              alert('Sign in unsuccessful.');
+              alert('Sign in unsuccessful.')
             }
         })
 
@@ -227,13 +229,13 @@ const jQueryApp = function (socket) {
         }
         // TODO: focus canvas on tabbing into game
         $(window).focus(() => { focusCanvas() })
-        $(window).blur(function () {
+        $(window).blur( () => {
             cancelPlayerKeyPress()
             blurCanvas()
         })
         // TODO: cancel all player actions when tabbing out of the game
         // TODO: make chat scroll to bottom when new messages arrive
-        $(window).resize(function () {
+        $(window).resize(() => {
             canvas[0].height = $(window).height()
             canvas[0].width = $(window).width()
             canvasEnt[0].height = $(window).height()
@@ -241,10 +243,10 @@ const jQueryApp = function (socket) {
         })
 
         signDivSignIn.on('click', function(event){
-            socket.emit('signIn', {username:signDivUsername.val()});
+            socket.emit('signIn', {username:signDivUsername.val()})
         })
 
-        game.on("keydown", function (event) {
+        game.on("keydown", (event) => {
             if (event.which === 65) { pressing('left', true) }
             else if (event.which === 68) { pressing('right', true) }
             else if (event.which === 87) { pressing('up', true) }
@@ -257,29 +259,35 @@ const jQueryApp = function (socket) {
             }
         })
 
-        game.on("keyup", function (event) {
+        game.on("keyup", (event) => {
             if (event.which === 65) { pressing('left', false) }
             else if (event.which === 68) { pressing('right', false) }
             else if (event.which === 87) { pressing('up', false) }
             else if (event.which === 83) { pressing('down', false) }
         })
 
-        game.mousedown(function (event) { if (event.which === 1) {
+        game.mousedown((event) => { if (event.which === 1) {
+            clicking = true
             const x = -canvas[0].width / 2 + event.clientX - 8
             const y = -canvas[0].height / 2 + event.clientY - 8
             const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
             socket.emit('keyPress', {inputId: 'leftClick', state:true, angle:angle}) } })
 
-        game.mouseup(function (event) { if (event.which === 1) { pressing('leftClick', false) } })
+        game.mouseup((event) => {
+            clicking = false
+            if (event.which === 1) { pressing('leftClick', false) } 
+        })
 
-        game.mousemove(function (event) {
+        game.mousemove((event) => {
+            if (clicking) {
             const x = -canvas[0].width / 2 + event.clientX - 8
             const y = -canvas[0].height / 2 + event.clientY - 8
             const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
             socket.emit('keyPress', { inputId: 'mouseAngle', state: angle })
+            }
         })
         // Chat
-        chatForm.submit(function (event) {
+        chatForm.submit((event) => {
             event.preventDefault()
             if (chatInput.val()[0] === '/') { socket.emit('evalMessage', { text: chatInput.val().slice(1) }) }
             else { socket.emit('sendMessage', { text: chatInput.val() }) }

@@ -12,10 +12,9 @@ const DEBUG = true
 io.sockets.on('connection', (socket) => {
   socket.id = Math.floor(Math.random() * 1000)
   socket.on('signIn', function(data) {
-    socket.playerName = data.username;
-    console.log(socket.playerName);
+    socket.playerName = data.username
     playerConnect(socket)
-    socket.emit('signInResponse', { success: true });
+    socket.emit('signInResponse', { success: true })
   })
   console.log(`Client${socket.id} connected!`)
   socket.on('evalMessage', (data) => {
