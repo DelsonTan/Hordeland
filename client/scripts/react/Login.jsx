@@ -5,8 +5,9 @@ class Login extends Component {
     render() {
         return (
               <center id="signDiv">
-                Username: <input id="signDiv-username" type="text"></input>
-                <button id="signDiv-signIn">Sign In</button>
+                <form id="loginForm">
+                  <input id="signDiv-username" type="text" placeholder="What's your name?"></input>
+                </form>
               </center>
         )
     }

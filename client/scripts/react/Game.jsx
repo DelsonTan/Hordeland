@@ -21,6 +21,7 @@ class Game extends Component {
             <div id="game"tabIndex="0">
             <canvas id="ctx" width={this.width} height={this.height}/>
             <canvas id="ctx-ent" width={this.width} height={this.height}/>
+            <canvas id="ctx-lay" width={this.width} height={this.height}/>
             </div>
         )
     }

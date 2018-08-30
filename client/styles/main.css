@@ -12,9 +12,15 @@
     width: 500px;
 }
 
+:focus {
+  outline-style: none;
+  outline-color: transparent;
+}
+
 
 #ctx,
-#ctx-ent {
+#ctx-ent,
+#ctx-lay {
   position: absolute;
   border: 1px solid black;
 }
@@ -65,19 +71,48 @@ td{
   z-index: 1;
 }
 
-#signDiv-signIn, #signDiv-username{
+#signDiv-username{
   width: fit-content;
-  height: fit-content;
+  height: 30px;
+  font-size: 25px;
+  border: 5px solid transparent;
+  -moz-border-image: -moz-linear-gradient(top, #3acfd5 0%, #3a4ed5 100%);
+  -webkit-border-image: -webkit-linear-gradient(top, #3acfd5 0%, #3a4ed5 100%);
+  border-image: linear-gradient(to bottom, #3acfd5 0%, #3a4ed5 100%);
+  border-image-slice: 1;
 }
 
+#signDiv-username:focus {
+  animation: glow 800ms ease-out infinite alternate;
+  outline: none;
+}
+
+@keyframes glow {
+    0% {
+      box-shadow: 0 0 5px #3acfd5;
+    }
+    100% {
+      box-shadow: 0 0 20px #3a4ed5;
+    }
+}
 
 #eliminations {
   position: absolute;
-  color: white;
   background-color: black;
   font-size: 20px;
   right: 0px;
+  padding-left: 5px;
+  padding-right: 5px;
   top: 8px;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.log{
+  color: white;
+}
+
+.elim{
+  color: red;
 }
 
 .message{
@@ -89,4 +124,5 @@ td{
   justify-content: center;
   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
   top: 5%;
+  pointer-events: none;
 }

@@ -10,17 +10,22 @@ const jQueryApp = function (socket) {
         signDiv.css('height',$(window).height())
         signDiv.css('width',$(window).width())
         const signDivUsername = $('#signDiv-username');
-        const signDivSignIn = $('#signDiv-signIn');
+        const signDivSignIn = $('#loginForm');
         const canvas = $('#ctx')
         const canvasEnt = $('#ctx-ent')
+        const canvasLayer = $('#ctx-lay')
         canvas[0].width = $(window).width()
         canvas[0].height = $(window).height()
         canvasEnt[0].width = $(window).width()
         canvasEnt[0].height = $(window).height()
+        canvasLayer[0].width = $(window).width()
+        canvasLayer[0].height = $(window).height()
         const ctx = canvas[0].getContext("2d")
         const ctxEnt = canvasEnt[0].getContext("2d")
+        const ctxLayer = canvasLayer[0].getContext("2d")
         ctx.font = '30px Arial'
         ctxEnt.font = '30px Arial'
+        ctxLayer.font = '30px Arial'
         // Chat Selectors and Settings
         const chatText = $('#chat-text')
         const chatInput = $('#chat-input')
@@ -38,6 +43,8 @@ const jQueryApp = function (socket) {
                 this.img = new Image()
                 this.img.src = params.imgSrc
                 Map.list[this.name] = this
+                this.layer = new Image()
+                this.layer.src = '/client/images/map1layer.png'
             }
 
             static render() {
@@ -45,9 +52,11 @@ const jQueryApp = function (socket) {
                 const xpos = canvas[0].width / 2 - player.x
                 const ypos = canvas[0].height / 2 - player.y
                 const mapImg = Map.list[player.map].img
+                const layerImg = Map.list[player.map].layer
                 const imgWidth = mapImg.width
                 const imgHeight = mapImg.height
                 ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
+                ctxLayer.drawImage(layerImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
                 ctx.mozImageSmoothingEnabled = false
                 ctx.msImageSmoothingEnabled = false
                 ctx.imageSmoothingEnabled = false
@@ -238,9 +247,19 @@ const jQueryApp = function (socket) {
             canvas[0].width = $(window).width()
             canvasEnt[0].height = $(window).height()
             canvasEnt[0].width = $(window).width()
+            canvasLayer[0].height = $(window).height()
+            canvasLayer[0].width = $(window).width()
         })
 
-        signDivSignIn.on('click', function(event){
+        signDivUsername.focus(function() {
+            $(this).data('placeholder', $(this).attr('placeholder'))
+                .attr('placeholder', '');
+        }).blur(function() {
+            $(this).attr('placeholder', $(this).data('placeholder'));
+        });
+
+        signDivSignIn.on('submit', function(event){
+            event.preventDefault();
             socket.emit('signIn', {username:signDivUsername.val()});
         })
 
@@ -295,6 +314,7 @@ const jQueryApp = function (socket) {
             if (selfId) {
                 ctx.clearRect(0, 0, canvas[0].width, canvas[0].height)
                 ctxEnt.clearRect(0, 0, canvas[0].width, canvas[0].height)
+                ctxLayer.clearRect(0, 0, canvas[0].width, canvas[0].height)
                 Map.render()
                 for (let i in Player.list) { Player.list[i].render() }
                 for (let i in Projectile.list) { Projectile.list[i].render() }
