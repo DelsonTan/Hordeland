@@ -15,7 +15,8 @@ class Game extends Component {
     }
 
     render() {
-        jQueryApp(this.props.socket)
+        // console.log(this.props.selfId)
+        jQueryApp(this.props.socket, this.props.selfId)
         return (
             <div id="game"tabIndex="0">
             <canvas id="ctx" width={this.width} height={this.height}/>

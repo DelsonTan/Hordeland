@@ -312,7 +312,7 @@ class Projectile extends Entity {
           this.toRemove = true
           for (let i in Player.socketList) {
             let socket = Player.socketList[i]
-            socket.emit('updateScore', BISON.encode({ players: [attacker.UIData] }))
+            socket.emit('updateScore', BISON.encode({ players: [ attacker.UIData, target.UIData ] }))
           }
         }
         for (let i in Player.socketList) {

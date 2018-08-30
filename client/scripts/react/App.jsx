@@ -8,16 +8,26 @@ class App extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            socket: io()
+            socket: io(),
+            selfId: null
         }
+    }
+
+    componentDidMount() {
+        this.state.socket.on('init', (data) => {
+            const parsedData = JSON.parse(data)
+            if(parsedData.selfId) {
+                this.setState({selfId: parsedData.selfId})
+            }
+        })
     }
 
     render() {
         return (
         <div>
-            <Game socket={this.state.socket}/>
+            <Game socket={this.state.socket} selfId={this.state.selfId}/>
             <Chat/>
-            <UI socket={this.state.socket}/>
+            <UI socket={this.state.socket} selfId={this.state.selfId}/>
         </div>
         )
     }

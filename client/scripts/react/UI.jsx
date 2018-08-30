@@ -1,12 +1,16 @@
 import React, { Component } from 'react'
 import Scoreboard from './Scoreboard.jsx'
+import Eliminations from './Eliminations.jsx'
 
 class UI extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            players: []
+            players: [],
+            attacker: {},
+            target: {},
+            eliminations: []
         }
     }
 
@@ -29,14 +33,16 @@ class UI extends Component {
         })
         this.props.socket.on("updateScore", (data) => {
             const parsedData = BISON.decode(data)
+            const attacker = parsedData.players[0]
+            const target = parsedData.players[1]
             const updatedPlayers = this.state.players
             this.state.players.find((player, index) => {
-                if (player.id === parsedData.players[0].id) {
+                if (player.id === attacker.id) {
                     updatedPlayers[index].score = parsedData.players[0].score
                     return true
                 }
             })
-            this.setState({ players: updatedPlayers })
+            this.setState({ players: updatedPlayers, attacker: attacker, target: target })
         })
         this.props.socket.on("remove", (data) => {
             const parsedData = BISON.decode(data)
@@ -51,7 +57,12 @@ class UI extends Component {
     }
 
     render() {
-        return (<Scoreboard players={this.state.players} />)
+        console.log(this.props.selfId)
+        return (
+        <div id="UI">
+        <Scoreboard players={this.state.players}/>
+        <Eliminations attacker={this.state.attacker} target={this.state.target}/>
+        </div>)
     }
 }
 
