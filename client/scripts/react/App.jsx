@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Game from './Game.jsx'
 import Chat from './Chat.jsx'
+import Login from './Login.jsx'
 import UI from './UI.jsx'
 
 class App extends Component {
@@ -25,6 +26,7 @@ class App extends Component {
     render() {
         return (
         <div>
+            <Login/>
             <Game socket={this.state.socket} selfId={this.state.selfId}/>
             <Chat/>
             <UI socket={this.state.socket} selfId={this.state.selfId}/>

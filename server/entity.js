@@ -66,7 +66,7 @@ class Player extends Entity {
     this.score = 0
     this.spriteCalc = 0
     this.bulletAngle = 0
-    this.name = 'Joel'
+    this.name = params.name || ''
     Player.list[this.id] = this
     initData.players.push(this.initialData)
   }
@@ -74,7 +74,8 @@ class Player extends Entity {
   static onConnect(socket) {
     const player = new Player({
       id: socket.id,
-      map: 'field'
+      map: 'field',
+      name: socket.playerName
     })
 
     socket.on('keyPress', (data) => {

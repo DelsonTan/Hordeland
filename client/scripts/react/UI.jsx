@@ -1,9 +1,6 @@
 import React, { Component } from 'react'
 import Scoreboard from './Scoreboard.jsx'
-<<<<<<< Updated upstream
-=======
 import Elimessage from './Elimessage.jsx'
->>>>>>> Stashed changes
 import Eliminations from './Eliminations.jsx'
 
 class UI extends Component {

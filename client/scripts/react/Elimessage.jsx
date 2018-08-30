@@ -8,14 +8,14 @@ class Elimessage extends Component {
         let message;
         if(attacker && target){
             if(this.props.selfId === target.id) {
-                message = <span>{attacker.name} has eliminated you! Kepp going! You are not bad!</span>
+                message = <span>{attacker.name} has eliminated you!</span>
             } else if(this.props.selfId === attacker.id) {
-                message = <span>You have eliminated {target.name}! Kepp going! Kill them all!!!!</span>
+                message = <span>You have eliminated {target.name}!</span>
             }
             return (
-                <div className="message">
+                <center className="message">
                     {message}
-                </div>
+                </center>
             )
         } else {
             return(

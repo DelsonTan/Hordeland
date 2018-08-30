@@ -56,15 +56,37 @@ td{
   font-size: 20px;
 }
 
+#signDiv{
+  position: absolute;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+#signDiv-signIn, #signDiv-username{
+  width: fit-content;
+  height: fit-content;
+}
+
 
 #eliminations {
   position: absolute;
   color: white;
   background-color: black;
+  font-size: 20px;
+  right: 0px;
+  top: 8px;
 }
 
 .message{
-  position: absolute;
+  position: relative;
+  display: flex;
   color: white;
-  font-size: 25px;
+  width: 100%;
+  font-size: 35px;
+  justify-content: center;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  top: 5%;
 }

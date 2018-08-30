@@ -6,6 +6,11 @@ const jQueryApp = function (socket) {
         game.oncontextmenu = function(event) {
             event.preventDefault()
         }
+        const signDiv = $('#signDiv');
+        signDiv.css('height',$(window).height())
+        signDiv.css('width',$(window).width())
+        const signDivUsername = $('#signDiv-username');
+        const signDivSignIn = $('#signDiv-signIn');
         const canvas = $('#ctx')
         const canvasEnt = $('#ctx-ent')
         canvas[0].width = $(window).width()
@@ -63,7 +68,7 @@ const jQueryApp = function (socket) {
                 this.mouseAngle = params.mouseAngle
                 this.spriteCalc = params.spriteCalc
                 this.bulletAngle = params.bulletAngle
-                this.name = 'Joel'
+                this.name = params.name
                 Player.list[this.id] = this
             }
 
@@ -196,6 +201,16 @@ const jQueryApp = function (socket) {
                 delete Projectile.list[parsedData.projectiles[i]]
             }
         })
+
+        socket.on('signInResponse', function(data){
+            if(data.success){
+              signDiv.hide();
+              focusCanvas();
+            } else {
+              alert('Sign in unsuccessful.');
+            }
+        })
+
         // ------------------------------------------------ Event Handlers ------------------------------------------------
         // Helpers for syntactic sugar
         const focusCanvas = () => { game.focus() }
@@ -225,6 +240,9 @@ const jQueryApp = function (socket) {
             canvasEnt[0].width = $(window).width()
         })
 
+        signDivSignIn.on('click', function(event){
+            socket.emit('signIn', {username:signDivUsername.val()});
+        })
 
         game.on("keydown", function (event) {
             if (event.which === 65) { pressing('left', true) }
