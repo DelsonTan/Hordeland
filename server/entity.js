@@ -25,10 +25,7 @@ class Entity {
 
   static getFrameUpdateData() {
     const data = {
-      init: {
-        players: initData.players,
-        projectiles: initData.projectiles
-      },
+      init: {},
       update: {
         players: Player.updateAll(),
         projectiles: Projectile.updateAll()
@@ -38,7 +35,12 @@ class Entity {
         projectiles: removeData.projectiles
       }
     }
-
+    if (initData.players.length > 0) {
+      data.init.players = initData.players
+    }
+    if (initData.projectiles.length > 0) {
+      data.init.projectiles = initData.projectiles
+    }
     Object.freeze(data)
     initData.players = []
     initData.projectiles = []

@@ -3,12 +3,12 @@ const jQueryApp = function (socket) {
     $(document).ready(function () {
         // Canvas Selectors and Settings
         const game = $('#game')
-        game.oncontextmenu = function(event) {
+        game.oncontextmenu = function (event) {
             event.preventDefault()
         }
         const signDiv = $('#signDiv')
-        signDiv.css('height',$(window).height())
-        signDiv.css('width',$(window).width())
+        signDiv.css('height', $(window).height())
+        signDiv.css('width', $(window).width())
         const signDivUsername = $('#signDiv-username')
         const signDivSignIn = $('#signDiv-signIn')
         const canvas = $('#ctx')
@@ -90,29 +90,29 @@ const jQueryApp = function (socket) {
                 //player Name
                 ctxEnt.fillStyle = 'black'
                 ctxEnt.font = '18px Arial'
-                ctxEnt.fillText(this.name,xpos - 40/2,ypos - 40)
+                ctxEnt.fillText(this.name, xpos - 40 / 2, ypos - 40)
 
                 const playerSpriteWidth = Img.player.width / 1.2
                 const playerSpriteHeight = Img.player.height / 1.5
-                const frameWidth = Img.player.width/3
-                const frameHeight = Img.player.height/3.9
+                const frameWidth = Img.player.width / 3
+                const frameHeight = Img.player.height / 3.9
                 let directionMod = 3
                 let angle = this.mouseAngle
 
-                if(angle < 0)
-                angle = 360 + angle
+                if (angle < 0)
+                    angle = 360 + angle
 
-                if(angle >= 45 && angle < 135 )
+                if (angle >= 45 && angle < 135)
                     directionMod = 2
-                else if(angle >= 135 && angle < 225 )
+                else if (angle >= 135 && angle < 225)
                     directionMod = 1
-                else if(angle >= 225 && angle < 315 )
+                else if (angle >= 225 && angle < 315)
                     directionMod = 0
 
                 let walkingMod = Math.floor(this.spriteCalc) % 3
 
 
-                ctxEnt.drawImage(Img.player, walkingMod*frameWidth, directionMod*frameHeight, frameWidth, frameHeight,
+                ctxEnt.drawImage(Img.player, walkingMod * frameWidth, directionMod * frameHeight, frameWidth, frameHeight,
                     xpos - playerSpriteWidth / 2, ypos - playerSpriteHeight / 2, playerSpriteWidth, playerSpriteHeight)
             }
         }
@@ -130,8 +130,8 @@ const jQueryApp = function (socket) {
                 if (Player.list[selfId].map !== this.map) {
                     return
                 }
-                const imgWidth = Img.bullet.width/2
-                const imgHeight = Img.bullet.height/2
+                const imgWidth = Img.bullet.width / 2
+                const imgHeight = Img.bullet.height / 2
                 const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
                 const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
 
@@ -142,18 +142,33 @@ const jQueryApp = function (socket) {
         }
         Projectile.list = {}
 
+        socket.on('signInResponse', function (data) {
+            console.log('signInResponse', data)
+            if (data.success) {
+                signDiv.hide()
+                focusCanvas()
+            } else {
+                alert('Sign in unsuccessful.')
+            }
+        })
+
         socket.on('init', function (data) {
             const parsedData = JSON.parse(data)
+            console.log('init', parsedData)
             // console.log("init:", parsedData)
             if (parsedData.selfId) { selfId = parsedData.selfId }
-            for (let i = 0; i < parsedData.players.length; i++) {
-                new Player(parsedData.players[i])
+            if (parsedData.players) {
+                for (let i = 0; i < parsedData.players.length; i++) {
+                    new Player(parsedData.players[i])
+                }
             }
-            for (let i = 0; i < parsedData.projectiles.length; i++) {
-                new Projectile(parsedData.projectiles[i])
+            if (parsedData.projectiles) {
+                for (let i = 0; i < parsedData.projectiles.length; i++) {
+                    new Projectile(parsedData.projectiles[i])
+                }
             }
             if (parsedData.maps) {
-                for (let i = 0; i < parsedData.maps.length; i++)  {
+                for (let i = 0; i < parsedData.maps.length; i++) {
                     new Map(parsedData.maps[i])
                 }
             }
@@ -168,20 +183,23 @@ const jQueryApp = function (socket) {
                     const player = Player.list[newPlayerData.id]
                     if (player) {
                         if (newPlayerData.x !== undefined) {
-                            player.x = newPlayerData.x }
+                            player.x = newPlayerData.x
+                        }
                         if (newPlayerData.y !== undefined) {
-                            player.y = newPlayerData.y }
+                            player.y = newPlayerData.y
+                        }
                         if (newPlayerData.currentHp !== undefined) {
-                            player.currentHp = newPlayerData.currentHp }
+                            player.currentHp = newPlayerData.currentHp
+                        }
                         if (newPlayerData.mouseAngle !== undefined)
-                          player.mouseAngle = newPlayerData.mouseAngle
+                            player.mouseAngle = newPlayerData.mouseAngle
                         if (newPlayerData.spriteCalc !== undefined)
-                          player.spriteCalc = newPlayerData.spriteCalc
+                            player.spriteCalc = newPlayerData.spriteCalc
                         if (newPlayerData.projectileAngle !== undefined)
-                          player.projectileAngle = newPlayerData.projectileAngle
+                            player.projectileAngle = newPlayerData.projectileAngle
                     }
                 }
-            if(parsedData.projectiles){
+            if (parsedData.projectiles) {
                 for (let i = 0; i < parsedData.projectiles.length; i++) {
                     const newProjectileData = parsedData.projectiles[i]
                     const projectile = Projectile.list[newProjectileData.id]
@@ -203,16 +221,6 @@ const jQueryApp = function (socket) {
                 delete Projectile.list[parsedData.projectiles[i]]
             }
         })
-
-        socket.on('signInResponse', function(data){
-            if(data.success){
-              signDiv.hide()
-              focusCanvas()
-            } else {
-              alert('Sign in unsuccessful.')
-            }
-        })
-
         // ------------------------------------------------ Event Handlers ------------------------------------------------
         // Helpers for syntactic sugar
         const focusCanvas = () => { game.focus() }
@@ -229,7 +237,7 @@ const jQueryApp = function (socket) {
         }
         // TODO: focus canvas on tabbing into game
         $(window).focus(() => { focusCanvas() })
-        $(window).blur( () => {
+        $(window).blur(() => {
             cancelPlayerKeyPress()
             blurCanvas()
         })
@@ -242,8 +250,8 @@ const jQueryApp = function (socket) {
             canvasEnt[0].width = $(window).width()
         })
 
-        signDivSignIn.on('click', function(event){
-            socket.emit('signIn', {username:signDivUsername.val()})
+        signDivSignIn.on('click', function (event) {
+            socket.emit('signIn', { username: signDivUsername.val() })
         })
 
         game.on("keydown", (event) => {
@@ -266,24 +274,27 @@ const jQueryApp = function (socket) {
             else if (event.which === 83) { pressing('down', false) }
         })
 
-        game.mousedown((event) => { if (event.which === 1) {
-            clicking = true
-            const x = -canvas[0].width / 2 + event.clientX - 8
-            const y = -canvas[0].height / 2 + event.clientY - 8
-            const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
-            socket.emit('keyPress', {inputId: 'leftClick', state:true, angle:angle}) } })
+        game.mousedown((event) => {
+            if (event.which === 1) {
+                clicking = true
+                const x = -canvas[0].width / 2 + event.clientX - 8
+                const y = -canvas[0].height / 2 + event.clientY - 8
+                const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
+                socket.emit('keyPress', { inputId: 'leftClick', state: true, angle: angle })
+            }
+        })
 
         game.mouseup((event) => {
             clicking = false
-            if (event.which === 1) { pressing('leftClick', false) } 
+            if (event.which === 1) { pressing('leftClick', false) }
         })
 
         game.mousemove((event) => {
             if (clicking) {
-            const x = -canvas[0].width / 2 + event.clientX - 8
-            const y = -canvas[0].height / 2 + event.clientY - 8
-            const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
-            socket.emit('keyPress', { inputId: 'mouseAngle', state: angle })
+                const x = -canvas[0].width / 2 + event.clientX - 8
+                const y = -canvas[0].height / 2 + event.clientY - 8
+                const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
+                socket.emit('keyPress', { inputId: 'mouseAngle', state: angle })
             }
         })
         // Chat

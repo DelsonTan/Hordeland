@@ -10,9 +10,9 @@ const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData } = req
 const DEBUG = true
 
 io.sockets.on('connection', (socket) => {
-  socket.id = Math.floor(Math.random() * 1000)
   socket.on('signIn', function(data) {
     socket.playerName = data.username
+    socket.id = Math.floor(Math.random() * 1000)
     playerConnect(socket)
     socket.emit('signInResponse', { success: true })
   })
@@ -49,7 +49,7 @@ setInterval(() => {
   const removeData = BISON.encode(data.remove)
   for (let i in SOCKET_LIST) {
     let socket = SOCKET_LIST[i]
-    if (data.init.players.length > 0 || data.init.projectiles.length > 0) { socket.emit('init', initData) }
+    if (Object.keys(data.init).length > 0) { socket.emit('init', initData) }
     if (data.update.players.length > 0 || data.update.projectiles.length > 0) { socket.emit('update', updateData) }
     if (data.remove.players.length > 0 || data.remove.projectiles.length > 0) { socket.emit('remove', removeData) }
   }
