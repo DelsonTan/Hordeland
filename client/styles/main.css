@@ -33,3 +33,9 @@
   position: absolute;
   background-color: white;
 }
+
+#eliminations {
+  position: absolute;
+  color: white;
+  background-color: black;
+}

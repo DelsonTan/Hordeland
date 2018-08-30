@@ -8,8 +8,8 @@ class UI extends Component {
         super(props)
         this.state = {
             players: [],
-            attacker: {},
-            target: {},
+            attacker: null,
+            target: null,
             eliminations: []
         }
     }
@@ -42,7 +42,13 @@ class UI extends Component {
                     return true
                 }
             })
-            this.setState({ players: updatedPlayers, attacker: attacker, target: target })
+            const newEliminations = this.state.eliminations
+            if (newEliminations.length >= 5) {
+                newEliminations.shift()
+            }
+            newEliminations.push({attacker, target})
+            this.setState({ players: updatedPlayers, attacker: attacker, target: target, eliminations: newEliminations })
+            setTimeout(()=>{ this.setState({ attacker: null, target: null })}, 5000)
         })
         this.props.socket.on("remove", (data) => {
             const parsedData = BISON.decode(data)
@@ -57,11 +63,10 @@ class UI extends Component {
     }
 
     render() {
-        console.log(this.props.selfId)
         return (
         <div id="UI">
         <Scoreboard players={this.state.players}/>
-        <Eliminations attacker={this.state.attacker} target={this.state.target}/>
+        <Eliminations eliminations={this.state.eliminations}/>
         </div>)
     }
 }

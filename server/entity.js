@@ -82,7 +82,6 @@ class Player extends Entity {
         if (data.state) {
           player.speed = Math.floor(Player.maxSpeed * 0.60)
         } else {
-          console.log("something")
           player.speed = Math.floor(Player.maxSpeed)
         }
       }
@@ -307,8 +306,8 @@ class Projectile extends Entity {
           const attacker = Player.list[this.source]
           if (attacker) { attacker.score += 1 }
           target.currentHp = target.maxHp
-          target.x = Math.floor(Math.random() * Map.list[target.map].width)
-          target.y = Math.floor(Math.random() * Map.list[target.map].height)
+          target.x = Math.floor(Map.list[target.map].width / 10)
+          target.y = Math.floor(Map.list[target.map].height / 2)
           this.toRemove = true
           for (let i in Player.socketList) {
             let socket = Player.socketList[i]
