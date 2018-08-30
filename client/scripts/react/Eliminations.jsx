@@ -7,7 +7,7 @@ class Eliminations extends Component {
             messages = this.props.eliminations.map((elimination) => {
                 const attacker = elimination.attacker
                 const target = elimination.target
-                return (<span key={Math.floor(Math.random() * 1000)}>{attacker.name} eliminated {target.name}<br/></span>)
+                return (<span key={Math.floor(Math.random() * 1000)}>{attacker.name} 🔪 {target.name}<br/></span>)
             })
         }
         return (

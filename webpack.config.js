@@ -7,10 +7,6 @@ var config = {
         path: path.resolve(__dirname, 'client/scripts'),
         filename: 'main.js'
     },
-    devServer: {
-        inline: true,
-        port: 3000
-    },
     module: {
         rules: [
             {
@@ -20,7 +16,7 @@ var config = {
                 ],
                 loader: 'babel-loader',
                 query: {
-                    presets: ['es2015', 'react']
+                    presets: ['env', 'react']
                 }
             },
             {
@@ -30,7 +26,7 @@ var config = {
                 ],
                 loader: 'babel-loader',
                 query: {
-                    presets: ['es2015']
+                    presets: ['env']
                 }
             },
             {
