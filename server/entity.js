@@ -306,15 +306,20 @@ class Projectile extends Entity {
           const attacker = Player.list[this.source]
           if (attacker) { attacker.score += 1 }
           target.currentHp = target.maxHp
-          target.x = Math.floor(Math.random() * 1000)
-          target.y = Math.floor(Math.random() * 1000)
+          target.x = Math.floor(Map.list[target.map].width / 10)
+          target.y = Math.floor(Map.list[target.map].height / 2)
+
           this.toRemove = true
           for (let i in Player.socketList) {
             let socket = Player.socketList[i]
-            socket.emit('updateScore', BISON.encode({ players: [attacker.UIData] }))
+            socket.emit('updateScore', BISON.encode({ players: [ attacker.UIData, target.UIData ] }))
           }
+          let attackerSocket = Player.socketList[attacker.id];
+          let targetSocket = Player.socketList[target.id];
+          attackerSocket.emit('eliMessage', BISON.encode({ players: [attacker.UIData, target.UIData] }))
+          targetSocket.emit('eliMessage', BISON.encode({ players: [attacker.UIData, target.UIData] }))
         }
-        for (let i in Player.socketList) {
+            for (let i in Player.socketList) {
 
           let socket = Player.socketList[i]
           let data = {

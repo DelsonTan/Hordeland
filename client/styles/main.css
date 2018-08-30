@@ -55,3 +55,16 @@ td{
 .player-score, .player-name{
   font-size: 20px;
 }
+
+
+#eliminations {
+  position: absolute;
+  color: white;
+  background-color: black;
+}
+
+.message{
+  position: absolute;
+  color: white;
+  font-size: 25px;
+}
