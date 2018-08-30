@@ -44,6 +44,7 @@
   border-bottom-right-radius: 20px;
   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
   color: white;
+  pointer-events: none;
 }
 
 .title{
@@ -105,6 +106,7 @@ td{
   padding-right: 5px;
   top: 8px;
   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  pointer-events: none;
 }
 
 .log{

@@ -50,8 +50,8 @@ setInterval(() => {
   for (let i in SOCKET_LIST) {
     let socket = SOCKET_LIST[i]
     if (Object.keys(data.init).length > 0) { socket.emit('init', initData) }
-    if (data.update.players.length > 0 || data.update.projectiles.length > 0) { socket.emit('update', updateData) }
-    if (data.remove.players.length > 0 || data.remove.projectiles.length > 0) { socket.emit('remove', removeData) }
+    if (Object.keys(data.update).length > 0)  { socket.emit('update', updateData) }
+    if (Object.keys(data.remove).length > 0)  { socket.emit('remove', removeData) }
   }
 }, 40)
 

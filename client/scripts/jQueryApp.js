@@ -8,8 +8,8 @@ const jQueryApp = function (socket) {
         }
 
         const signDiv = $('#signDiv');
-        signDiv.css('height',$(window).height())
-        signDiv.css('width',$(window).width())
+        signDiv.css('height', $(window).height())
+        signDiv.css('width', $(window).width())
         const signDivUsername = $('#signDiv-username');
         const signDivSignIn = $('#loginForm');
 
@@ -166,7 +166,6 @@ const jQueryApp = function (socket) {
         socket.on('init', function (data) {
             const parsedData = JSON.parse(data)
             console.log('init', parsedData)
-            // console.log("init:", parsedData)
             if (parsedData.selfId) { selfId = parsedData.selfId }
             if (parsedData.players) {
                 for (let i = 0; i < parsedData.players.length; i++) {
@@ -187,7 +186,7 @@ const jQueryApp = function (socket) {
 
         socket.on('update', function (data) {
             const parsedData = BISON.decode(data)
-            // console.log("update", parsedData)
+            console.log("update", parsedData)
             if (parsedData.players)
                 for (let i = 0; i < parsedData.players.length; i++) {
                     const newPlayerData = parsedData.players[i]
@@ -224,12 +223,16 @@ const jQueryApp = function (socket) {
 
         socket.on('remove', function (data) {
             const parsedData = BISON.decode(data)
-            // console.log('remove: ', parsedData)
-            for (let i = 0; i < parsedData.players.length; i++) {
-                delete Player.list[parsedData.players[i]]
+            console.log('remove', parsedData)
+            if (parsedData.players) {
+                for (let i = 0; i < parsedData.players.length; i++) {
+                    delete Player.list[parsedData.players[i]]
+                }
             }
-            for (let i = 0; i < parsedData.projectiles.length; i++) {
-                delete Projectile.list[parsedData.projectiles[i]]
+            if (parsedData.projectiles) {
+                for (let i = 0; i < parsedData.projectiles.length; i++) {
+                    delete Projectile.list[parsedData.projectiles[i]]
+                }
             }
         })
         // ------------------------------------------------ Event Handlers ------------------------------------------------
@@ -264,16 +267,16 @@ const jQueryApp = function (socket) {
         })
 
 
-        signDivUsername.focus(function() {
+        signDivUsername.focus(function () {
             $(this).data('placeholder', $(this).attr('placeholder'))
                 .attr('placeholder', '');
-        }).blur(function() {
+        }).blur(function () {
             $(this).attr('placeholder', $(this).data('placeholder'));
         });
 
-        signDivSignIn.on('submit', function(event){
+        signDivSignIn.on('submit', function (event) {
             event.preventDefault();
-            socket.emit('signIn', {username:signDivUsername.val()});
+            socket.emit('signIn', { username: signDivUsername.val() });
         })
 
         game.on("keydown", (event) => {

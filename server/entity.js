@@ -24,22 +24,32 @@ class Entity {
   }
 
   static getFrameUpdateData() {
+    const updateData = {
+      players: Player.updateAll(),
+      projectiles: Projectile.updateAll()
+    }
     const data = {
       init: {},
-      update: {
-        players: Player.updateAll(),
-        projectiles: Projectile.updateAll()
-      },
-      remove: {
-        players: removeData.players,
-        projectiles: removeData.projectiles
-      }
+      update: {},
+      remove: {}
     }
     if (initData.players.length > 0) {
       data.init.players = initData.players
     }
     if (initData.projectiles.length > 0) {
       data.init.projectiles = initData.projectiles
+    }
+    if (updateData.players.length > 0) {
+      data.update.players = updateData.players
+    }
+    if (updateData.projectiles.length > 0) {
+      data.update.projectiles = updateData.projectiles
+    }
+    if (removeData.players.length > 0) {
+      data.remove.players = removeData.players
+    }
+    if (removeData.projectiles.length > 0) {
+      data.remove.projectiles = removeData.projectiles
     }
     Object.freeze(data)
     initData.players = []

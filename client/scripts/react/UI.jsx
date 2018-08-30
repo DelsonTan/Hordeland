@@ -37,7 +37,7 @@ class UI extends Component {
             const attacker = parsedData.players[0]
             const target = parsedData.players[1]
             this.setState({ attacker: attacker, target: target })
-            setTimeout(() => {this.setState({ attacker: null, target: null })}, 5000)
+            setTimeout(() => { this.setState({ attacker: null, target: null }) }, 5000)
         })
         this.props.socket.on("updateScore", (data) => {
             const parsedData = BISON.decode(data)
@@ -55,19 +55,21 @@ class UI extends Component {
             if (newEliminations.length >= 5) {
                 newEliminations.shift()
             }
-            newEliminations.push({attacker, target})
+            newEliminations.push({ attacker, target })
             this.setState({ players: updatedPlayers, attacker: attacker, target: target, eliminations: newEliminations })
-            setTimeout(()=>{ this.setState({ attacker: null, target: null })}, 5000)
+            setTimeout(() => { this.setState({ attacker: null, target: null }) }, 5000)
         })
 
         this.props.socket.on("remove", (data) => {
             const parsedData = BISON.decode(data)
-            for (let i = 0; i < parsedData.players.length; i++) {
-                this.setState({
-                    players: this.state.players.filter((player) => {
-                        return player.id !== parsedData.players[i]
+            if (parsedData.players) {
+                for (let i = 0; i < parsedData.players.length; i++) {
+                    this.setState({
+                        players: this.state.players.filter((player) => {
+                            return player.id !== parsedData.players[i]
+                        })
                     })
-                })
+                }
             }
         })
     }
@@ -75,11 +77,11 @@ class UI extends Component {
     render() {
 
         return (
-        <div id="UI">
-        <Scoreboard players={this.state.players}/>
-        <Eliminations eliminations={this.state.eliminations}/>
-        <Elimessage selfId={this.props.selfId} target={this.state.target} attacker={this.state.attacker} />
-        </div>)
+            <div id="UI">
+                <Scoreboard players={this.state.players} />
+                <Eliminations eliminations={this.state.eliminations} />
+                <Elimessage selfId={this.props.selfId} target={this.state.target} attacker={this.state.attacker} />
+            </div>)
     }
 }
 
