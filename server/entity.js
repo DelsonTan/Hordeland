@@ -25,10 +25,7 @@ class Entity {
 
   static getFrameUpdateData() {
     const data = {
-      init: {
-        players: initData.players,
-        projectiles: initData.projectiles
-      },
+      init: {},
       update: {
         players: Player.updateAll(),
         projectiles: Projectile.updateAll()
@@ -38,7 +35,12 @@ class Entity {
         projectiles: removeData.projectiles
       }
     }
-
+    if (initData.players.length > 0) {
+      data.init.players = initData.players
+    }
+    if (initData.projectiles.length > 0) {
+      data.init.projectiles = initData.projectiles
+    }
     Object.freeze(data)
     initData.players = []
     initData.projectiles = []
@@ -61,11 +63,11 @@ class Player extends Entity {
     this.rateOfFire = 100
     this.mouseAngle = 0
     this.speed = Player.maxSpeed
-    this.currentHp = 20
-    this.maxHp = 20
+    this.currentHp = 5
+    this.maxHp = 5
     this.score = 0
     this.spriteCalc = 0
-    this.bulletAngle = 0
+    this.projectileAngle = 0
     this.name = params.name || ''
     Player.list[this.id] = this
     initData.players.push(this.initialData)
@@ -102,7 +104,7 @@ class Player extends Entity {
         player.pressingFire = data.state
         player.mouseAngle = data.angle
       } else if (data.inputId === 'mouseAngle') {
-        player.bulletAngle = data.state
+        player.projectileAngle = data.state
       }
     })
     socket.emit('init', JSON.stringify({
@@ -166,7 +168,7 @@ class Player extends Entity {
       number: this.number,
       map: this.map,
       spriteCalc: this.spriteCalc,
-      bulletAngle: this.bulletAngle,
+      projectileAngle: this.projectileAngle,
       name: this.name
     }
   }
@@ -189,7 +191,7 @@ class Player extends Entity {
       map: this.map,
       mouseAngle: this.mouseAngle,
       spriteCalc: this.spriteCalc,
-      bulletAngle: this.bulletAngle
+      projectileAngle: this.projectileAngle
     }
   }
 
@@ -207,7 +209,7 @@ class Player extends Entity {
     }
 
     if (this.allowedToFire && this.pressingFire) {
-      this.fireProjectile(this.bulletAngle)
+      this.fireProjectile(this.projectileAngle)
       this.allowedToFire = false
       setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
     }
@@ -257,7 +259,7 @@ class Projectile extends Entity {
     const data = []
     for (let i in Projectile.list) {
       let projectile = Projectile.list[i]
-      projectile.update();
+      projectile.update()
       let projPos = Map.list[projectile.map].isPositionWall(projectile)
       if (projPos && projPos === 468) {
         projectile.toRemove = true
@@ -315,8 +317,8 @@ class Projectile extends Entity {
             let socket = Player.socketList[i]
             socket.emit('updateScore', BISON.encode({ players: [ attacker.UIData, target.UIData ] }))
           }
-          let attackerSocket = Player.socketList[attacker.id];
-          let targetSocket = Player.socketList[target.id];
+          let attackerSocket = Player.socketList[attacker.id]
+          let targetSocket = Player.socketList[target.id]
           attackerSocket.emit('eliMessage', BISON.encode({ players: [attacker.UIData, target.UIData] }))
           targetSocket.emit('eliMessage', BISON.encode({ players: [attacker.UIData, target.UIData] }))
         }
