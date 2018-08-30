@@ -31,5 +31,27 @@
 
 #scoreboard {
   position: absolute;
-  background-color: white;
+  background-color: #ffffff4f;
+  border: 1px solid black;
+  padding: 5px;
+  top: 8px;
+  border-bottom-right-radius: 20px;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  color: white;
+}
+
+.title{
+  border-bottom: 1px solid black;
+  color: #f57070;
+  font-weight: bold;
+  font-size: 25px;
+  padding-bottom: 10px;
+}
+
+td{
+  text-align: center;
+}
+
+.player-score, .player-name{
+  font-size: 20px;
 }

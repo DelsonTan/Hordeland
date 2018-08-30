@@ -19,11 +19,11 @@ class Scoreboard extends Component {
         <table id="scoreboard">
             <thead>
                 <tr>
-                    <td>Scoreboard</td>
+                    <th colSpan={2} className="title">Scoreboard</th>
                 </tr>
                 <tr>
-                    <td>Player</td>
-                    <td>Score</td>
+                    <td className="player-name">Player</td>
+                    <td className="player-score">Score</td>
                 </tr>
             </thead>
             <tbody>
