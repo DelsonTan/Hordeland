@@ -24,9 +24,9 @@ class Entity {
   }
 
   static getFrameUpdateData() {
+    Projectile.updateAll()
     const updateData = {
-      players: Player.updateAll(),
-      projectiles: Projectile.updateAll()
+      players: Player.updateAll()
     }
     const data = {
       init: {},
@@ -41,9 +41,6 @@ class Entity {
     }
     if (updateData.players.length > 0) {
       data.update.players = updateData.players
-    }
-    if (updateData.projectiles.length > 0) {
-      data.update.projectiles = updateData.projectiles
     }
     if (removeData.players.length > 0) {
       data.remove.players = removeData.players
@@ -255,11 +252,11 @@ class Projectile extends Entity {
     // source: the id of the entity that fired this projectile
     this.source = params.source
     this.id = Math.floor(Math.random() * 1000)
+    this.map = params.map
     this.angle = params.angle
     this.speed = 50
     this.dx = Math.floor(Math.cos(params.angle / 180 * Math.PI) * this.speed)
     this.dy = Math.floor(Math.sin(params.angle / 180 * Math.PI) * this.speed)
-    this.map = params.map
     this.timer = 0
     this.toRemove = false
     Projectile.list[this.id] = this
@@ -267,7 +264,7 @@ class Projectile extends Entity {
   }
 
   static updateAll() {
-    const data = []
+    
     for (let i in Projectile.list) {
       let projectile = Projectile.list[i]
       projectile.update()
@@ -278,11 +275,8 @@ class Projectile extends Entity {
       if (projectile.toRemove) {
         delete Projectile.list[i]
         removeData.projectiles.push(projectile.id)
-      } else {
-        data.push(projectile.updateData)
       }
     }
-    return data
   }
 
   static getAllInitData() {
@@ -296,7 +290,8 @@ class Projectile extends Entity {
       id: this.id,
       x: this.x,
       y: this.y,
-      map: this.map
+      map: this.map,
+      angle: this.angle
     }
   }
 

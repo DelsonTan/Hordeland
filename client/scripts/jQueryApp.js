@@ -135,8 +135,21 @@ const jQueryApp = function (socket) {
                 this.x = params.x
                 this.y = params.y
                 this.map = params.map
+                this.angle = params.angle
+                this.speed = 50
+                this.dx = Math.floor(Math.cos(params.angle / 180 * Math.PI) * this.speed)
+                this.dy = Math.floor(Math.sin(params.angle / 180 * Math.PI) * this.speed)
                 Projectile.list[this.id] = this
             }
+
+            static updateAll() {
+                for (let i in Projectile.list) {
+                    let projectile = Projectile.list[i]
+                    projectile.x += projectile.dx
+                    projectile.y += projectile.dy
+                }
+            }
+
             render() {
                 if (Player.list[selfId].map !== this.map) {
                     return
@@ -152,7 +165,7 @@ const jQueryApp = function (socket) {
             }
         }
         Projectile.list = {}
-
+        setInterval(()=>{Projectile.updateAll()},40)
         socket.on('signInResponse', function (data) {
             if (data.success) {
                 signDiv.hide()
@@ -164,7 +177,7 @@ const jQueryApp = function (socket) {
 
         socket.on('init', function (data) {
             const parsedData = JSON.parse(data)
-            console.log('init', parsedData)
+            // console.log('init', parsedData)
             if (parsedData.selfId) { selfId = parsedData.selfId }
             if (parsedData.players) {
                 for (let i = 0; i < parsedData.players.length; i++) {
@@ -185,7 +198,7 @@ const jQueryApp = function (socket) {
 
         socket.on('update', function (data) {
             const parsedData = BISON.decode(data)
-            console.log("update", parsedData)
+            // console.log("update", parsedData)
             if (parsedData.players)
                 for (let i = 0; i < parsedData.players.length; i++) {
                     const newPlayerData = parsedData.players[i]
@@ -222,7 +235,7 @@ const jQueryApp = function (socket) {
 
         socket.on('remove', function (data) {
             const parsedData = BISON.decode(data)
-            console.log('remove', parsedData)
+            // console.log('remove', parsedData)
             if (parsedData.players) {
                 for (let i = 0; i < parsedData.players.length; i++) {
                     delete Player.list[parsedData.players[i]]
