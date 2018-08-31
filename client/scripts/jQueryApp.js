@@ -38,6 +38,8 @@ const jQueryApp = function (socket) {
         Img.player.src = '/client/images/player.png'
         Img.bullet = new Image()
         Img.bullet.src = '/client/images/bullet.png'
+        Img.enemy = new Image()
+        Img.enemy.src = '/client/images/bat.png'
 
         class Map {
             constructor(params) {
@@ -129,6 +131,69 @@ const jQueryApp = function (socket) {
         }
         Player.list = {}
 
+        //---------------------------------------------ENEMIES------------------------------------------//
+
+        class Enemy {
+            constructor(params) {
+                this.id = params.id
+                this.x = params.x
+                this.y = params.y
+                this.currentHp = params.currentHp
+                this.maxHp = params.maxHp
+                this.speed = params.speed
+                this.map = params.map
+                this.spriteCalc = params.spriteCalc
+                this.projectileAngle = params.projectileAngle
+                this.name = params.name
+                this.type = 'enemy'
+                Enemy.list[this.id] = this
+            }
+
+            render() {
+                if (Player.list[selfId].map !== this.map) {
+                    return
+                }
+                const imgWidth = Img.enemy.width / 2
+                const imgHeight = Img.enemy.height / 2
+                const xpos = this.x - Enemy.list[selfId].x + canvasEnt[0].width / 2
+                const ypos = this.y - Enemy.list[selfId].y + canvasEnt[0].height / 2
+                // hp bar
+                const currentHpWidth = 40 * this.currentHp / this.maxHp
+                ctxEnt.fillStyle = "red"
+                ctxEnt.Enemy(xpos - 40 / 2, ypos - 70 / 2, 40, 4)
+                ctxEnt.fillStyle = "blue"
+                ctxEnt.Enemy(xpos - 40 / 2, ypos - 70 / 2, currentHpWidth, 4)
+
+                // const playerSpriteWidth = Img.player.width / 1.2
+                // const playerSpriteHeight = Img.player.height / 1.5
+                // const frameWidth = Img.player.width / 3
+                // const frameHeight = Img.player.height / 3.9
+                // let directionMod = 3
+                // let angle = this.mouseAngle
+
+                // if (angle < 0)
+                //     angle = 360 + angle
+
+                // if (angle >= 45 && angle < 135)
+                //     directionMod = 2
+                // else if (angle >= 135 && angle < 225)
+                //     directionMod = 1
+                // else if (angle >= 225 && angle < 315)
+                //     directionMod = 0
+
+                // let walkingMod = Math.floor(this.spriteCalc) % 3
+
+
+                ctxEnt.drawImage(Img.enemy, 0, 0, Img.enemy.width, Img.enemy.height,
+                    xpos - imgWidth / 2, ypos - imgHeight / 2, imgWidth, imgHeight)
+            }
+        }
+        Enemy.list = {}
+
+
+        //---------------------------------------------PROJECTILES------------------------------------------//
+
+
         class Projectile {
             constructor(params) {
                 this.id = params.id
@@ -174,6 +239,11 @@ const jQueryApp = function (socket) {
             if (parsedData.projectiles) {
                 for (let i = 0; i < parsedData.projectiles.length; i++) {
                     new Projectile(parsedData.projectiles[i])
+                }
+            }
+            if (parsedData.enemies) {
+                for (let i = 0; i < parsedData.enemies.length; i++) {
+                    new Enemy(parsedData.enemies[i])
                 }
             }
             if (parsedData.maps) {
@@ -342,6 +412,7 @@ const jQueryApp = function (socket) {
                 Map.render()
                 for (let i in Player.list) { Player.list[i].render() }
                 for (let i in Projectile.list) { Projectile.list[i].render() }
+                for (let i in Enemy.list) { Enemy.list[i].render() }
             }
             requestAnimationFrame(renderGame)
         }

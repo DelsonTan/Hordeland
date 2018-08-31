@@ -1,4 +1,5 @@
 const Map = require('./map.js')
+// const Enemies = require('./enemies.js')
 const BISON = require('../client/vendor/bison.js')
 const initData = { players: [], projectiles: [] }
 const removeData = { players: [], projectiles: [] }
@@ -22,19 +23,29 @@ class Entity {
   getDistance(point) {
     return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2))
   }
+  testCollision(point) {
+    let distance = this.getDistance(point)
+    return distance < 10;
+  }
 
   static getFrameUpdateData() {
     const updateData = {
       players: Player.updateAll(),
-      projectiles: Projectile.updateAll()
+      projectiles: Projectile.updateAll(),
+      enemies: Enemy.updateAll()
     }
     const data = {
       init: {},
       update: {},
       remove: {}
+
     }
+    console.log(updateData.enemies)
     if (initData.players.length > 0) {
       data.init.players = initData.players
+    }
+    if (initData.enemies && initData.enemies.length > 0) {
+      data.init.enemies = initData.enemies
     }
     if (initData.projectiles.length > 0) {
       data.init.projectiles = initData.projectiles
@@ -45,6 +56,9 @@ class Entity {
     if (updateData.projectiles.length > 0) {
       data.update.projectiles = updateData.projectiles
     }
+    if (updateData.enemies.length > 0) {
+      data.update.enemies = updateData.enemies
+    }
     if (removeData.players.length > 0) {
       data.remove.players = removeData.players
     }
@@ -54,8 +68,10 @@ class Entity {
     Object.freeze(data)
     initData.players = []
     initData.projectiles = []
+    initData.enemies = []
     removeData.players = []
     removeData.projectiles = []
+    removeData.enemies = []
     return data
   }
 }
@@ -90,6 +106,7 @@ class Player extends Entity {
       name: socket.playerName
     })
 
+
     socket.on('keyPress', (data) => {
       if (data.inputId === 'leftClick') {
         if (data.state) {
@@ -122,7 +139,8 @@ class Player extends Entity {
       selfId: socket.id,
       players: Player.getAllInitData(),
       projectiles: Projectile.getAllInitData(),
-      maps: Map.getAllInitData()
+      maps: Map.getAllInitData(),
+      enemies: Enemy.getAllInitData()
     }))
     socket.emit('initUI', JSON.stringify({
       players: Player.getAllInitUIData()
@@ -249,6 +267,151 @@ Player.list = {}
 Player.socketList = {}
 Player.maxSpeed = 20
 
+//------------------------------------------------ENEMIES--------------------------------------------------//
+
+class Enemy extends Entity {
+  constructor(params) {
+    super(params)
+    this.allowedToFire = true
+    this.rateOfFire = 100
+    this.speed = Enemy.maxSpeed
+    this.currentHp = 5
+    this.maxHp = 5
+    this.spriteCalc = 0
+    this.projectileAngle = 0
+    this.map = 'field' || params.map
+    this.name = 'bats'
+    this.type = 'enemy'
+    this.x = Math.floor(Math.random() * 3000)
+    this.y = Math.floor(Math.random() * 3000)
+    Enemy.list[this.id] = this
+    initData.enemies.push(this.initialData)
+  }
+
+
+  static updateAll() {
+    const data = []
+    for (let i in Enemy.list) {
+      let enemy = Enemy.list[i]
+      enemy.update()
+      // let projPos = Map.list[enemy.map].isPositionWall(enemy)
+      // if (projPos && projPos === 468) {
+      //   projectile.toRemove = true
+      // }
+      data.push(enemy.updateData)
+    }
+    return data
+  }
+
+  static getAllInitData() {
+    const enemies = []
+    for (let i in Enemy.list) { enemies.push(Enemy.list[i].initialData) }
+    return enemies
+  }
+
+  static generateEnemies(id) {
+      new Enemy(id);
+  }
+
+  get initialData() {
+    return {
+      id: this.id,
+      x: this.x,
+      y: this.y,
+      currentHp: this.currentHp,
+      maxHp: this.maxHp,
+      map: this.map,
+      spriteCalc: this.spriteCalc,
+    }
+  }
+
+  get updateData() {
+    return {
+      id: this.id,
+      x: this.x,
+      y: this.y,
+      currentHp: this.currentHp,
+      map: this.map,
+      spriteCalc: this.spriteCalc,
+    }
+  }
+
+  get UIData() {
+    return {
+      id: this.id,
+      name: this.name,
+      score: this.score
+    }
+  }
+
+  update() {
+    const prevX = this.x
+    const prevY = this.y
+    this.updateSpeed()
+    super.update()
+
+    // this.spriteCalc += 0.25
+    if (Map.list[this.map].isPositionWall(this)) {
+      this.x = prevX
+      this.y = prevY
+    }
+    for (let i in Player.list) {
+      const target = Player.list[i]
+      if (this.testCollision(target)) {
+        target.currentHp -= 1
+        if (target.currentHp <= 0) {
+          target.currentHp = target.maxHp
+          target.score -= 1
+          target.x = Math.floor(Map.list[target.map].width / 10)
+          target.y = Math.floor(Map.list[target.map].height / 2)
+        }
+        for (let i in Player.socketList) {
+
+          let socket = Player.socketList[i]
+          let data = {
+            players: [{
+              id: target.id,
+              currentHp: target.currentHp,
+              x: target.x,
+              y: target.y
+            }]
+          }
+          socket.emit('update', BISON.encode(data))
+        }
+      }
+    }
+
+    // if (this.allowedToFire && this.pressingFire) {
+    //   this.fireProjectile(this.projectileAngle)
+    //   this.allowedToFire = false
+    //   setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
+    // }
+  }
+
+
+  updateSpeed() {
+    this.dx = -this.speed
+    this.dy = this.speed
+  }
+
+  // fireProjectile(angle) {
+  //   const projectile = new Projectile({
+  //     source: this.type,
+  //     angle: angle,
+  //     x: this.x,
+  //     y: this.y,
+  //     map: this.map
+  //   })
+  //   projectile.x = this.x
+  //   projectile.y = this.y
+  // }
+}
+// Class-level value property: list of all current players
+Enemy.list = {}
+Enemy.maxSpeed = 8
+
+//------------------------------------------------PROJECTILES----------------------------------------------//
+
 class Projectile extends Entity {
   constructor(params) {
     super(params)
@@ -314,7 +477,7 @@ class Projectile extends Entity {
     super.update()
     for (let i in Player.list) {
       const target = Player.list[i]
-      if (this.map === target.map && this.getDistance(target) < 30 && this.source !== target.id) {
+      if (this.map === target.map && this.getDistance(target) < 30) {
         target.currentHp -= 1
         if (target.currentHp <= 0) {
           const attacker = Player.list[this.source]
@@ -326,14 +489,14 @@ class Projectile extends Entity {
           this.toRemove = true
           for (let i in Player.socketList) {
             let socket = Player.socketList[i]
-            socket.emit('updateScore', BISON.encode({ players: [ attacker.UIData, target.UIData ] }))
+            socket.emit('updateScore', BISON.encode({ players: [attacker.UIData, target.UIData] }))
           }
           let attackerSocket = Player.socketList[attacker.id]
           let targetSocket = Player.socketList[target.id]
           attackerSocket.emit('eliMessage', BISON.encode({ players: [attacker.UIData, target.UIData] }))
           targetSocket.emit('eliMessage', BISON.encode({ players: [attacker.UIData, target.UIData] }))
         }
-            for (let i in Player.socketList) {
+        for (let i in Player.socketList) {
 
           let socket = Player.socketList[i]
           let data = {
@@ -351,6 +514,43 @@ class Projectile extends Entity {
         }
       }
     }
+
+    for (let i in Enemy.list) {
+      const target = Enemy.list[i]
+      if (this.map === target.map && this.getDistance(target) < 30) {
+        target.currentHp -= 1
+        if (target.currentHp <= 0) {
+          const attacker = Player.list[this.source]
+          if (attacker) { attacker.score += 1 }
+          target.currentHp = target.maxHp
+          target.x = Math.floor(Map.list[target.map].width / 10)
+          target.y = Math.floor(Map.list[target.map].height / 2)
+
+          this.toRemove = true
+          for (let i in Player.socketList) {
+            let socket = Player.socketList[i]
+            socket.emit('updateScore', BISON.encode({ players: [attacker.UIData, target.UIData] }))
+          }
+        }
+        for (let i in Player.socketList) {
+
+          let socket = Player.socketList[i]
+          let data = {
+            enemies: [{
+              id: target.id,
+              currentHp: target.currentHp,
+              x: target.x,
+              y: target.y
+            }]
+          }
+          socket.emit('update', BISON.encode(data))
+          delete Projectile.list[this.id]
+          removeData.projectiles.push(this.id)
+          socket.emit('remove', BISON.encode(removeData))
+        }
+      }
+
+    }
   }
 }
 // Class-level value property: list of all current projectiles
@@ -359,5 +559,9 @@ module.exports = {
   "playerConnect": Player.onConnect,
   "playerDisconnect": Player.onDisconnect,
   "getFrameUpdateData": Entity.getFrameUpdateData,
-  "SOCKET_LIST": Player.socketList
+  "SOCKET_LIST": Player.socketList,
+  "generateEnemies": Enemy.generateEnemies,
+  "PlayerList": Player.list,
+  "PlayerSocketList": Player.socketList,
+  "EnemyList": Enemy.list
 }
