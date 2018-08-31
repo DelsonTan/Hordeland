@@ -25,7 +25,7 @@ class Entity {
 
   static getFrameUpdateData() {
     Projectile.updateAll()
-    const updateData = {
+    const updateRenderData = {
       players: Player.updateAll()
     }
     const data = {
@@ -39,8 +39,8 @@ class Entity {
     if (initData.projectiles.length > 0) {
       data.init.projectiles = initData.projectiles
     }
-    if (updateData.players.length > 0) {
-      data.update.players = updateData.players
+    if (updateRenderData.players.length > 0) {
+      data.update.players = updateRenderData.players
     }
     if (removeData.players.length > 0) {
       data.remove.players = removeData.players
@@ -60,7 +60,6 @@ class Entity {
 class Player extends Entity {
   constructor(params) {
     super(params)
-    this.number = (Math.floor(10 * Math.random())).toString()
     this.pressingLeft = false
     this.pressingRight = false
     this.pressingUp = false
@@ -76,8 +75,9 @@ class Player extends Entity {
     this.spriteCalc = 0
     this.projectileAngle = 0
     this.name = params.name || ''
+    this.randomSpawn()
     Player.list[this.id] = this
-    initData.players.push(this.initialData)
+    initData.players.push(this.initRenderData)
   }
 
   static onConnect(socket) {
@@ -89,11 +89,7 @@ class Player extends Entity {
 
     socket.on('keyPress', (data) => {
       if (data.inputId === 'leftClick') {
-        if (data.state) {
-          player.speed = Math.floor(Player.maxSpeed * 0.60)
-        } else {
-          player.speed = Math.floor(Player.maxSpeed)
-        }
+        data.state ? player.speed = Math.floor(Player.maxSpeed * 0.60) : player.speed = Math.floor(Player.maxSpeed)
       }
       if (data.inputId === 'left') {
         player.mouseAngle = 135
@@ -117,7 +113,7 @@ class Player extends Entity {
     })
     socket.emit('init', JSON.stringify({
       selfId: socket.id,
-      players: Player.getAllInitData(),
+      players: Player.getAllInitRenderData(),
       projectiles: Projectile.getAllInitData(),
       maps: Map.getAllInitData()
     }))
@@ -142,7 +138,7 @@ class Player extends Entity {
       player.update()
       let newPlayerData = JSON.stringify(player)
       if (newPlayerData !== oldPlayerData) {
-        data.push(player.updateData)
+        data.push(player.updateRenderData)
       }
     }
     return data
@@ -153,9 +149,9 @@ class Player extends Entity {
     removeData.players.push(socket.id)
   }
 
-  static getAllInitData() {
+  static getAllInitRenderData() {
     const players = []
-    for (let i in Player.list) { players.push(Player.list[i].initialData) }
+    for (let i in Player.list) { players.push(Player.list[i].initRenderData) }
     return players
   }
 
@@ -165,15 +161,13 @@ class Player extends Entity {
     return players
   }
 
-  get initialData() {
+  get initRenderData() {
     return {
       id: this.id,
       x: this.x,
       y: this.y,
       currentHp: this.currentHp,
       maxHp: this.maxHp,
-      score: this.score,
-      number: this.number,
       map: this.map,
       spriteCalc: this.spriteCalc,
       projectileAngle: this.projectileAngle,
@@ -189,13 +183,12 @@ class Player extends Entity {
     }
   }
 
-  get updateData() {
+  get updateRenderData() {
     return {
       id: this.id,
       x: this.x,
       y: this.y,
       currentHp: this.currentHp,
-      score: this.score,
       map: this.map,
       mouseAngle: this.mouseAngle,
       spriteCalc: this.spriteCalc,
@@ -224,9 +217,12 @@ class Player extends Entity {
   }
 
   updateSpeed() {
-    if (this.pressingLeft) { this.dx = -this.speed } else if (this.pressingRight) { this.dx = this.speed } else { this.dx = 0 }
-
-    if (this.pressingUp) { this.dy = -this.speed } else if (this.pressingDown) { this.dy = this.speed } else { this.dy = 0 }
+    if (this.pressingLeft) { this.dx = -this.speed } 
+    else if (this.pressingRight) { this.dx = this.speed } 
+    else { this.dx = 0 }
+    if (this.pressingUp) { this.dy = -this.speed } 
+    else if (this.pressingDown) { this.dy = this.speed } 
+    else { this.dy = 0 }
   }
 
   fireProjectile(angle) {
@@ -239,6 +235,16 @@ class Player extends Entity {
     })
     projectile.x = this.x
     projectile.y = this.y
+  }
+
+  randomSpawn() {
+    this.x = Math.floor(Math.random() * Map.list[this.map].width)
+    this.y = Math.floor(Math.random() * Map.list[this.map].height)
+    // prevent players from spawning into walls
+    while (Map.list[this.map].isPositionWall(this)) {
+      this.x = Math.floor(Math.random() * Map.list[this.map].width)
+      this.y = Math.floor(Math.random() * Map.list[this.map].height)
+    }
   }
 }
 // Class-level value property: list of all current players
@@ -260,7 +266,7 @@ class Projectile extends Entity {
     this.timer = 0
     this.toRemove = false
     Projectile.list[this.id] = this
-    initData.projectiles.push(this.initialData)
+    initData.projectiles.push(this.initRenderData)
   }
 
   static updateAll() {
@@ -281,11 +287,11 @@ class Projectile extends Entity {
 
   static getAllInitData() {
     const projectiles = []
-    for (let i in Projectile.list) { projectiles.push(Projectile.list[i].initialData) }
+    for (let i in Projectile.list) { projectiles.push(Projectile.list[i].initRenderData) }
     return projectiles
   }
 
-  get initialData() {
+  get initRenderData() {
     return {
       id: this.id,
       x: this.x,
@@ -295,14 +301,13 @@ class Projectile extends Entity {
     }
   }
 
-  get updateData() {
+  get updateRenderData() {
     return {
       id: this.id,
       x: this.x,
       y: this.y
     }
   }
-
   // Queue projectile for removal when timer exceeds 50
   update() {
     if (this.timer++ > 15) { this.toRemove = true }
@@ -315,13 +320,7 @@ class Projectile extends Entity {
           const attacker = Player.list[this.source]
           if (attacker) { attacker.score += 1 }
           target.currentHp = target.maxHp
-
-          target.x = Math.floor(Math.random() * Map.list[target.map].width)
-          target.y = Math.floor(Math.random() * Map.list[target.map].height)
-          while (Map.list[target.map].isPositionWall(target)) {
-            target.x = Math.floor(Math.random() * Map.list[target.map].width)
-            target.y = Math.floor(Math.random() * Map.list[target.map].height)
-          }
+          target.randomSpawn()
           this.toRemove = true
           for (let i in Player.socketList) {
             let socket = Player.socketList[i]
@@ -333,7 +332,6 @@ class Projectile extends Entity {
           targetSocket.emit('eliMessage', BISON.encode({ players: [attacker.UIData, target.UIData] }))
         }
         for (let i in Player.socketList) {
-
           let socket = Player.socketList[i]
           let data = {
             players: [{
@@ -346,7 +344,6 @@ class Projectile extends Entity {
           socket.emit('update', BISON.encode(data))
           delete Projectile.list[this.id]
           removeData.projectiles.push(this.id)
-          socket.emit('remove', BISON.encode(removeData))
         }
       }
     }
