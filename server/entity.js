@@ -83,7 +83,7 @@ class Player extends Entity {
   static onConnect(socket) {
     const player = new Player({
       id: socket.id,
-      map: 'field',
+      map: 'forest',
       name: socket.playerName
     })
 
@@ -217,11 +217,11 @@ class Player extends Entity {
   }
 
   updateSpeed() {
-    if (this.pressingLeft) { this.dx = -this.speed } 
-    else if (this.pressingRight) { this.dx = this.speed } 
+    if (this.pressingLeft) { this.dx = -this.speed }
+    else if (this.pressingRight) { this.dx = this.speed }
     else { this.dx = 0 }
-    if (this.pressingUp) { this.dy = -this.speed } 
-    else if (this.pressingDown) { this.dy = this.speed } 
+    if (this.pressingUp) { this.dy = -this.speed }
+    else if (this.pressingDown) { this.dy = this.speed }
     else { this.dy = 0 }
   }
 
