@@ -69,8 +69,8 @@ class Player extends Entity {
     this.rateOfFire = 100
     this.mouseAngle = 0
     this.speed = Player.maxSpeed
-    this.currentHp = 5
-    this.maxHp = 5
+    this.maxHp = 50
+    this.currentHp = this.maxHp
     this.score = 0
     this.spriteCalc = 0
     this.projectileAngle = 0
@@ -261,6 +261,7 @@ class Projectile extends Entity {
     this.map = params.map
     this.angle = params.angle
     this.speed = 50
+    this.damage = 10
     this.dx = Math.floor(Math.cos(params.angle / 180 * Math.PI) * this.speed)
     this.dy = Math.floor(Math.sin(params.angle / 180 * Math.PI) * this.speed)
     this.timer = 0
@@ -315,7 +316,7 @@ class Projectile extends Entity {
     for (let i in Player.list) {
       const target = Player.list[i]
       if (this.map === target.map && this.getDistance(target) < 30 && this.source !== target.id) {
-        target.currentHp -= 1
+        target.currentHp -= this.damage
         if (target.currentHp <= 0) {
           const attacker = Player.list[this.source]
           if (attacker) { attacker.score += 1 }
