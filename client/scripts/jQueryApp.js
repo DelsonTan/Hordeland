@@ -154,7 +154,6 @@ const jQueryApp = function (socket) {
         Projectile.list = {}
 
         socket.on('signInResponse', function (data) {
-            console.log('signInResponse', data)
             if (data.success) {
                 signDiv.hide()
                 focusCanvas()
@@ -267,14 +266,14 @@ const jQueryApp = function (socket) {
         })
 
 
-        signDivUsername.focus(function () {
+        signDivUsername.focus(() => {
             $(this).data('placeholder', $(this).attr('placeholder'))
                 .attr('placeholder', '');
         }).blur(function () {
             $(this).attr('placeholder', $(this).data('placeholder'));
         });
 
-        signDivSignIn.on('submit', function (event) {
+        signDivSignIn.on('submit', (event) => {
             event.preventDefault();
             socket.emit('signIn', { username: signDivUsername.val() });
         })
