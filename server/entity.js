@@ -40,7 +40,6 @@ class Entity {
       remove: {}
 
     }
-    console.log(updateData.enemies)
     if (initData.players.length > 0) {
       data.init.players = initData.players
     }
@@ -284,6 +283,7 @@ class Enemy extends Entity {
     this.type = 'enemy'
     this.x = Math.floor(Math.random() * 3000)
     this.y = Math.floor(Math.random() * 3000)
+    this.target = ''
     Enemy.list[this.id] = this
     initData.enemies.push(this.initialData)
   }
@@ -310,7 +310,7 @@ class Enemy extends Entity {
   }
 
   static generateEnemies(id) {
-      new Enemy(id);
+    new Enemy(id);
   }
 
   get initialData() {
@@ -322,6 +322,7 @@ class Enemy extends Entity {
       maxHp: this.maxHp,
       map: this.map,
       spriteCalc: this.spriteCalc,
+      target: this.target
     }
   }
 
@@ -333,6 +334,7 @@ class Enemy extends Entity {
       currentHp: this.currentHp,
       map: this.map,
       spriteCalc: this.spriteCalc,
+      target: this.target
     }
   }
 
@@ -351,10 +353,10 @@ class Enemy extends Entity {
     super.update()
 
     // this.spriteCalc += 0.25
-    if (Map.list[this.map].isPositionWall(this)) {
-      this.x = prevX
-      this.y = prevY
-    }
+    // if (Map.list[this.map].isPositionWall(this)) {
+    //   this.x = prevX
+    //   this.y = prevY
+    // }
     for (let i in Player.list) {
       const target = Player.list[i]
       if (this.testCollision(target)) {
@@ -390,8 +392,38 @@ class Enemy extends Entity {
 
 
   updateSpeed() {
-    this.dx = -this.speed
-    this.dy = this.speed
+    let closestDistance = 5000;
+    if (Object.keys(Player.list).length > 0) {
+
+        for (let i in Player.list) {
+          let distanceSum = 0;
+          let diffX = Math.floor(Player.list[i].x - this.x)
+          let diffY = Math.floor(Player.list[i].y - this.y)
+          distanceSum = diffX + diffY;
+          if (closestDistance > distanceSum) {
+            closestDistance = distanceSum;
+            this.target = Player.list[i]
+          }
+        }
+
+      console.log(this.target)
+
+      if (Math.floor(this.target.x - this.x) > 4) {
+        this.x += 3;
+      } else if(Math.floor(this.target.x - this.x) < 0) {
+        this.x -= 3;
+      }
+
+      if (Math.floor(this.target.y - this.y) > 4) {
+        this.y += 3;
+      } else if(Math.floor(this.target.y - this.y) < 0){
+        this.y -= 3;
+      }
+    } else {
+      this.y += 0;
+      this.x += 0;
+      console.log(this.target)
+    }
   }
 
   // fireProjectile(angle) {

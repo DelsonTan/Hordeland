@@ -230,7 +230,6 @@ const jQueryApp = function (socket) {
 
         socket.on('init', function (data) {
             const parsedData = JSON.parse(data)
-            console.log('init', parsedData)
             if (parsedData.selfId) { selfId = parsedData.selfId }
             if (parsedData.players) {
                 for (let i = 0; i < parsedData.players.length; i++) {
@@ -256,7 +255,7 @@ const jQueryApp = function (socket) {
 
         socket.on('update', function (data) {
             const parsedData = BISON.decode(data)
-            console.log("update", parsedData)
+            // console.log("update", parsedData)
             if (parsedData.players)
                 for (let i = 0; i < parsedData.players.length; i++) {
                     const newPlayerData = parsedData.players[i]
@@ -293,6 +292,7 @@ const jQueryApp = function (socket) {
                 for (let i = 0; i < parsedData.enemies.length; i++) {
                     const newEnemyData = parsedData.enemies[i]
                     const enemy = Enemy.list[newEnemyData.id]
+                    console.log(enemy);
                     if (enemy) {
                         if (newEnemyData.x !== undefined) { enemy.x = newEnemyData.x }
                         if (newEnemyData.y !== undefined) { enemy.y = newEnemyData.y }
