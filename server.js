@@ -5,7 +5,7 @@ const io = require('socket.io')(server, {})
 const PORT = process.env.PORT || 3000;
 const BISON = require('./client/vendor/bison.js')
 
-const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData, generateEnemies } = require('./server/entity.js')
+const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData, generateEnemies, EnemyList } = require('./server/entity.js')
 // IMPORTANT: SET TO FALSE IN PRODUCTION
 const DEBUG = true
 
@@ -50,12 +50,17 @@ setInterval(() => {
   for (let i in SOCKET_LIST) {
     let socket = SOCKET_LIST[i]
     if (Object.keys(data.init).length > 0) { socket.emit('init', initData) }
-    if (Object.keys(data.update).length > 0)  { socket.emit('update', updateData) }
-    if (Object.keys(data.remove).length > 0)  { socket.emit('remove', removeData) }
+    if (Object.keys(data.update).length > 0) { socket.emit('update', updateData) }
+    if (Object.keys(data.remove).length > 0) { socket.emit('remove', removeData) }
   }
 }, 40)
 
-generateEnemies()
+setInterval(() => {
+  if (Object.keys(EnemyList).length < 10) {
+    let id = Math.floor(1000 * Math.random())
+    generateEnemies({id: id})
+  }
+}, 3000)
 
 app.use('/client', express.static(__dirname + '/client'))
 app.get('/', (req, res) => { res.sendFile(__dirname + '/client/index.html') })

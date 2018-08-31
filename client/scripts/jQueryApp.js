@@ -153,16 +153,17 @@ const jQueryApp = function (socket) {
                 if (Player.list[selfId].map !== this.map) {
                     return
                 }
-                const imgWidth = Img.enemy.width / 2
-                const imgHeight = Img.enemy.height / 2
-                const xpos = this.x - Enemy.list[selfId].x + canvasEnt[0].width / 2
-                const ypos = this.y - Enemy.list[selfId].y + canvasEnt[0].height / 2
+
+                const imgWidth = Img.enemy.width
+                const imgHeight = Img.enemy.height
+                const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
+                const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
                 // hp bar
                 const currentHpWidth = 40 * this.currentHp / this.maxHp
                 ctxEnt.fillStyle = "red"
-                ctxEnt.Enemy(xpos - 40 / 2, ypos - 70 / 2, 40, 4)
+                ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, 40, 4)
                 ctxEnt.fillStyle = "blue"
-                ctxEnt.Enemy(xpos - 40 / 2, ypos - 70 / 2, currentHpWidth, 4)
+                ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, currentHpWidth, 4)
 
                 // const playerSpriteWidth = Img.player.width / 1.2
                 // const playerSpriteHeight = Img.player.height / 1.5
@@ -285,6 +286,19 @@ const jQueryApp = function (socket) {
                     if (projectile) {
                         if (newProjectileData.x !== undefined) { projectile.x = newProjectileData.x }
                         if (newProjectileData.y !== undefined) { projectile.y = newProjectileData.y }
+                    }
+                }
+            }
+            if (parsedData.enemies) {
+                for (let i = 0; i < parsedData.enemies.length; i++) {
+                    const newEnemyData = parsedData.enemies[i]
+                    const enemy = Enemy.list[newEnemyData.id]
+                    if (enemy) {
+                        if (newEnemyData.x !== undefined) { enemy.x = newEnemyData.x }
+                        if (newEnemyData.y !== undefined) { enemy.y = newEnemyData.y }
+                        if (newEnemyData.currentHp !== undefined) {
+                            enemy.currentHp = newEnemyData.currentHp
+                        }
                     }
                 }
             }
