@@ -1,7 +1,8 @@
 const Map = require('./map.js')
 const BISON = require('../client/vendor/bison.js')
 const initData = { players: [], enemies: [], projectiles: [] }
-const removeData = { players: [], projectiles: [] }
+const updateData = { players: [], enemies: [], projectiles: [] }
+const removeData = { players: [], enemies: [], projectiles: [] }
 
 class Entity {
   constructor(params) {
@@ -20,7 +21,7 @@ class Entity {
     this.y += this.dy
   }
   getDistance(point) {
-    return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2))
+    return Math.floor(Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2)))
   }
   isCollision(point, radius) {
     let distance = this.getDistance(point)
@@ -37,17 +38,12 @@ class Entity {
   }
 
   static getFrameUpdateData() {
-
     Projectile.updateAll()
-    // Enemy.updateAll()
-    const updateRenderData = {
-      players: Player.updateAll()
-    }
+    Player.updateAll()
     const data = {
       init: {},
       update: {},
       remove: {}
-
     }
     if (initData.players.length > 0) {
       data.init.players = initData.players
@@ -61,8 +57,9 @@ class Entity {
       data.init.projectiles = initData.projectiles
       initData.projectiles = []
     }
-    if (updateRenderData.players.length > 0) {
-      data.update.players = updateRenderData.players
+    if (updateData.players.length > 0) {
+      data.update.players = updateData.players
+      updateData.players = []
     }
     if (removeData.players.length > 0) {
       data.remove.players = removeData.players
@@ -152,17 +149,15 @@ class Player extends Entity {
   }
 
   static updateAll() {
-    const data = []
     for (let i in Player.list) {
       const player = Player.list[i]
       let oldPlayerData = JSON.stringify(player)
       player.update()
       let newPlayerData = JSON.stringify(player)
       if (newPlayerData !== oldPlayerData) {
-        data.push(player.updateRenderData)
+        updateData.players.push(player.updateRenderData)
       }
     }
-    return data
   }
 
   static onDisconnect(socket) {
@@ -377,12 +372,11 @@ class Enemy extends Entity {
     let closestDistance = Infinity
     if (Object.keys(Player.list).length > 0) {
       for (let i in Player.list) {
-        let distanceX = Math.floor(Player.list[i].x - this.x)
-        let distanceY = Math.floor(Player.list[i].y - this.y)
-        let distance = distanceX + distanceY
+        const player = Player.list[i]
+        const distance = this.getDistance(player)
         if (closestDistance > distance) {
           closestDistance = distance
-          this.target = Player.list[i]
+          this.target = { x: player.x, y: player.y }
         }
       }
     }
@@ -485,7 +479,8 @@ class Projectile extends Entity {
     }
   }
   // Queue projectile for removal when timer exceeds 15
-  // Projectile deleted as soon as it hits something (no splash damage), take out return statements in for loop to allow splash
+  // Projectile deleted as soon as it hits something (no splash damage)
+  // Take out return statements in for loop to allow splash, but this will cost a lot more performance issues
   update() {
     if (this.timer++ > 15) { this.toRemove = true }
     super.update()

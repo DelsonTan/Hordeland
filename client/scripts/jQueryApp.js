@@ -151,6 +151,19 @@ const jQueryApp = function(socket) {
         Enemy.list[this.id] = this
       }
 
+      static updateTarget() {
+        for (let i in Enemy.list) {
+          let enemy = Enemy.list[i]
+          enemy.setTarget()
+        }
+      }
+      static updateAll() {
+        for (let i in Enemy.list) {
+          let enemy = Enemy.list[i]
+          enemy.updateSpeed()
+        }
+      }
+
       setTarget() {
         let closestDistance = 5000;
         if (Object.keys(Player.list).length > 0) {
@@ -187,24 +200,11 @@ const jQueryApp = function(socket) {
           this.x += 0;
         }
       }
-      static updateTarget() {
-        for (let i in Enemy.list) {
-          let enemy = Enemy.list[i]
-          enemy.setTarget()
-        }
-      }
-      static updateAll() {
-        for (let i in Enemy.list) {
-          let enemy = Enemy.list[i]
-          enemy.updateSpeed()
-        }
-      }
-
+      
       render() {
         if (Player.list[selfId].map !== this.map) {
           return
         }
-
         const imgWidth = Img.enemy.width
         const imgHeight = Img.enemy.height
         const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
@@ -221,9 +221,6 @@ const jQueryApp = function(socket) {
       }
     }
     Enemy.list = {}
-    
-    //---------------------------------------------PROJECTILES------------------------------------------//
-
 
     class Projectile {
       constructor(params) {
