@@ -484,19 +484,21 @@ class Projectile extends Entity {
       y: this.y
     }
   }
-  // Queue projectile for removal when timer exceeds 50
+  // Queue projectile for removal when timer exceeds 15
+  // Projectile deleted as soon as it hits something (no splash damage), take out return statements in for loop to allow splash
   update() {
     if (this.timer++ > 15) { this.toRemove = true }
     super.update()
+    let entityEliminated = false
+    const attacker = Player.list[this.source]
     for (let i in Player.list) {
       const target = Player.list[i]
-      const attacker = Player.list[this.source]
-      let eliminated = false
+
       if (this.map === target.map && this.isCollision(target, 30) && this.source !== target.id) {
         target.currentHp -= this.damage
         if (target.currentHp <= 0) {
           if (attacker !== undefined) { attacker.score += 1 }
-          eliminated = true
+          entityEliminated = true
           target.score = 0
           target.currentHp = target.maxHp
           target.randomSpawn()
@@ -512,47 +514,45 @@ class Projectile extends Entity {
         for (let id in Player.socketList) {
           let socket = Player.socketList[id]
           socket.emit('update', BISON.encode(data))
-          // target was eliminated and attacker is still connected
-          if (eliminated && attacker !== undefined) {
+          if (entityEliminated && attacker !== undefined) {
             socket.emit('elimination', BISON.encode({ players: [attacker.UIData, target.UIData] }))
           }
         }
         delete Projectile.list[this.id]
         removeData.projectiles.push(this.id)
+        return
       }
     }
 
     for (let i in Enemy.list) {
       const target = Enemy.list[i]
       if (this.map === target.map && this.isCollision(target, 30)) {
-        const attacker = Player.list[this.source]
         target.currentHp -= 1
-
         if (target.currentHp <= 0) {
           if (attacker) { attacker.score += 1 }
+          entityEliminated = true
           target.currentHp = target.maxHp
           target.randomSpawn()
-          for (let i in Player.socketList) {
-            let socket = Player.socketList[i]
-            socket.emit('elimination', BISON.encode({ players: [attacker.UIData, target.UIData] }))
-          }
+        }
+        let data = {
+          enemies: [{
+            id: target.id,
+            currentHp: target.currentHp,
+            x: target.x,
+            y: target.y
+          }]
         }
         for (let i in Player.socketList) {
           let socket = Player.socketList[i]
-          let data = {
-            enemies: [{
-              id: target.id,
-              currentHp: target.currentHp,
-              x: target.x,
-              y: target.y
-            }]
-          }
           socket.emit('update', BISON.encode(data))
+          if (entityEliminated && attacker !== undefined) {
+            socket.emit('elimination', BISON.encode({ players: [attacker.UIData, target.UIData] }))
+          }
         }
         delete Projectile.list[this.id]
         removeData.projectiles.push(this.id)
+        return
       }
-
     }
   }
 }
