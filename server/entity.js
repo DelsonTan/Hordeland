@@ -1,13 +1,13 @@
 const Map = require('./map.js')
 const BISON = require('../client/vendor/bison.js')
-const initData = { players: [], projectiles: [] }
+const initData = { players: [], enemies: [], projectiles: [] }
 const removeData = { players: [], projectiles: [] }
 
 class Entity {
   constructor(params) {
     this.id = params.id || null
-    this.x = params.x || 500
-    this.y = params.y || 500
+    this.x = params.x || 300
+    this.y = params.y || 300
     this.dx = 0
     this.dy = 0
     this.map = params.map || 'forest'
@@ -51,29 +51,27 @@ class Entity {
     }
     if (initData.players.length > 0) {
       data.init.players = initData.players
+      initData.players = []
     }
     if (initData.enemies && initData.enemies.length > 0) {
       data.init.enemies = initData.enemies
+      initData.enemies = []
     }
     if (initData.projectiles.length > 0) {
       data.init.projectiles = initData.projectiles
+      initData.projectiles = []
     }
     if (updateRenderData.players.length > 0) {
       data.update.players = updateRenderData.players
     }
     if (removeData.players.length > 0) {
       data.remove.players = removeData.players
+      removeData.players = []
     }
     if (removeData.projectiles.length > 0) {
       data.remove.projectiles = removeData.projectiles
+      removeData.projectiles = []
     }
-    Object.freeze(data)
-    initData.players = []
-    initData.projectiles = []
-    initData.enemies = []
-    removeData.players = []
-    removeData.projectiles = []
-    removeData.enemies = []
     return data
   }
 }
@@ -227,11 +225,12 @@ class Player extends Entity {
 
     if (this.pressingRight || this.pressingDown || this.pressingLeft || this.pressingUp)
       this.spriteCalc += 0.25
-    if (Map.list[this.map].isPositionWall(this)) {
+    let playPos = Map.list[this.map].isPositionWall(this)
+    if (playPos && playPos !== 29 && playPos !== 934) {
       this.x = prevX
       this.y = prevY
     }
-
+    Map.list[this.map].isPositionCaveEntry(this);
     if (this.allowedToFire && this.pressingFire) {
       this.fireProjectile(this.projectileAngle)
       this.allowedToFire = false
@@ -271,6 +270,7 @@ class Enemy extends Entity {
     this.maxHp = 5
     this.spriteCalc = 0
     this.projectileAngle = 0
+    this.map = 'cave'
     this.name = 'Bat'
     this.type = 'enemy'
     this.randomSpawn()

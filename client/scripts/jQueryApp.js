@@ -60,7 +60,10 @@ const jQueryApp = function(socket) {
         const imgWidth = mapImg.width
         const imgHeight = mapImg.height
         ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
-        ctxLayer.drawImage(layerImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
+        // ctxLayer.drawImage(layerImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
+        if (Map.list[player.map].name === 'forest') {
+          ctxLayer.drawImage(layerImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
+        }
         ctx.mozImageSmoothingEnabled = false
         ctx.msImageSmoothingEnabled = false
         ctx.imageSmoothingEnabled = false
@@ -139,7 +142,7 @@ const jQueryApp = function(socket) {
         this.currentHp = params.currentHp
         this.maxHp = params.maxHp
         this.speed = params.speed
-        this.map = params.map
+        this.map = 'cave'
         this.spriteCalc = params.spriteCalc
         this.projectileAngle = params.projectileAngle
         this.name = params.name
@@ -314,6 +317,9 @@ const jQueryApp = function(socket) {
             }
             if (newPlayerData.currentHp !== undefined) {
               player.currentHp = newPlayerData.currentHp
+            }
+            if (newPlayerData.map !== undefined) {
+              player.map = newPlayerData.map
             }
             if (newPlayerData.mouseAngle !== undefined)
               player.mouseAngle = newPlayerData.mouseAngle
