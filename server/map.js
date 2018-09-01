@@ -44,6 +44,6 @@ var arrayTile = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 var array2D = array.chunk(arrayTile, 80);
 Map.list = {}
 Map.tileSize = 32
-new Map({ name: 'field', imgSrc: '/client/images/map1.png', grid: array2D })
+new Map({ name: 'forest', imgSrc: '/client/images/map1.png', grid: array2D })
 
 module.exports = Map

@@ -55,6 +55,7 @@ setInterval(() => {
   }
 }, 40)
 
+
 setInterval(() => {
   if (Object.keys(EnemyList).length < 10) {
     let id = Math.floor(1000 * Math.random())
