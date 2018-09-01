@@ -1,9 +1,9 @@
-const jQueryApp = function(socket) {
+const jQueryApp = function (socket) {
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     // Canvas Selectors and Settings
     const game = $('#game')
-    game.oncontextmenu = function(event) {
+    game.oncontextmenu = function (event) {
       event.preventDefault()
     }
 
@@ -151,33 +151,10 @@ const jQueryApp = function(socket) {
         Enemy.list[this.id] = this
       }
 
-      static updateTarget() {
-        for (let i in Enemy.list) {
-          let enemy = Enemy.list[i]
-          enemy.setTarget()
-        }
-      }
       static updateAll() {
         for (let i in Enemy.list) {
           let enemy = Enemy.list[i]
           enemy.updateSpeed()
-        }
-      }
-
-      setTarget() {
-        let closestDistance = 5000;
-        if (Object.keys(Player.list).length > 0) {
-
-          for (let i in Player.list) {
-            let distanceSum = 0;
-            let diffX = Math.floor(Player.list[i].x - this.x)
-            let diffY = Math.floor(Player.list[i].y - this.y)
-            distanceSum = diffX + diffY;
-            if (closestDistance > distanceSum) {
-              closestDistance = distanceSum;
-              this.target = Player.list[i]
-            }
-          }
         }
       }
 
@@ -200,7 +177,7 @@ const jQueryApp = function(socket) {
           this.x += 0;
         }
       }
-      
+
       render() {
         if (Player.list[selfId].map !== this.map) {
           return
@@ -259,9 +236,9 @@ const jQueryApp = function(socket) {
     }
     Projectile.list = {}
 
-    
 
-    socket.on('signInResponse', function(data) {
+
+    socket.on('signInResponse', function (data) {
       if (data.success) {
         signDiv.hide()
         focusCanvas()
@@ -270,11 +247,9 @@ const jQueryApp = function(socket) {
       }
     })
 
-    socket.on('init', function(data) {
+    socket.on('init', function (data) {
       const parsedData = JSON.parse(data)
-
       // console.log('init', parsedData)
-
       if (parsedData.selfId) { selfId = parsedData.selfId }
       if (parsedData.players) {
         for (let i = 0; i < parsedData.players.length; i++) {
@@ -298,10 +273,10 @@ const jQueryApp = function(socket) {
       }
     })
 
-    socket.on('update', function(data) {
+    socket.on('update', function (data) {
       const parsedData = BISON.decode(data)
-      console.log("update", parsedData)
-      if (parsedData.players)
+      // console.log("update", parsedData)
+      if (parsedData.players) {
         for (let i = 0; i < parsedData.players.length; i++) {
           const newPlayerData = parsedData.players[i]
           const player = Player.list[newPlayerData.id]
@@ -326,6 +301,21 @@ const jQueryApp = function(socket) {
               player.projectileAngle = newPlayerData.projectileAngle
           }
         }
+      }
+      if (parsedData.enemies) {
+        for (let i = 0; i < parsedData.enemies.length; i++) {
+          const newEnemyData = parsedData.enemies[i]
+          const enemy = Enemy.list[newEnemyData.id]
+          if (enemy) {
+            if (newEnemyData.x !== undefined) { enemy.x = newEnemyData.x }
+            if (newEnemyData.y !== undefined) { enemy.y = newEnemyData.y }
+            if (newEnemyData.target !== undefined) { enemy.target = newEnemyData.target }
+            if (newEnemyData.currentHp !== undefined) {
+              enemy.currentHp = newEnemyData.currentHp
+            }
+          }
+        }
+      }
       if (parsedData.projectiles) {
         for (let i = 0; i < parsedData.projectiles.length; i++) {
           const newProjectileData = parsedData.projectiles[i]
@@ -336,22 +326,9 @@ const jQueryApp = function(socket) {
           }
         }
       }
-      if (parsedData.enemies) {
-        for (let i = 0; i < parsedData.enemies.length; i++) {
-          const newEnemyData = parsedData.enemies[i]
-          const enemy = Enemy.list[newEnemyData.id]
-          if (enemy) {
-            if (newEnemyData.x !== undefined) { enemy.x = newEnemyData.x }
-            if (newEnemyData.y !== undefined) { enemy.y = newEnemyData.y }
-            if (newEnemyData.currentHp !== undefined) {
-              enemy.currentHp = newEnemyData.currentHp
-            }
-          }
-        }
-      }
     })
 
-    socket.on('remove', function(data) {
+    socket.on('remove', function (data) {
       const parsedData = BISON.decode(data)
       // console.log('remove', parsedData)
       if (parsedData.players) {
@@ -372,7 +349,7 @@ const jQueryApp = function(socket) {
     const focusChat = () => { chatInput.focus() }
     const blurChat = () => { chatInput.blur() }
     const pressing = (action, bool) => { socket.emit('keyPress', { inputId: action, state: bool }) }
-    const cancelPlayerKeyPress = function() {
+    const cancelPlayerKeyPress = function () {
       pressing('left', false)
       pressing('right', false)
       pressing('up', false)
@@ -400,7 +377,7 @@ const jQueryApp = function(socket) {
     signDivUsername.focus(() => {
       $(this).data('placeholder', $(this).attr('placeholder'))
         .attr('placeholder', '');
-    }).blur(function() {
+    }).blur(function () {
       $(this).attr('placeholder', $(this).data('placeholder'));
     });
 
@@ -454,8 +431,8 @@ const jQueryApp = function(socket) {
       focusCanvas()
     })
 
-    socket.on('addToChat', function(data) { $("<div>").text(data).appendTo(chatText) })
-    socket.on('evalAnswer', function(data) { console.log(data) })
+    socket.on('addToChat', function (data) { $("<div>").text(data).appendTo(chatText) })
+    socket.on('evalAnswer', function (data) { console.log(data) })
     // ------------------------------------------------ Render Logic ------------------------------------------------
     const renderGame = () => {
       if (selfId) {
@@ -477,8 +454,6 @@ const jQueryApp = function(socket) {
       Enemy.updateAll()
       Projectile.updateAll()
     }, 40)
-    // Update all enemy targets
-    setInterval(() => { Enemy.updateTarget() }, 3000)
   })
 }
 

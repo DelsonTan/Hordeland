@@ -49,7 +49,7 @@ class Entity {
       data.init.players = initData.players
       initData.players = []
     }
-    if (initData.enemies && initData.enemies.length > 0) {
+    if (initData.enemies.length > 0) {
       data.init.enemies = initData.enemies
       initData.enemies = []
     }
@@ -60,6 +60,10 @@ class Entity {
     if (updateData.players.length > 0) {
       data.update.players = updateData.players
       updateData.players = []
+    }
+    if (updateData.enemies.length > 0) {
+      data.update.enemies = updateData.enemies
+      updateData.enemies = []
     }
     if (removeData.players.length > 0) {
       data.remove.players = removeData.players
@@ -147,7 +151,7 @@ class Player extends Entity {
     Player.socketList[socket.id] = socket
 
   }
-
+  // Only pushes player data to client update package if the data has changed
   static updateAll() {
     for (let i in Player.list) {
       const player = Player.list[i]
@@ -274,7 +278,7 @@ class Enemy extends Entity {
     Enemy.list[this.id] = this
     initData.enemies.push(this.initialData)
   }
-
+  
   static updateAll() {
     for (let i in Enemy.list) {
       let enemy = Enemy.list[i]
@@ -299,7 +303,7 @@ class Enemy extends Entity {
     }
   }
 
-  static updateTarget() {
+  static updateAllTargets() {
     for (let i in Enemy.list) {
       let enemy = Enemy.list[i]
       enemy.updateTarget()
@@ -324,6 +328,15 @@ class Enemy extends Entity {
       id: this.id,
       name: this.name,
       score: this.score
+    }
+  }
+
+  get updateTargetData() {
+    return {
+      id: this.id,
+      x: this.x,
+      y: this.y,
+      target: this.target
     }
   }
 
@@ -369,8 +382,8 @@ class Enemy extends Entity {
   }
 
   updateTarget() {
-    let closestDistance = Infinity
     if (Object.keys(Player.list).length > 0) {
+      let closestDistance = Infinity
       for (let i in Player.list) {
         const player = Player.list[i]
         const distance = this.getDistance(player)
@@ -379,6 +392,7 @@ class Enemy extends Entity {
           this.target = { x: player.x, y: player.y }
         }
       }
+      updateData.enemies.push(this.updateTargetData)
     }
   }
 
@@ -417,7 +431,7 @@ Enemy.list = {}
 Enemy.maxNumber = 10
 Enemy.maxSpeed = 12
 setInterval(() => { Enemy.updateAll() }, 40)
-setInterval(() => { Enemy.updateTarget() }, 3000)
+setInterval(() => { Enemy.updateAllTargets() }, 3000)
 
 //------------------------------------------------PROJECTILES----------------------------------------------//
 
