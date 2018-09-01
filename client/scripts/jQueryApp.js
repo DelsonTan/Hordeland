@@ -131,8 +131,6 @@ const jQueryApp = function(socket) {
     }
     Player.list = {}
 
-    //---------------------------------------------ENEMIES------------------------------------------//
-
     class Enemy {
       constructor(params) {
         this.id = params.id
@@ -146,9 +144,10 @@ const jQueryApp = function(socket) {
         this.projectileAngle = params.projectileAngle
         this.name = params.name
         this.type = 'enemy'
-        this.target = ''
+        this.target = null
         Enemy.list[this.id] = this
       }
+
       setTarget() {
         let closestDistance = 5000;
         if (Object.keys(Player.list).length > 0) {
@@ -165,8 +164,9 @@ const jQueryApp = function(socket) {
           }
         }
       }
+
       updateSpeed() {
-        if (this.target !== '') {
+        if (this.target !== null) {
 
           if (Math.floor(this.target.x - this.x) > 4) {
             this.x += 3;
@@ -213,35 +213,12 @@ const jQueryApp = function(socket) {
         ctxEnt.fillStyle = "blue"
         ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, currentHpWidth, 4)
 
-        // const playerSpriteWidth = Img.player.width / 1.2
-        // const playerSpriteHeight = Img.player.height / 1.5
-        // const frameWidth = Img.player.width / 3
-        // const frameHeight = Img.player.height / 3.9
-        // let directionMod = 3
-        // let angle = this.mouseAngle
-
-        // if (angle < 0)
-        //     angle = 360 + angle
-
-        // if (angle >= 45 && angle < 135)
-        //     directionMod = 2
-        // else if (angle >= 135 && angle < 225)
-        //     directionMod = 1
-        // else if (angle >= 225 && angle < 315)
-        //     directionMod = 0
-
-        // let walkingMod = Math.floor(this.spriteCalc) % 3
-
-
         ctxEnt.drawImage(Img.enemy, 0, 0, Img.enemy.width, Img.enemy.height,
           xpos - imgWidth / 2, ypos - imgHeight / 2, imgWidth, imgHeight)
       }
     }
     Enemy.list = {}
-    setInterval(() => { Enemy.updateAll() }, 50)
-    setInterval(() => { Enemy.updateTarget() }, 3000)
-
-
+    
     //---------------------------------------------PROJECTILES------------------------------------------//
 
 
@@ -281,8 +258,8 @@ const jQueryApp = function(socket) {
       }
     }
     Projectile.list = {}
-    setInterval(() => { Projectile.updateAll() }, 40)
 
+    
 
     socket.on('signInResponse', function(data) {
       if (data.success) {
@@ -489,9 +466,16 @@ const jQueryApp = function(socket) {
       }
       requestAnimationFrame(renderGame)
     }
-    // initialize draw on page load
+    // initialize on page load
     focusCanvas()
     renderGame()
+    // Update all property values for entities
+    setInterval(() => {
+      Enemy.updateAll()
+      Projectile.updateAll()
+    }, 40)
+    // Update all enemy targets
+    setInterval(() => { Enemy.updateTarget() }, 3000)
   })
 }
 

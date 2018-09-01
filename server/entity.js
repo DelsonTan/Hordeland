@@ -1,5 +1,4 @@
 const Map = require('./map.js')
-// const Enemies = require('./enemies.js')
 const BISON = require('../client/vendor/bison.js')
 const initData = { players: [], projectiles: [] }
 const removeData = { players: [], projectiles: [] }
@@ -23,9 +22,18 @@ class Entity {
   getDistance(point) {
     return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2))
   }
-  testCollision(point) {
+  isCollision(point) {
     let distance = this.getDistance(point)
     return distance < 10;
+  }
+
+  randomSpawn() {
+    this.x = Math.floor(Math.random() * Map.list[this.map].width)
+    this.y = Math.floor(Math.random() * Map.list[this.map].height)
+    while (Map.list[this.map].isPositionWall(this)) {
+      this.x = Math.floor(Math.random() * Map.list[this.map].width)
+      this.y = Math.floor(Math.random() * Map.list[this.map].height)
+    }
   }
 
   static getFrameUpdateData() {
@@ -214,7 +222,7 @@ class Player extends Entity {
   update() {
     const prevX = this.x
     const prevY = this.y
-    this.updateSpeed()
+    this.updateDirection()
     super.update()
 
     if (this.pressingRight || this.pressingDown || this.pressingLeft || this.pressingUp)
@@ -231,7 +239,7 @@ class Player extends Entity {
     }
   }
 
-  updateSpeed() {
+  updateDirection() {
     if (this.pressingLeft) { this.dx = -this.speed } else if (this.pressingRight) { this.dx = this.speed } else { this.dx = 0 }
     if (this.pressingUp) { this.dy = -this.speed } else if (this.pressingDown) { this.dy = this.speed } else { this.dy = 0 }
   }
@@ -247,23 +255,11 @@ class Player extends Entity {
     projectile.x = this.x
     projectile.y = this.y
   }
-
-  randomSpawn() {
-    this.x = Math.floor(Math.random() * Map.list[this.map].width)
-    this.y = Math.floor(Math.random() * Map.list[this.map].height)
-    // prevent players from spawning into walls
-    while (Map.list[this.map].isPositionWall(this)) {
-      this.x = Math.floor(Math.random() * Map.list[this.map].width)
-      this.y = Math.floor(Math.random() * Map.list[this.map].height)
-    }
-  }
 }
-// Class-level value property: list of all current players
+// Class-level value properties
 Player.list = {}
 Player.socketList = {}
 Player.maxSpeed = 20
-
-//------------------------------------------------ENEMIES--------------------------------------------------//
 
 class Enemy extends Entity {
   constructor(params) {
@@ -275,15 +271,13 @@ class Enemy extends Entity {
     this.maxHp = 5
     this.spriteCalc = 0
     this.projectileAngle = 0
-    this.map = 'forest' || params.map
-    this.name = 'bats'
+    this.name = 'Bat'
     this.type = 'enemy'
     this.randomSpawn()
-    this.target = ''
+    this.target = null
     Enemy.list[this.id] = this
     initData.enemies.push(this.initialData)
   }
-
 
   static updateAll() {
     for (let i in Enemy.list) {
@@ -304,6 +298,13 @@ class Enemy extends Entity {
 
   static generateEnemies(id) {
     new Enemy(id);
+  }
+
+  static updateTarget() {
+    for (let i in Enemy.list) {
+      let enemy = Enemy.list[i]
+      enemy.updateTarget()
+    }
   }
 
   get initialData() {
@@ -328,9 +329,9 @@ class Enemy extends Entity {
   }
 
   update() {
-    const prevX = this.x
-    const prevY = this.y
-    this.updateSpeed()
+    // const prevX = this.x
+    // const prevY = this.y
+    this.updateDirection()
 
     // this.spriteCalc += 0.25
     // if (Map.list[this.map].isPositionWall(this)) {
@@ -339,16 +340,14 @@ class Enemy extends Entity {
     // }
     for (let i in Player.list) {
       const target = Player.list[i]
-      if (this.testCollision(target)) {
+      if (this.isCollision(target)) {
         target.currentHp -= 1
         if (target.currentHp <= 0) {
           target.currentHp = target.maxHp
-          target.score -= 1
-          target.x = Math.floor(Map.list[target.map].width / 10)
-          target.y = Math.floor(Map.list[target.map].height / 2)
+          target.score = 0
+          target.randomSpawn()
         }
         for (let i in Player.socketList) {
-
           let socket = Player.socketList[i]
           let data = {
             players: [{
@@ -370,57 +369,36 @@ class Enemy extends Entity {
     // }
   }
 
-  setTarget() {
-    let closestDistance = 5000;
+  updateTarget() {
+    let closestDistance = Infinity
     if (Object.keys(Player.list).length > 0) {
-
       for (let i in Player.list) {
-        let distanceSum = 0;
-        let diffX = Math.floor(Player.list[i].x - this.x)
-        let diffY = Math.floor(Player.list[i].y - this.y)
-        distanceSum = diffX + diffY;
-        if (closestDistance > distanceSum) {
-          closestDistance = distanceSum;
+        let distanceX = Math.floor(Player.list[i].x - this.x)
+        let distanceY = Math.floor(Player.list[i].y - this.y)
+        let distance = distanceX + distanceY
+        if (closestDistance > distance) {
+          closestDistance = distance
           this.target = Player.list[i]
         }
       }
     }
   }
 
-  static updateTarget() {
-    for (let i in Enemy.list) {
-      let enemy = Enemy.list[i]
-      enemy.setTarget()
-    }
-  }
-
-  updateSpeed() {
-    if (this.target !== '') {
-
+  updateDirection() {
+    if (this.target !== null) {
       if (Math.floor(this.target.x - this.x) > 4) {
-        this.x += 3;
+        this.x += 3
       } else if (Math.floor(this.target.x - this.x) < 0) {
-        this.x -= 3;
+        this.x -= 3
       }
-
       if (Math.floor(this.target.y - this.y) > 4) {
-        this.y += 3;
+        this.y += 3
       } else if (Math.floor(this.target.y - this.y) < 0) {
-        this.y -= 3;
+        this.y -= 3
       }
     } else {
-      this.y += 0;
-      this.x += 0;
-    }
-  }
-
-  randomSpawn() {
-    this.x = Math.floor(Math.random() * Map.list[this.map].width)
-    this.y = Math.floor(Math.random() * Map.list[this.map].height)
-    // prevent players from spawning into walls
-    while (Map.list[this.map].isPositionWall(this)) {
-      this.x = Math.floor(Math.random() * Map.list[this.map].width)
-      this.y = Math.floor(Math.random() * Map.list[this.map].height)
+      this.y += 0
+      this.x += 0
     }
   }
 
@@ -436,9 +414,9 @@ class Enemy extends Entity {
   //   projectile.y = this.y
   // }
 }
-// Class-level value property: list of all current players
+// Class-level value properties
 Enemy.list = {}
-Enemy.maxSpeed = 8
+Enemy.maxSpeed = 12
 setInterval(() => { Enemy.updateAll() }, 40)
 setInterval(() => { Enemy.updateTarget() }, 3000)
 
