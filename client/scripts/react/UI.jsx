@@ -34,8 +34,9 @@ class UI extends Component {
         })
         this.props.socket.on("elimination", (data) => {
             const parsedData = BISON.decode(data)
-            const attacker = parsedData.players[0]
-            const target = parsedData.players[1]
+            const attacker = parsedData.attacker
+            console.log( parsedData)
+            const target = parsedData.target
             const updatedPlayers = this.state.players
             for (let i = 0; i < this.state.players.length; i++) {
                 const player = this.state.players[i]

@@ -228,8 +228,6 @@ const jQueryApp = function (socket) {
         const imgHeight = Img.bullet.height / 2
         const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
         const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
-
-
         ctxEnt.drawImage(Img.bullet, 0, 0, Img.bullet.width, Img.bullet.height,
           xpos - imgWidth / 2, ypos - imgHeight / 2, imgWidth, imgHeight)
       }

@@ -38,8 +38,9 @@ class Entity {
   }
 
   static getFrameUpdateData() {
-    Projectile.updateAll()
     Player.updateAll()
+    Enemy.updateAll()
+    Projectile.updateAll()
     const data = {
       init: {},
       update: {},
@@ -103,7 +104,7 @@ class Player extends Entity {
   static onConnect(socket) {
     const player = new Player({
       id: socket.id,
-      map: 'forest',
+      map: Player.defaultMap,
       name: socket.playerName
     })
 
@@ -149,7 +150,6 @@ class Player extends Entity {
       }))
     }
     Player.socketList[socket.id] = socket
-
   }
   // Only pushes player data to client update package if the data has changed
   static updateAll() {
@@ -253,12 +253,20 @@ class Player extends Entity {
     projectile.x = this.x
     projectile.y = this.y
   }
+
+  eliminate() {
+    this.score = 0
+    this.currentHp = this.maxHp
+    this.map = Player.defaultMap
+    this.randomSpawn()
+  }
 }
 // Class-level value properties
 Player.list = {}
 Player.socketList = {}
 Player.baseMaxHp = 50
 Player.maxSpeed = 20
+Player.defaultMap = 'forest'
 
 class Enemy extends Entity {
   constructor(params) {
@@ -266,8 +274,8 @@ class Enemy extends Entity {
     this.allowedToFire = true
     this.rateOfFire = 100
     this.speed = Enemy.maxSpeed
-    this.currentHp = 5
-    this.maxHp = 5
+    this.currentHp = 50
+    this.maxHp = 50
     this.spriteCalc = 0
     this.projectileAngle = 0
     this.map = 'cave'
@@ -326,8 +334,7 @@ class Enemy extends Entity {
   get UIData() {
     return {
       id: this.id,
-      name: this.name,
-      score: this.score
+      name: this.name
     }
   }
 
@@ -350,26 +357,30 @@ class Enemy extends Entity {
     //   this.x = prevX
     //   this.y = prevY
     // }
+    let entityEliminated = false
     for (let i in Player.list) {
       const target = Player.list[i]
       if (this.isCollision(target, 15) && this.map === target.map) {
         target.currentHp -= 1
         if (target.currentHp <= 0) {
-          target.currentHp = target.maxHp
-          target.score = 0
-          target.randomSpawn()
+          target.eliminate()
+          entityEliminated = true
+        }
+        let data = {
+          players: [{
+            id: target.id,
+            currentHp: target.currentHp,
+            x: target.x,
+            y: target.y,
+            map: target.map
+          }]
         }
         for (let i in Player.socketList) {
           let socket = Player.socketList[i]
-          let data = {
-            players: [{
-              id: target.id,
-              currentHp: target.currentHp,
-              x: target.x,
-              y: target.y
-            }]
-          }
           socket.emit('update', BISON.encode(data))
+          if (entityEliminated) {
+            socket.emit('elimination', BISON.encode({ attacker: this.UIData, target: target.UIData }))
+          }
         }
       }
     }
@@ -411,7 +422,12 @@ class Enemy extends Entity {
     } else {
       this.y += 0
       this.x += 0
-    }
+    } 
+  }
+
+  eliminate() {
+    this.currentHp = this.maxHp
+    this.randomSpawn()
   }
 
   // fireProjectile(angle) {
@@ -430,10 +446,6 @@ class Enemy extends Entity {
 Enemy.list = {}
 Enemy.maxNumber = 10
 Enemy.maxSpeed = 12
-setInterval(() => { Enemy.updateAll() }, 40)
-setInterval(() => { Enemy.updateAllTargets() }, 3000)
-
-//------------------------------------------------PROJECTILES----------------------------------------------//
 
 class Projectile extends Entity {
   constructor(params) {
@@ -502,15 +514,12 @@ class Projectile extends Entity {
     const attacker = Player.list[this.source]
     for (let i in Player.list) {
       const target = Player.list[i]
-
       if (this.map === target.map && this.isCollision(target, 30) && this.source !== target.id) {
         target.currentHp -= this.damage
         if (target.currentHp <= 0) {
           if (attacker !== undefined) { attacker.score += 1 }
+          target.eliminate()
           entityEliminated = true
-          target.score = 0
-          target.currentHp = target.maxHp
-          target.randomSpawn()
         }
         let data = {
           players: [{
@@ -518,13 +527,14 @@ class Projectile extends Entity {
             currentHp: target.currentHp,
             x: target.x,
             y: target.y,
+            map: target.map
           }]
         }
         for (let id in Player.socketList) {
           let socket = Player.socketList[id]
           socket.emit('update', BISON.encode(data))
           if (entityEliminated && attacker !== undefined) {
-            socket.emit('elimination', BISON.encode({ players: [attacker.UIData, target.UIData] }))
+            socket.emit('elimination', BISON.encode({ attacker: attacker.UIData, target: target.UIData }))
           }
         }
         delete Projectile.list[this.id]
@@ -536,12 +546,11 @@ class Projectile extends Entity {
     for (let i in Enemy.list) {
       const target = Enemy.list[i]
       if (this.map === target.map && this.isCollision(target, 30)) {
-        target.currentHp -= 1
+        target.currentHp -= this.damage
         if (target.currentHp <= 0) {
           if (attacker) { attacker.score += 1 }
           entityEliminated = true
-          target.currentHp = target.maxHp
-          target.randomSpawn()
+          target.eliminate()
         }
         let data = {
           enemies: [{
@@ -555,7 +564,7 @@ class Projectile extends Entity {
           let socket = Player.socketList[i]
           socket.emit('update', BISON.encode(data))
           if (entityEliminated && attacker !== undefined) {
-            socket.emit('elimination', BISON.encode({ players: [attacker.UIData, target.UIData] }))
+            socket.emit('elimination', BISON.encode({ attacker: attacker.UIData, target: target.UIData }))
           }
         }
         delete Projectile.list[this.id]
@@ -565,15 +574,14 @@ class Projectile extends Entity {
     }
   }
 }
-// Class-level value property: list of all current projectiles
+// Class-level value properties
 Projectile.list = {}
+
 module.exports = {
+  "SOCKET_LIST": Player.socketList,
   "playerConnect": Player.onConnect,
   "playerDisconnect": Player.onDisconnect,
-  "getFrameUpdateData": Entity.getFrameUpdateData,
-  "SOCKET_LIST": Player.socketList,
   "generateEnemies": Enemy.generateEnemies,
-  "PlayerList": Player.list,
-  "PlayerSocketList": Player.socketList,
-  "EnemyList": Enemy.list
+  "updateEnemyTargets" : Enemy.updateAllTargets,
+  "getFrameUpdateData": Entity.getFrameUpdateData
 }
