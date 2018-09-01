@@ -303,7 +303,7 @@ const jQueryApp = function(socket) {
 
     socket.on('update', function(data) {
       const parsedData = BISON.decode(data)
-      // console.log("update", parsedData)
+      console.log("update", parsedData)
       if (parsedData.players)
         for (let i = 0; i < parsedData.players.length; i++) {
           const newPlayerData = parsedData.players[i]

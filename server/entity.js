@@ -22,9 +22,9 @@ class Entity {
   getDistance(point) {
     return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2))
   }
-  isCollision(point) {
+  isCollision(point, radius) {
     let distance = this.getDistance(point)
-    return distance < 10;
+    return distance < radius
   }
 
   randomSpawn() {
@@ -88,7 +88,7 @@ class Player extends Entity {
     this.rateOfFire = 100
     this.mouseAngle = 0
     this.speed = Player.maxSpeed
-    this.maxHp = 50
+    this.maxHp = Player.baseMaxHp
     this.currentHp = this.maxHp
     this.score = 0
     this.spriteCalc = 0
@@ -220,7 +220,7 @@ class Player extends Entity {
   update() {
     const prevX = this.x
     const prevY = this.y
-    this.updateDirection()
+    this.updateVelocity()
     super.update()
 
     if (this.pressingRight || this.pressingDown || this.pressingLeft || this.pressingUp)
@@ -238,7 +238,7 @@ class Player extends Entity {
     }
   }
 
-  updateDirection() {
+  updateVelocity() {
     if (this.pressingLeft) { this.dx = -this.speed } else if (this.pressingRight) { this.dx = this.speed } else { this.dx = 0 }
     if (this.pressingUp) { this.dy = -this.speed } else if (this.pressingDown) { this.dy = this.speed } else { this.dy = 0 }
   }
@@ -258,6 +258,7 @@ class Player extends Entity {
 // Class-level value properties
 Player.list = {}
 Player.socketList = {}
+Player.baseMaxHp = 50
 Player.maxSpeed = 20
 
 class Enemy extends Entity {
@@ -334,7 +335,7 @@ class Enemy extends Entity {
   update() {
     // const prevX = this.x
     // const prevY = this.y
-    this.updateDirection()
+    this.updateVelocity()
 
     // this.spriteCalc += 0.25
     // if (Map.list[this.map].isPositionWall(this)) {
@@ -343,7 +344,7 @@ class Enemy extends Entity {
     // }
     for (let i in Player.list) {
       const target = Player.list[i]
-      if (this.isCollision(target)) {
+      if (this.isCollision(target, 15) && this.map === target.map) {
         target.currentHp -= 1
         if (target.currentHp <= 0) {
           target.currentHp = target.maxHp
@@ -387,7 +388,7 @@ class Enemy extends Entity {
     }
   }
 
-  updateDirection() {
+  updateVelocity() {
     if (this.target !== null) {
       if (Math.floor(this.target.x - this.x) > 4) {
         this.x += 3
@@ -489,39 +490,30 @@ class Projectile extends Entity {
     super.update()
     for (let i in Player.list) {
       const target = Player.list[i]
-
-      if (this.map === target.map && this.getDistance(target) < 30 && this.source !== target.id) {
+      const attacker = Player.list[this.source]
+      let eliminated = false
+      if (this.map === target.map && this.isCollision(target, 30) && this.source !== target.id) {
         target.currentHp -= this.damage
-        if (target.currentHp > 0) {
-          for (let i in Player.socketList) {
-            let socket = Player.socketList[i]
-            let data = {
-              players: [{
-                id: target.id,
-                currentHp: target.currentHp,
-                x: target.x,
-                y: target.y
-              }]
-            }
-            socket.emit('update', BISON.encode(data))
-          }
-        } else {
-          const attacker = Player.list[this.source]
-          if (attacker) { attacker.score += 1 }
+        if (target.currentHp <= 0) {
+          if (attacker !== undefined) { attacker.score += 1 }
+          eliminated = true
+          target.score = 0
           target.currentHp = target.maxHp
           target.randomSpawn()
-          this.toRemove = true
-          for (let i in Player.socketList) {
-            let socket = Player.socketList[i]
-            let data = {
-              players: [{
-                id: target.id,
-                currentHp: target.currentHp,
-                x: target.x,
-                y: target.y
-              }]
-            }
-            socket.emit('update', BISON.encode(data))
+        }
+        let data = {
+          players: [{
+            id: target.id,
+            currentHp: target.currentHp,
+            x: target.x,
+            y: target.y,
+          }]
+        }
+        for (let id in Player.socketList) {
+          let socket = Player.socketList[id]
+          socket.emit('update', BISON.encode(data))
+          // target was eliminated and attacker is still connected
+          if (eliminated && attacker !== undefined) {
             socket.emit('elimination', BISON.encode({ players: [attacker.UIData, target.UIData] }))
           }
         }
@@ -532,10 +524,11 @@ class Projectile extends Entity {
 
     for (let i in Enemy.list) {
       const target = Enemy.list[i]
-      if (this.map === target.map && this.getDistance(target) < 30) {
+      if (this.map === target.map && this.isCollision(target, 30)) {
+        const attacker = Player.list[this.source]
         target.currentHp -= 1
+
         if (target.currentHp <= 0) {
-          const attacker = Player.list[this.source]
           if (attacker) { attacker.score += 1 }
           target.currentHp = target.maxHp
           target.randomSpawn()

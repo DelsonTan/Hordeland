@@ -37,13 +37,15 @@ class UI extends Component {
             const attacker = parsedData.players[0]
             const target = parsedData.players[1]
             const updatedPlayers = this.state.players
-            this.state.players.find((player, index) => {
+            for (let i = 0; i < this.state.players.length; i++) {
+                const player = this.state.players[i]
                 if (player.id === attacker.id) {
-                    updatedPlayers[index].score = parsedData.players[0].score
-                    return true
+                    player.score = attacker.score
                 }
-            })
-
+                if (player.id === target.id) {
+                    player.score = target.score
+                } 
+            }
             const newEliminations = this.state.eliminations
             if (newEliminations.length >= 5) {
                 newEliminations.shift()
