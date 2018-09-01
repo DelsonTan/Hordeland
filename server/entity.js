@@ -299,7 +299,7 @@ class Enemy extends Entity {
   static generateEnemies() {
     if (Object.keys(Enemy.list).length < Enemy.maxNumber) {
       let id = Math.floor(1000 * Math.random())
-      new Enemy({id})
+      new Enemy({ id })
     }
   }
 
@@ -539,7 +539,6 @@ class Projectile extends Entity {
           if (attacker) { attacker.score += 1 }
           target.currentHp = target.maxHp
           target.randomSpawn()
-          this.toRemove = true
           for (let i in Player.socketList) {
             let socket = Player.socketList[i]
             socket.emit('elimination', BISON.encode({ players: [attacker.UIData, target.UIData] }))
@@ -556,9 +555,9 @@ class Projectile extends Entity {
             }]
           }
           socket.emit('update', BISON.encode(data))
-          delete Projectile.list[this.id]
-          removeData.projectiles.push(this.id)
         }
+        delete Projectile.list[this.id]
+        removeData.projectiles.push(this.id)
       }
 
     }
