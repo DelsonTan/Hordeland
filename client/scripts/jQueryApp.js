@@ -147,7 +147,7 @@ const jQueryApp = function (socket) {
         this.projectileAngle = params.projectileAngle
         this.name = params.name
         this.type = 'enemy'
-        this.target = null
+        this.targetLocation = null
         Enemy.list[this.id] = this
       }
 
@@ -159,17 +159,17 @@ const jQueryApp = function (socket) {
       }
 
       updateSpeed() {
-        if (this.target !== null) {
+        if (this.targetLocation !== null) {
 
-          if (Math.floor(this.target.x - this.x) > 4) {
+          if (Math.floor(this.targetLocation.x - this.x) > 4) {
             this.x += 3;
-          } else if (Math.floor(this.target.x - this.x) < 0) {
+          } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
             this.x -= 3;
           }
 
-          if (Math.floor(this.target.y - this.y) > 4) {
+          if (Math.floor(this.targetLocation.y - this.y) > 4) {
             this.y += 3;
-          } else if (Math.floor(this.target.y - this.y) < 0) {
+          } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
             this.y -= 3;
           }
         } else {
@@ -307,7 +307,7 @@ const jQueryApp = function (socket) {
           if (enemy) {
             if (newEnemyData.x !== undefined) { enemy.x = newEnemyData.x }
             if (newEnemyData.y !== undefined) { enemy.y = newEnemyData.y }
-            if (newEnemyData.target !== undefined) { enemy.target = newEnemyData.target }
+            if (newEnemyData.targetLocation !== undefined) { enemy.targetLocation = newEnemyData.targetLocation }
             if (newEnemyData.currentHp !== undefined) {
               enemy.currentHp = newEnemyData.currentHp
             }

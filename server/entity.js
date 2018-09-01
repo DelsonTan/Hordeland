@@ -107,8 +107,6 @@ class Player extends Entity {
       map: Player.defaultMap,
       name: socket.playerName
     })
-
-
     socket.on('keyPress', (data) => {
       if (data.inputId === 'leftClick') {
         data.state ? player.speed = Math.floor(Player.maxSpeed * 0.60) : player.speed = Math.floor(Player.maxSpeed)
@@ -278,15 +276,16 @@ class Enemy extends Entity {
     this.maxHp = 50
     this.spriteCalc = 0
     this.projectileAngle = 0
+    this.meleeDamage = 3
     this.map = 'cave'
     this.name = 'Bat'
     this.type = 'enemy'
     this.randomSpawn()
-    this.target = null
+    this.targetLocation = null
     Enemy.list[this.id] = this
     initData.enemies.push(this.initialData)
   }
-  
+
   static updateAll() {
     for (let i in Enemy.list) {
       let enemy = Enemy.list[i]
@@ -311,10 +310,10 @@ class Enemy extends Entity {
     }
   }
 
-  static updateAllTargets() {
+  static updateAllTargetLocations() {
     for (let i in Enemy.list) {
       let enemy = Enemy.list[i]
-      enemy.updateTarget()
+      enemy.updateTargetLocation()
     }
   }
 
@@ -327,7 +326,7 @@ class Enemy extends Entity {
       maxHp: this.maxHp,
       map: this.map,
       spriteCalc: this.spriteCalc,
-      target: this.target
+      targetLocation: this.targetLocation
     }
   }
 
@@ -343,7 +342,7 @@ class Enemy extends Entity {
       id: this.id,
       x: this.x,
       y: this.y,
-      target: this.target
+      targetLocation: this.targetLocation
     }
   }
 
@@ -361,7 +360,7 @@ class Enemy extends Entity {
     for (let i in Player.list) {
       const target = Player.list[i]
       if (this.isCollision(target, 15) && this.map === target.map) {
-        target.currentHp -= 1
+        target.currentHp -= this.meleeDamage
         if (target.currentHp <= 0) {
           target.eliminate()
           entityEliminated = true
@@ -392,15 +391,17 @@ class Enemy extends Entity {
     // }
   }
 
-  updateTarget() {
+  updateTargetLocation() {
     if (Object.keys(Player.list).length > 0) {
       let closestDistance = Infinity
       for (let i in Player.list) {
         const player = Player.list[i]
-        const distance = this.getDistance(player)
-        if (closestDistance > distance) {
-          closestDistance = distance
-          this.target = { x: player.x, y: player.y }
+        if (player.map === this.map) {
+          const distance = this.getDistance(player)
+          if (closestDistance > distance) {
+            closestDistance = distance
+            this.targetLocation = { x: player.x, y: player.y }
+          }
         }
       }
       updateData.enemies.push(this.updateTargetData)
@@ -408,21 +409,21 @@ class Enemy extends Entity {
   }
 
   updateVelocity() {
-    if (this.target !== null) {
-      if (Math.floor(this.target.x - this.x) > 4) {
+    if (this.targetLocation !== null) {
+      if (Math.floor(this.targetLocation.x - this.x) > 4) {
         this.x += 3
-      } else if (Math.floor(this.target.x - this.x) < 0) {
+      } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
         this.x -= 3
       }
-      if (Math.floor(this.target.y - this.y) > 4) {
+      if (Math.floor(this.targetLocation.y - this.y) > 4) {
         this.y += 3
-      } else if (Math.floor(this.target.y - this.y) < 0) {
+      } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
         this.y -= 3
       }
     } else {
       this.y += 0
       this.x += 0
-    } 
+    }
   }
 
   eliminate() {
@@ -582,6 +583,6 @@ module.exports = {
   "playerConnect": Player.onConnect,
   "playerDisconnect": Player.onDisconnect,
   "generateEnemies": Enemy.generateEnemies,
-  "updateEnemyTargets" : Enemy.updateAllTargets,
+  "updateEnemyTargetLocations": Enemy.updateAllTargetLocations,
   "getFrameUpdateData": Entity.getFrameUpdateData
 }
