@@ -32,14 +32,7 @@ class UI extends Component {
             }
             this.setState({ players: updatedPlayers })
         })
-        this.props.socket.on('eliMessage', (data) => {
-            const parsedData = BISON.decode(data);
-            const attacker = parsedData.players[0]
-            const target = parsedData.players[1]
-            this.setState({ attacker: attacker, target: target })
-            setTimeout(() => { this.setState({ attacker: null, target: null }) }, 5000)
-        })
-        this.props.socket.on("updateScore", (data) => {
+        this.props.socket.on("elimination", (data) => {
             const parsedData = BISON.decode(data)
             const attacker = parsedData.players[0]
             const target = parsedData.players[1]

@@ -296,8 +296,11 @@ class Enemy extends Entity {
     return enemies
   }
 
-  static generateEnemies(id) {
-    new Enemy(id);
+  static generateEnemies() {
+    if (Object.keys(Enemy.list).length < Enemy.maxNumber) {
+      let id = Math.floor(1000 * Math.random())
+      new Enemy({id})
+    }
   }
 
   static updateTarget() {
@@ -416,6 +419,7 @@ class Enemy extends Entity {
 }
 // Class-level value properties
 Enemy.list = {}
+Enemy.maxNumber = 10
 Enemy.maxSpeed = 12
 setInterval(() => { Enemy.updateAll() }, 40)
 setInterval(() => { Enemy.updateTarget() }, 3000)
@@ -488,7 +492,20 @@ class Projectile extends Entity {
 
       if (this.map === target.map && this.getDistance(target) < 30 && this.source !== target.id) {
         target.currentHp -= this.damage
-        if (target.currentHp <= 0) {
+        if (target.currentHp > 0) {
+          for (let i in Player.socketList) {
+            let socket = Player.socketList[i]
+            let data = {
+              players: [{
+                id: target.id,
+                currentHp: target.currentHp,
+                x: target.x,
+                y: target.y
+              }]
+            }
+            socket.emit('update', BISON.encode(data))
+          }
+        } else {
           const attacker = Player.list[this.source]
           if (attacker) { attacker.score += 1 }
           target.currentHp = target.maxHp
@@ -496,28 +513,20 @@ class Projectile extends Entity {
           this.toRemove = true
           for (let i in Player.socketList) {
             let socket = Player.socketList[i]
-            socket.emit('updateScore', BISON.encode({ players: [attacker.UIData, target.UIData] }))
+            let data = {
+              players: [{
+                id: target.id,
+                currentHp: target.currentHp,
+                x: target.x,
+                y: target.y
+              }]
+            }
+            socket.emit('update', BISON.encode(data))
+            socket.emit('elimination', BISON.encode({ players: [attacker.UIData, target.UIData] }))
           }
-          let attackerSocket = Player.socketList[attacker.id]
-          let targetSocket = Player.socketList[target.id]
-          attackerSocket.emit('eliMessage', BISON.encode({ players: [attacker.UIData, target.UIData] }))
-          targetSocket.emit('eliMessage', BISON.encode({ players: [attacker.UIData, target.UIData] }))
         }
-        for (let i in Player.socketList) {
-
-          let socket = Player.socketList[i]
-          let data = {
-            players: [{
-              id: target.id,
-              currentHp: target.currentHp,
-              x: target.x,
-              y: target.y
-            }]
-          }
-          socket.emit('update', BISON.encode(data))
-          delete Projectile.list[this.id]
-          removeData.projectiles.push(this.id)
-        }
+        delete Projectile.list[this.id]
+        removeData.projectiles.push(this.id)
       }
     }
 
@@ -533,11 +542,10 @@ class Projectile extends Entity {
           this.toRemove = true
           for (let i in Player.socketList) {
             let socket = Player.socketList[i]
-            socket.emit('updateScore', BISON.encode({ players: [attacker.UIData, target.UIData] }))
+            socket.emit('elimination', BISON.encode({ players: [attacker.UIData, target.UIData] }))
           }
         }
         for (let i in Player.socketList) {
-
           let socket = Player.socketList[i]
           let data = {
             enemies: [{
@@ -550,7 +558,6 @@ class Projectile extends Entity {
           socket.emit('update', BISON.encode(data))
           delete Projectile.list[this.id]
           removeData.projectiles.push(this.id)
-          socket.emit('remove', BISON.encode(removeData))
         }
       }
 
