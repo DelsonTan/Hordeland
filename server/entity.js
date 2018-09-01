@@ -7,8 +7,8 @@ const removeData = { players: [], projectiles: [] }
 class Entity {
   constructor(params) {
     this.id = params.id || null
-    this.x = params.x || 500
-    this.y = params.y || 500
+    this.x = params.x || 300
+    this.y = params.y || 300
     this.dx = 0
     this.dy = 0
     this.map = params.map || 'forest'
@@ -219,11 +219,12 @@ class Player extends Entity {
 
     if (this.pressingRight || this.pressingDown || this.pressingLeft || this.pressingUp)
       this.spriteCalc += 0.25
-    if (Map.list[this.map].isPositionWall(this)) {
+    let playPos = Map.list[this.map].isPositionWall(this)
+    if (playPos && playPos !== 29 && playPos !== 934) {
       this.x = prevX
       this.y = prevY
     }
-
+    Map.list[this.map].isPositionCaveEntry(this);
     if (this.allowedToFire && this.pressingFire) {
       this.fireProjectile(this.projectileAngle)
       this.allowedToFire = false
@@ -275,7 +276,7 @@ class Enemy extends Entity {
     this.maxHp = 5
     this.spriteCalc = 0
     this.projectileAngle = 0
-    this.map = 'forest' || params.map
+    this.map = 'cave'
     this.name = 'bats'
     this.type = 'enemy'
     this.randomSpawn()
