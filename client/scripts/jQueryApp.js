@@ -162,19 +162,19 @@ const jQueryApp = function (socket) {
         if (this.targetLocation !== null) {
 
           if (Math.floor(this.targetLocation.x - this.x) > 4) {
-            this.x += 3;
+            this.x += 6
           } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
-            this.x -= 3;
+            this.x -= 6
           }
 
           if (Math.floor(this.targetLocation.y - this.y) > 4) {
-            this.y += 3;
+            this.y += 6
           } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
-            this.y -= 3;
+            this.y -= 6
           }
         } else {
-          this.y += 0;
-          this.x += 0;
+          this.y += 0
+          this.x += 0
         }
       }
 

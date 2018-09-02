@@ -276,7 +276,7 @@ class Enemy extends Entity {
     this.maxHp = 50
     this.spriteCalc = 0
     this.projectileAngle = 0
-    this.meleeDamage = 3
+    this.meleeDamage = 5
     this.map = 'cave'
     this.name = 'Bat'
     this.type = 'enemy'
@@ -411,14 +411,14 @@ class Enemy extends Entity {
   updateVelocity() {
     if (this.targetLocation !== null) {
       if (Math.floor(this.targetLocation.x - this.x) > 4) {
-        this.x += 3
+        this.x += 6
       } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
-        this.x -= 3
+        this.x -= 6
       }
       if (Math.floor(this.targetLocation.y - this.y) > 4) {
-        this.y += 3
+        this.y += 6
       } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
-        this.y -= 3
+        this.y -= 6
       }
     } else {
       this.y += 0
@@ -518,7 +518,7 @@ class Projectile extends Entity {
       if (this.map === target.map && this.isCollision(target, 30) && this.source !== target.id) {
         target.currentHp -= this.damage
         if (target.currentHp <= 0) {
-          if (attacker !== undefined) { attacker.score += 1 }
+          if (attacker !== undefined) { attacker.score += 20 }
           target.eliminate()
           entityEliminated = true
         }
