@@ -15,6 +15,16 @@ class UI extends Component {
         }
     }
 
+    sortPlayersByScore(a, b) {
+        if (a.score < b.score) {
+            return 1
+        }
+        if (a.score > b.score) {
+            return -1
+        }
+        return 0
+    }
+
     componentDidMount() {
         this.props.socket.on('initUI', (data) => {
             const allPlayers = []
@@ -24,6 +34,7 @@ class UI extends Component {
             }
             this.setState({ players: allPlayers })
         })
+        // new player already sorted, as they are always placed at bottom of scoreboard
         this.props.socket.on('updateUI', (data) => {
             const parsedData = JSON.parse(data)
             const updatedPlayers = this.state.players
@@ -32,10 +43,11 @@ class UI extends Component {
             }
             this.setState({ players: updatedPlayers })
         })
+
         this.props.socket.on("elimination", (data) => {
             const parsedData = BISON.decode(data)
             const attacker = parsedData.attacker
-            console.log( parsedData)
+            
             const target = parsedData.target
             const updatedPlayers = this.state.players
             for (let i = 0; i < this.state.players.length; i++) {
@@ -52,7 +64,10 @@ class UI extends Component {
                 newEliminations.shift()
             }
             newEliminations.push({ attacker, target })
-            this.setState({ players: updatedPlayers, attacker: attacker, target: target, eliminations: newEliminations })
+            console.log(updatedPlayers)
+            const sortedPlayers = updatedPlayers.sort(this.sortPlayersByScore)
+            console.log(sortedPlayers)
+            this.setState({ players: sortedPlayers, attacker: attacker, target: target, eliminations: newEliminations })
             setTimeout(() => { this.setState({ attacker: null, target: null }) }, 5000)
         })
 
