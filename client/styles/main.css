@@ -24,6 +24,11 @@
   position: absolute;
   border: 1px solid black;
 }
+#button-div{
+  position: absolute;
+  width:1300px;
+  height:800px;
+}
 
 #ctx {
   background-color: black;
@@ -61,6 +66,14 @@ td{
 
 .player-score, .player-name{
   font-size: 20px;
+}
+
+#pvp-button{
+  position:absolute;
+  bottom: 0px;
+  right:60px;
+  color:white;
+  background-color: red;
 }
 
 #signDiv{

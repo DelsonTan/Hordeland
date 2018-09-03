@@ -73,6 +73,7 @@ var array2D = array.chunk(arrayTile, 80);
 Map.list = {}
 Map.tileSize = 32
 new Map({ name: 'forest', imgSrc: '/client/images/map1.png', grid: array2D })
+new Map({ name: 'pvp-forest', imgSrc: '/client/images/PvP-Forest.png', grid: array2D })
 new Map({ name: 'cave', imgSrc: '/client/images/CaveMap.png', grid: array2DCave })
 
 module.exports = Map
