@@ -59,7 +59,7 @@ td{
   text-align: center;
 }
 
-.player-score, .player-name{
+.player-rank, .player-score, .player-name{
   font-size: 20px;
 }
 
