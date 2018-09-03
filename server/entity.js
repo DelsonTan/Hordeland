@@ -259,14 +259,14 @@ class Player extends Entity {
       const dy = Math.floor(Math.abs(Math.cos(angle / 180 * Math.PI) * 10))
       new Projectile({
         source: this.id,
-        angle: angle,
+        angle: angle - 2,
         x: this.x - dx,
         y: this.y - dy,
         map: this.map
       })
       new Projectile({
         source: this.id,
-        angle: angle,
+        angle: angle + 2,
         x: this.x + dx,
         y: this.y + dy,
         map: this.map
@@ -278,7 +278,7 @@ class Player extends Entity {
       const dy = Math.floor(Math.abs(Math.cos(angle / 180 * Math.PI) * 10))
       new Projectile({
         source: this.id,
-        angle: angle,
+        angle: angle - 3,
         x: this.x - dx,
         y: this.y - dy,
         map: this.map
@@ -292,7 +292,7 @@ class Player extends Entity {
       })
       new Projectile({
         source: this.id,
-        angle: angle,
+        angle: angle + 3,
         x: this.x + dx,
         y: this.y + dy,
         map: this.map
@@ -345,7 +345,7 @@ class Player extends Entity {
       }
     }
     if (oldScore < Player.baseScoreValue * 8) {
-      if (this.score >= Player.baseScoreValue * 6) {
+      if (this.score >= Player.baseScoreValue * 8) {
         this.scoreValue = Math.floor(3.0  * Player.baseScoreValue)
         this.maxHp      = Math.floor(2.6  * Player.baseMaxHp)
         this.currentHp += Math.floor(0.4  * Player.baseMaxHp)
@@ -354,7 +354,7 @@ class Player extends Entity {
       }
     }
     if (oldScore < Player.baseScoreValue * 10) {
-      if (this.score >= Player.baseScoreValue * 6) {
+      if (this.score >= Player.baseScoreValue * 10) {
         this.scoreValue = Math.floor(4.0  * Player.baseScoreValue)
         this.maxHp      = Math.floor(3.0 * Player.baseMaxHp)
         this.currentHp += Math.floor(0.4  * Player.baseMaxHp)
@@ -370,7 +370,7 @@ Player.list = {}
 Player.socketList = {}
 Player.baseMaxHp = 30
 Player.baseSpeed = 20
-Player.baseRateOfFire = 400
+Player.baseRateOfFire = 300
 Player.baseScoreValue = 20
 Player.defaultMap = 'forest'
 
@@ -564,7 +564,7 @@ class Projectile extends Entity {
     this.id = Math.floor(Math.random() * 1000)
     this.map = params.map
     this.angle = params.angle
-    this.speed = 50
+    this.speed = 80
     this.damage = 10
     this.dx = Math.floor(Math.cos(params.angle / 180 * Math.PI) * this.speed)
     this.dy = Math.floor(Math.sin(params.angle / 180 * Math.PI) * this.speed)
@@ -613,17 +613,17 @@ class Projectile extends Entity {
       y: this.y
     }
   }
-  // Queue projectile for removal when timer exceeds 15
+  // Queue projectile for removal when timer exceeds 8
   // Projectile deleted as soon as it hits something (no splash damage)
   // Take out return statements in for loop to allow splash, but this will cost a lot more performance issues
   update() {
-    if (this.timer++ > 15) { this.toRemove = true }
+    if (this.timer++ > 8) { this.toRemove = true }
     super.update()
     let entityEliminated = false
     const attacker = Player.list[this.source]
     for (let i in Player.list) {
       const target = Player.list[i]
-      if (this.map === target.map && this.isCollision(target, 30) && this.source !== target.id) {
+      if (this.map === target.map && this.isCollision(target, 40) && this.source !== target.id) {
         target.currentHp -= this.damage
         if (target.currentHp <= 0) {
           if (attacker !== undefined) {
@@ -664,7 +664,7 @@ class Projectile extends Entity {
 
     for (let i in Enemy.list) {
       const target = Enemy.list[i]
-      if (this.map === target.map && this.isCollision(target, 30)) {
+      if (this.map === target.map && this.isCollision(target, 40)) {
         target.currentHp -= this.damage
         if (target.currentHp <= 0) {
           if (attacker) {
