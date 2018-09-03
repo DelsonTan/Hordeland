@@ -5,7 +5,7 @@ const io = require('socket.io')(server, {})
 const PORT = process.env.PORT || 3000;
 const BISON = require('./client/vendor/bison.js')
 
-const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData, generateEnemies, updateEnemyTargetLocations } = require('./server/entity.js')
+const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData, generateEnemies, updateEnemyTargetLocations, updateBatsLocation } = require('./server/entity.js')
 // IMPORTANT: SET TO FALSE IN PRODUCTION
 const DEBUG = true
 
@@ -55,11 +55,10 @@ setInterval(() => {
   }
 }, 40)
 
-
+generateEnemies()
 setInterval(() => {
-  generateEnemies()
-  updateEnemyTargetLocations()
-}, 1000)
+  updateBatsLocation()
+}, 750)
 
 app.use('/client', express.static(__dirname + '/client'))
 app.get('/', (req, res) => { res.sendFile(__dirname + '/client/index.html') })
