@@ -142,7 +142,7 @@ const jQueryApp = function(socket) {
         this.currentHp = params.currentHp
         this.maxHp = params.maxHp
         this.speed = params.speed
-        this.map = 'cave'
+        this.map = params.map
         this.spriteCalc = params.spriteCalc
         this.projectileAngle = params.projectileAngle
         this.name = params.name
@@ -153,6 +153,8 @@ const jQueryApp = function(socket) {
         this.ypos = params.ypos
         this.mapWidth = params.mapWidth
         this.mapHeight = params.mapHeight
+        this.img = new Image()
+        this.img.src = params.imgSrc
         this.targetLocation = null
         Enemy.list[this.id] = this
       }
@@ -197,8 +199,8 @@ const jQueryApp = function(socket) {
         if (Player.list[selfId].map !== this.map) {
           return
         }
-        const imgWidth = Img.enemy.width
-        const imgHeight = Img.enemy.height
+        const imgWidth = this.img.width
+        const imgHeight = this.img.height
         const posX = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
         const posY = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
         // hp bar
@@ -208,7 +210,7 @@ const jQueryApp = function(socket) {
         ctxEnt.fillStyle = "blue"
         ctxEnt.fillRect(posX - 40 / 2, posY - 70 / 2, currentHpWidth, 4)
 
-        ctxEnt.drawImage(Img.enemy, 0, 0, Img.enemy.width, Img.enemy.height,
+        ctxEnt.drawImage(this.img, 0, 0, this.img.width, this.img.height,
           posX - imgWidth / 2, posY - imgHeight / 2, imgWidth, imgHeight)
       }
     }

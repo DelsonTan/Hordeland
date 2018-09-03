@@ -29,8 +29,8 @@ class Entity {
   }
 
   randomSpawn(xpos, ypos, width, height) {
-    this.x = xpos + Math.floor(Math.random() * width)
-    this.y = ypos + Math.floor(Math.random() * height)
+    this.x = Math.floor(Math.random() * width) - xpos
+    this.y = Math.floor(Math.random() * height) - ypos
     while (Map.list[this.map].isPositionWall(this)) {
       this.x = xpos + Math.floor(Math.random() * width)
       this.y = ypos + Math.floor(Math.random() * height)
@@ -287,6 +287,7 @@ class Enemy extends Entity {
     this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
     this.maxNumber = params.maxNumber
     this.targetLocation = params.targetLocation || null
+    this.imgSrc = params.imgSrc
     Enemy.list[this.id] = this
     initData.enemies.push(this.initialData)
   }
@@ -312,12 +313,12 @@ class Enemy extends Entity {
     for (let i = 0; i < Enemy.bat.maxNumber; i++) {
       new Enemy(Enemy.bat)
     }
-    // for (let i = 0; i < Enemy.bee1.maxNumber; i++) {
-    //   new Enemy(Enemy.bee1)
-    // }
-    // for (let i = 0; i < Enemy.bee2.maxNumber; i++) {
-    //   new Enemy(Enemy.bee2)
-    // }
+    for (let i = 0; i < Enemy.bee1.maxNumber; i++) {
+      new Enemy(Enemy.bee1)
+    }
+    for (let i = 0; i < Enemy.bee2.maxNumber; i++) {
+      new Enemy(Enemy.bee2)
+    }
   }
 
   static updateAllTargetLocations() {
@@ -350,7 +351,8 @@ class Enemy extends Entity {
         mapWidth: this.mapWidth,
         mapHeight: this.mapHeight,
         speed: this.speed,
-        name: this.name
+        name: this.name,
+        imgSrc: this.imgSrc
       }
     }
 
@@ -358,12 +360,12 @@ class Enemy extends Entity {
       return {
         id: this.id,
         x: this.x,
-        y: this.y,
-        currentHp: this.currentHp,
-        map: this.map,
-        mouseAngle: this.mouseAngle,
-        spriteCalc: this.spriteCalc,
-        projectileAngle: this.projectileAngle
+        y: this.y
+        // currentHp: this.currentHp,
+        // map: this.map,
+        // mouseAngle: this.mouseAngle,
+        // spriteCalc: this.spriteCalc,
+        // projectileAngle: this.projectileAngle
       }
     }
 
@@ -504,7 +506,8 @@ class Enemy extends Entity {
     mapWidth: 950,
     mapHeight: 950,
     dx: Enemy.maxSpeed,
-    dy: Enemy.maxSpeed
+    dy: Enemy.maxSpeed,
+    imgSrc: '/client/images/bat.png'
   }
   Enemy.bee1 = {
     id: Math.floor(Math.random() * 5000),
@@ -525,7 +528,8 @@ class Enemy extends Entity {
     mapWidth: 2550 / 2,
     mapHeight: 2550 / 2,
     dx: Enemy.maxSpeed,
-    dy: Enemy.maxSpeed
+    dy: Enemy.maxSpeed,
+    imgSrc: '/client/images/bee.png'
   }
   Enemy.bee2 = {
     id: Math.floor(Math.random() * 5000),
@@ -543,10 +547,11 @@ class Enemy extends Entity {
     maxNumber: 6,
     xpos: 2550 / 2,
     ypos: 0,
-    mapWidth: 2550 / 2,
+    mapWidth: 2550,
     mapHeight: 2550 / 2,
     dx: Enemy.maxSpeed,
-    dy: Enemy.maxSpeed
+    dy: Enemy.maxSpeed,
+    imgSrc: '/client/images/bee.png'
   }
 
   //---------------------------------------------PROJECTILES----------------------------------------------//
@@ -575,7 +580,7 @@ class Enemy extends Entity {
         let projectile = Projectile.list[i]
         projectile.update()
         let projPos = Map.list[projectile.map].isPositionWall(projectile)
-        if (projPos && projPos === 468) {
+        if (projPos && projPos === 436) {
           projectile.toRemove = true
         }
         if (projectile.toRemove) {
