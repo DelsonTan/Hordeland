@@ -1,9 +1,9 @@
-const jQueryApp = function (socket) {
+const jQueryApp = function(socket) {
 
-  $(document).ready(function () {
+  $(document).ready(function() {
     // Canvas Selectors and Settings
     const game = $('#game')
-    game.oncontextmenu = function (event) {
+    game.oncontextmenu = function(event) {
       event.preventDefault()
     }
 
@@ -147,6 +147,12 @@ const jQueryApp = function (socket) {
         this.projectileAngle = params.projectileAngle
         this.name = params.name
         this.type = 'enemy'
+        this.dx = params.dx
+        this.dy = params.dy
+        this.xpos = params.xpos
+        this.ypos = params.ypos
+        this.mapWidth = params.mapWidth
+        this.mapHeight = params.mapHeight
         this.targetLocation = null
         Enemy.list[this.id] = this
       }
@@ -155,11 +161,20 @@ const jQueryApp = function (socket) {
         for (let i in Enemy.list) {
           let enemy = Enemy.list[i]
           enemy.updateSpeed()
+          enemy.x += enemy.dx
+          enemy.y += enemy.dy
         }
       }
 
       updateSpeed() {
-        if (this.targetLocation !== null) {
+        if (this.name === 'bat' || this.name === 'bee') {
+          if (this.x > this.mapWidth || this.x < this.xpos) {
+            this.dx = -this.dx
+          }
+          if (this.y > this.mapHeight || this.y < this.ypos) {
+            this.dy = -this.dy
+          }
+        } else if (this.targetLocation !== null) {
 
           if (Math.floor(this.targetLocation.x - this.x) > 4) {
             this.x += 6
@@ -184,17 +199,17 @@ const jQueryApp = function (socket) {
         }
         const imgWidth = Img.enemy.width
         const imgHeight = Img.enemy.height
-        const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
-        const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
+        const posX = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
+        const posY = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
         // hp bar
         const currentHpWidth = 40 * this.currentHp / this.maxHp
         ctxEnt.fillStyle = "red"
-        ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, 40, 4)
+        ctxEnt.fillRect(posX - 40 / 2, posY - 70 / 2, 40, 4)
         ctxEnt.fillStyle = "blue"
-        ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, currentHpWidth, 4)
+        ctxEnt.fillRect(posX - 40 / 2, posY - 70 / 2, currentHpWidth, 4)
 
         ctxEnt.drawImage(Img.enemy, 0, 0, Img.enemy.width, Img.enemy.height,
-          xpos - imgWidth / 2, ypos - imgHeight / 2, imgWidth, imgHeight)
+          posX - imgWidth / 2, posY - imgHeight / 2, imgWidth, imgHeight)
       }
     }
     Enemy.list = {}
@@ -224,8 +239,8 @@ const jQueryApp = function (socket) {
         if (Player.list[selfId].map !== this.map) {
           return
         }
-        const imgWidth = Img.bullet.width / 2
-        const imgHeight = Img.bullet.height / 2
+        const imgWidth = Img.bullet.width / 1.5
+        const imgHeight = Img.bullet.height / 1.5
         const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
         const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
         ctxEnt.drawImage(Img.bullet, 0, 0, Img.bullet.width, Img.bullet.height,
@@ -236,7 +251,7 @@ const jQueryApp = function (socket) {
 
 
 
-    socket.on('signInResponse', function (data) {
+    socket.on('signInResponse', function(data) {
       if (data.success) {
         signDiv.hide()
         focusCanvas()
@@ -245,7 +260,7 @@ const jQueryApp = function (socket) {
       }
     })
 
-    socket.on('init', function (data) {
+    socket.on('init', function(data) {
       const parsedData = JSON.parse(data)
       // console.log('init', parsedData)
       if (parsedData.selfId) { selfId = parsedData.selfId }
@@ -271,7 +286,7 @@ const jQueryApp = function (socket) {
       }
     })
 
-    socket.on('update', function (data) {
+    socket.on('update', function(data) {
       const parsedData = BISON.decode(data)
       // console.log("update", parsedData)
       if (parsedData.players) {
@@ -326,7 +341,7 @@ const jQueryApp = function (socket) {
       }
     })
 
-    socket.on('remove', function (data) {
+    socket.on('remove', function(data) {
       const parsedData = BISON.decode(data)
       // console.log('remove', parsedData)
       if (parsedData.players) {
@@ -347,7 +362,7 @@ const jQueryApp = function (socket) {
     const focusChat = () => { chatInput.focus() }
     const blurChat = () => { chatInput.blur() }
     const pressing = (action, bool) => { socket.emit('keyPress', { inputId: action, state: bool }) }
-    const cancelPlayerKeyPress = function () {
+    const cancelPlayerKeyPress = function() {
       pressing('left', false)
       pressing('right', false)
       pressing('up', false)
@@ -375,7 +390,7 @@ const jQueryApp = function (socket) {
     signDivUsername.focus(() => {
       $(this).data('placeholder', $(this).attr('placeholder'))
         .attr('placeholder', '');
-    }).blur(function () {
+    }).blur(function() {
       $(this).attr('placeholder', $(this).data('placeholder'));
     });
 
@@ -429,8 +444,8 @@ const jQueryApp = function (socket) {
       focusCanvas()
     })
 
-    socket.on('addToChat', function (data) { $("<div>").text(data).appendTo(chatText) })
-    socket.on('evalAnswer', function (data) { console.log(data) })
+    socket.on('addToChat', function(data) { $("<div>").text(data).appendTo(chatText) })
+    socket.on('evalAnswer', function(data) { console.log(data) })
     // ------------------------------------------------ Render Logic ------------------------------------------------
     const renderGame = () => {
       if (selfId) {
