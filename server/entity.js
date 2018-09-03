@@ -496,7 +496,7 @@ class Enemy extends Entity {
     maxHp: 50,
     spriteCalc: 0,
     projectileAngle: 0,
-    meleeDamage: 9,
+    meleeDamage: 10,
     map: 'cave',
     name: 'bat',
     targetLocation: null,
