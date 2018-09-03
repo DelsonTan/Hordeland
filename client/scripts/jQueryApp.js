@@ -145,7 +145,7 @@ const jQueryApp = function (socket) {
       }
     }
     Player.list = {}
-    Player.baseMaxHp = 50
+    Player.baseMaxHp = 30
     Player.hpColors = ["red", "#0070dd", "#a335ee", "#ff8000"]
     class Enemy {
       constructor(params) {
