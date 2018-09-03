@@ -90,7 +90,7 @@ class Player extends Entity {
     this.rateOfFire = 100
     this.mouseAngle = 0
     this.speed = Player.maxSpeed
-    this.maxHp = Player.baseMaxHp
+    this.maxHp = Player.baseMaxHp * 3
     this.currentHp = this.maxHp
     this.score = 0
     this.spriteCalc = 0
@@ -254,6 +254,7 @@ class Player extends Entity {
 
   eliminate() {
     this.score = 0
+    this.maxHp = Player.baseMaxHp
     this.currentHp = this.maxHp
     this.map = Player.defaultMap
     this.randomSpawn()

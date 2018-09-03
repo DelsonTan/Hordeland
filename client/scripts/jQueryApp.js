@@ -90,19 +90,31 @@ const jQueryApp = function (socket) {
         Player.list[this.id] = this
       }
 
+      get prevHpColor() {
+        return Player.hpColors[Math.floor(this.currentHp / Player.baseMaxHp)]
+      }
+
+      get currentHpColor() {
+        return Player.hpColors[Math.ceil(this.currentHp / Player.baseMaxHp)]
+      }
+
       render() {
         if (Player.list[selfId].map !== this.map) {
           return
         }
         const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
         const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
-        // hp bar
-        const currentHpWidth = 40 * this.currentHp / this.maxHp
-        ctxEnt.fillStyle = "red"
-        ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, 40, 4)
-        ctxEnt.fillStyle = "blue"
-        ctxEnt.fillRect(xpos - 40 / 2, ypos - 70 / 2, currentHpWidth, 4)
-
+        // max hp bar
+        const maxHpWidth = 40
+        ctxEnt.fillStyle = this.prevHpColor
+        ctxEnt.fillRect(xpos - maxHpWidth / 2, ypos - 70 / 2, maxHpWidth, 4)
+        // current hp bar
+        ctxEnt.fillStyle = this.currentHpColor
+        const currentHpWidth = (this.currentHp % Player.baseMaxHp / Player.baseMaxHp) * maxHpWidth
+        ctxEnt.fillRect(xpos - maxHpWidth / 2, ypos - 70 / 2, currentHpWidth, 4)
+        // hp bar border
+        ctxEnt.strokeStyle = "black"
+        ctxEnt.strokeRect(xpos - maxHpWidth / 2, ypos - 70 / 2, maxHpWidth, 4)
         //player Name
         ctxEnt.fillStyle = 'black'
         ctxEnt.font = '18px Arial'
@@ -133,7 +145,8 @@ const jQueryApp = function (socket) {
       }
     }
     Player.list = {}
-
+    Player.baseMaxHp = 50
+    Player.hpColors = ["red", "#0070dd", "#a335ee", "#ff8000"]
     class Enemy {
       constructor(params) {
         this.id = params.id
