@@ -487,7 +487,7 @@ class Enemy extends Entity {
   }
   // Class-level value properties
   Enemy.list = {}
-  Enemy.maxSpeed = 16
+  Enemy.maxSpeed = 10
   Enemy.bat = {
     allowedToFire: true,
     rateOfFire: 100,
@@ -496,7 +496,7 @@ class Enemy extends Entity {
     maxHp: 50,
     spriteCalc: 0,
     projectileAngle: 0,
-    meleeDamage: 5,
+    meleeDamage: 9,
     map: 'cave',
     name: 'bat',
     targetLocation: null,
@@ -515,7 +515,7 @@ class Enemy extends Entity {
     rateOfFire: 100,
     speed: Enemy.maxSpeed,
     currentHp: 40,
-    maxHp: 40,
+    maxHp: 60,
     spriteCalc: 0,
     projectileAngle: 0,
     meleeDamage: 6,
