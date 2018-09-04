@@ -22,7 +22,7 @@ class Game extends Component {
             <canvas id="ctx" width={this.width} height={this.height}/>
             <canvas id="ctx-ent" width={this.width} height={this.height}/>
             <canvas id="ctx-lay" width={this.width} height={this.height}/>
-            <div id="button-div" width={this.width} height={this.height}>
+            <div id="button-div">
             <button id="pvp-button">
                 PvP Mode
             </button>

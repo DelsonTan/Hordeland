@@ -26,8 +26,8 @@
 }
 #button-div{
   position: absolute;
-  width:1300px;
-  height:800px;
+  width: 1500px;
+  height: 900px;
 }
 
 #ctx {
@@ -71,7 +71,7 @@ td{
 #pvp-button{
   position:absolute;
   bottom: 0px;
-  right:60px;
+  right:0px;
   color:white;
   background-color: red;
 }
