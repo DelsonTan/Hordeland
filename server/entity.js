@@ -139,7 +139,7 @@ class Player extends Entity {
         player.projectileAngle = data.state
       }
     })
-    socket.on('changeMap', function(data) {
+    socket.on('changeMap', function (data) {
       if (player.mapChanging === false) {
         player.mapChanging = true;
         setTimeout(() => {
@@ -434,10 +434,6 @@ class Enemy extends Entity {
     for (let i in Enemy.list) {
       let enemy = Enemy.list[i]
       enemy.update()
-      // let projPos = Map.list[enemy.map].isPositionWall(enemy)
-      // if (projPos && projPos === 468) {
-      //   projectile.toRemove = true
-      // }
     }
   }
 
@@ -721,7 +717,6 @@ class Projectile extends Entity {
     this.dx = Math.floor(Math.cos(params.angle / 180 * Math.PI) * this.speed)
     this.dy = Math.floor(Math.sin(params.angle / 180 * Math.PI) * this.speed)
     this.timer = 0
-    this.toRemove = false
     Projectile.list[this.id] = this
     initData.projectiles.push(this.initRenderData)
   }
@@ -733,10 +728,6 @@ class Projectile extends Entity {
       projectile.update()
       let projPos = Map.list[projectile.map].isPositionWall(projectile)
       if (projPos && projPos === 436) {
-        projectile.toRemove = true
-        console.log(projectile.x, projectile.y)
-      }
-      if (projectile.toRemove) {
         delete Projectile.list[i]
         removeData.projectiles.push(projectile.id)
       }
@@ -766,18 +757,19 @@ class Projectile extends Entity {
       y: this.y
     }
   }
-  // Queue projectile for removal when timer exceeds 15
-  // Projectile deleted as soon as it hits something (no splash damage)
-  // Take out return statements in for loop to allow splash, but this will cost a lot more performance issues
-
   // Queue projectile for removal when timer exceeds 8
   // Projectile deleted as soon as it hits something (no splash damage)
   // Take out return statements in for loop to allow splash, but this will cost a lot more performance issues
   update() {
-    if (this.timer++ > 8) { this.toRemove = true }
+    if (this.timer++ > 8) {
+      delete Projectile.list[this.id]
+      removeData.projectiles.push(this.id)
+      return
+    }
     super.update()
     let entityEliminated = false
     const attacker = Player.list[this.source]
+    // Check projectile collision with players
     for (let i in Player.list) {
       const target = Player.list[i]
       if (this.map === target.map && this.isCollision(target, 40) && this.source !== target.id) {
@@ -802,15 +794,13 @@ class Projectile extends Entity {
         return
       }
     }
-
+    // Check projectile collision with enemies
     for (let i in Enemy.list) {
       const target = Enemy.list[i]
       if (this.map === target.map && this.isCollision(target, 50) && target.currentHp > 0) {
         target.currentHp -= this.damage
         if (target.currentHp <= 0) {
-          if (attacker) {
-            attacker.updateStats(target.scoreValue)
-          }
+          if (attacker) { attacker.updateStats(target.scoreValue) }
           entityEliminated = true
           target.eliminate()
         }
@@ -850,7 +840,6 @@ class Upgrade extends Entity {
     this.heal = params.heal
     this.used = false
     Upgrade.list[this.id] = this
-    console.log(this)
     initData.upgrades.push(this.initialData)
   }
 
@@ -894,12 +883,7 @@ class Upgrade extends Entity {
     setTimeout(() => {
       this.used = false
       // this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
-      let data = {
-        upgrades: [{
-          id: this.id,
-          used: this.used,
-        }]
-      }
+      let data = { upgrades: [{ id: this.id, used: this.used }] }
       for (let i in Player.socketList) {
         let socket = Player.socketList[i]
         socket.emit('update', BISON.encode(data))
@@ -910,17 +894,8 @@ class Upgrade extends Entity {
     this.used = true
     target.currentHp += Math.min(this.heal, target.maxHp - target.currentHp)
     let data = {
-      upgrades: [{
-        id: this.id,
-        used: this.used,
-      }],
-      players: [{
-        id: target.id,
-        currentHp: target.currentHp,
-        x: target.x,
-        y: target.y,
-        map: target.map
-      }]
+      upgrades: [{ id: this.id, used: this.used }],
+      players: [{ id: target.id, currentHp: target.currentHp }]
     }
     for (let i in Player.socketList) {
       let socket = Player.socketList[i]
