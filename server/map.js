@@ -18,6 +18,7 @@ class Map {
   static generateMaps() {
     const array2DForest = array.chunk(arrayTileForest, 80)
     new Map({ name: 'forest', imgSrc: '/client/images/map1.png', grid: array2DForest })
+    new Map({ name: 'pvp-forest', imgSrc: '/client/images/PvP-Forest.png', grid: array2DForest })
     const array2DCave = array.chunk(arrayTileCave, 30)
     new Map({ name: 'cave', imgSrc: '/client/images/CaveMap.png', grid: array2DCave })
   }
@@ -39,8 +40,8 @@ class Map {
   }
 
   isPositionWall(entity) {
-    let gridX = Math.floor(entity.x / Map.tileSize)
-    let gridY = Math.floor(entity.y / Map.tileSize)
+    const gridX = Math.floor(entity.x / Map.tileSize)
+    const gridY = Math.floor(entity.y / Map.tileSize)
     if (entity.x > this.width ||
       entity.x < 0 ||
       entity.y > this.height ||
@@ -56,8 +57,8 @@ class Map {
 
 
   isPositionCaveEntry(entity) {
-    let gridX = Math.floor(entity.x / Map.tileSize)
-    let gridY = Math.floor(entity.y / Map.tileSize)
+    const gridX = Math.floor(entity.x / Map.tileSize)
+    const gridY = Math.floor(entity.y / Map.tileSize)
     if (this.grid[gridY][gridX] === 29) {
       entity.map = 'forest';
       entity.x = 1140;

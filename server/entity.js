@@ -134,6 +134,13 @@ class Player extends Entity {
         player.projectileAngle = data.state
       }
     })
+    socket.on('changeMap', function (data) {
+      if (player.map === 'forest') {
+        player.map = 'pvp-forest';
+      } else {
+        player.map = 'forest';
+      }
+    })
     socket.emit('init', JSON.stringify({
       selfId: socket.id,
       players: Player.getAllInitRenderData(),
@@ -156,9 +163,9 @@ class Player extends Entity {
   static updateAll() {
     for (let i in Player.list) {
       const player = Player.list[i]
-      let oldPlayerData = JSON.stringify(player)
+      const oldPlayerData = JSON.stringify(player)
       player.update()
-      let newPlayerData = JSON.stringify(player)
+      const newPlayerData = JSON.stringify(player)
       if (newPlayerData !== oldPlayerData) {
         updateData.players.push(player.updateRenderData)
       }
@@ -223,8 +230,9 @@ class Player extends Entity {
     this.updateVelocity()
     super.update()
 
-    if (this.pressingRight || this.pressingDown || this.pressingLeft || this.pressingUp)
+    if (this.pressingRight || this.pressingDown || this.pressingLeft || this.pressingUp) {
       this.spriteCalc += 0.25
+    }
     let playPos = Map.list[this.map].isPositionWall(this)
     if (playPos && playPos !== 29 && playPos !== 934) {
       this.x = prevX
@@ -244,7 +252,7 @@ class Player extends Entity {
   }
 
   fireProjectile(angle) {
-    if (this.numProjectiles === 1) {
+    if (this.numProjectiles === 1 || this.numProjectiles === 3) {
       new Projectile({
         source: this.id,
         angle: angle,
@@ -252,55 +260,28 @@ class Player extends Entity {
         y: this.y,
         map: this.map
       })
-      return
-    } else {
+    }
+    if (this.numProjectiles === 2 || this.numProjectiles === 3) {
       const dx1 = Math.floor(Math.cos((angle - 90) / 180 * Math.PI) * 10)
       const dy1 = Math.floor(Math.sin((angle - 90) / 180 * Math.PI) * 10)
       const dx2 = Math.floor(Math.cos((angle + 90) / 180 * Math.PI) * 10)
       const dy2 = Math.floor(Math.sin((angle + 90) / 180 * Math.PI) * 10)
-      if (this.numProjectiles === 2) {
-        new Projectile({
-          source: this.id,
-          angle: angle - 1,
-          x: this.x + dx1,
-          y: this.y + dy1,
-          map: this.map
-        })
-        new Projectile({
-          source: this.id,
-          angle: angle + 1,
-          x: this.x + dx2,
-          y: this.y + dy2,
-          map: this.map
-        })
-        return
-      }
-      if (this.numProjectiles === 3) {
-        new Projectile({
-          source: this.id,
-          angle: angle - 1,
-          x: this.x + dx1,
-          y: this.y + dy1,
-          map: this.map
-        })
-        new Projectile({
-          source: this.id,
-          angle: angle,
-          x: this.x,
-          y: this.y,
-          map: this.map
-        })
-        new Projectile({
-          source: this.id,
-          angle: angle + 1,
-          x: this.x + dx2,
-          y: this.y + dy2,
-          map: this.map
-        })
-        return
-      }
-    }
 
+      new Projectile({
+        source: this.id,
+        angle: angle - 1,
+        x: this.x + dx1,
+        y: this.y + dy1,
+        map: this.map
+      })
+      new Projectile({
+        source: this.id,
+        angle: angle + 1,
+        x: this.x + dx2,
+        y: this.y + dy2,
+        map: this.map
+      })
+    }
   }
 
   eliminate() {
@@ -567,12 +548,14 @@ class Enemy extends Entity {
         this.dx = this.speed
       } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
         this.dx = -this.speed
+
       }
       if (Math.floor(this.targetLocation.y - this.y) > 4) {
         this.dy = this.speed
       } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
         this.dy = -this.speed
       }
+
     } else {
       this.dy = 0
       this.dx = 0
@@ -583,6 +566,18 @@ class Enemy extends Entity {
     this.currentHp = this.maxHp
     this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
   }
+
+  // fireProjectile(angle) {
+  //   const projectile = new Projectile({
+  //     source: this.type,
+  //     angle: angle,
+  //     x: this.x,
+  //     y: this.y,
+  //     map: this.map
+  //   })
+  //   projectile.x = this.x
+  //   projectile.y = this.y
+  // }
 }
 // Class-level value properties
 Enemy.list = {}
@@ -625,7 +620,7 @@ Enemy.bee1 = {
   maxNumber: 6,
   xpos: 0,
   ypos: 0,
-  mapWidth: 2550 / 2,
+  mapWidth: 2550,
   mapHeight: 2550 / 2,
   dx: Enemy.maxSpeed / 2,
   dy: Enemy.maxSpeed / 2,
@@ -645,7 +640,7 @@ Enemy.bee2 = {
   name: 'bee',
   targetLocation: null,
   maxNumber: 6,
-  xpos: 2550 / 2,
+  xpos: 0,
   ypos: 0,
   mapWidth: 2550,
   mapHeight: 2550 / 2,
@@ -664,6 +659,7 @@ class Projectile extends Entity {
     this.id = Math.floor(Math.random() * 1000)
     this.map = params.map
     this.angle = params.angle
+    this.speed = 50
     this.speed = 80
     this.damage = 10
     this.dx = Math.floor(Math.cos(params.angle / 180 * Math.PI) * this.speed)
@@ -713,6 +709,9 @@ class Projectile extends Entity {
       y: this.y
     }
   }
+  // Queue projectile for removal when timer exceeds 15
+  // Projectile deleted as soon as it hits something (no splash damage)
+  // Take out return statements in for loop to allow splash, but this will cost a lot more performance issues
 
   // Queue projectile for removal when timer exceeds 8
   // Projectile deleted as soon as it hits something (no splash damage)
@@ -740,6 +739,7 @@ class Projectile extends Entity {
             x: target.x,
             y: target.y,
             map: target.map
+
           },
           {
             id: attacker.id,
@@ -748,7 +748,8 @@ class Projectile extends Entity {
             x: attacker.x,
             y: attacker.y,
             map: attacker.map
-          }]
+          }
+          ]
         }
         for (let id in Player.socketList) {
           let socket = Player.socketList[id]
@@ -775,7 +776,7 @@ class Projectile extends Entity {
           target.currentHp -= this.damage
           if (target.currentHp <= 0) {
             if (attacker) {
-              attacker.score += target.scoreValue
+              attacker.updateStats(target.scoreValue)
             }
             entityEliminated = true
             target.eliminate()

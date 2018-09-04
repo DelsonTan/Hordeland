@@ -32,6 +32,7 @@ const jQueryApp = function(socket) {
     const chatText = $('#chat-text')
     const chatInput = $('#chat-input')
     const chatForm = $('#chat-form')
+    const pvpButton = $('#pvp-button')
     // Images
     const Img = {}
     Img.player = new Image()
@@ -61,7 +62,7 @@ const jQueryApp = function(socket) {
         const imgHeight = mapImg.height
         ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
         // ctxLayer.drawImage(layerImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
-        if (Map.list[player.map].name === 'forest') {
+        if (Map.list[player.map].name === 'forest' || Map.list[player.map].name === 'pvp-forest' ) {
           ctxLayer.drawImage(layerImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
         }
         ctx.mozImageSmoothingEnabled = false
@@ -415,6 +416,7 @@ const jQueryApp = function(socket) {
     })
 
     game.on("keydown", (event) => {
+      event.preventDefault()
       if (event.which === 65) { pressing('left', true) } else if (event.which === 68) { pressing('right', true) } else if (event.which === 87) { pressing('up', true) } else if (event.which === 83) { pressing('down', true) } else if (event.which === 13) {
         event.preventDefault()
         cancelPlayerKeyPress()
@@ -422,6 +424,10 @@ const jQueryApp = function(socket) {
         focusChat()
       }
     })
+
+    pvpButton.unbind("click").click(function() {
+      socket.emit('changeMap')
+    });
 
     game.on("keyup", (event) => {
       if (event.which === 65) { pressing('left', false) } else if (event.which === 68) { pressing('right', false) } else if (event.which === 87) { pressing('up', false) } else if (event.which === 83) { pressing('down', false) }
@@ -458,6 +464,12 @@ const jQueryApp = function(socket) {
       blurChat()
       focusCanvas()
     })
+
+    // pvpButton.mousedown((event) => {
+    //     event.preventDefault();
+    //     console.log("button clicked");
+    //     socket.emit('changeMap');
+    // })
 
     socket.on('addToChat', function(data) { $("<div>").text(data).appendTo(chatText) })
     socket.on('evalAnswer', function(data) { console.log(data) })
