@@ -62,7 +62,7 @@ const jQueryApp = function(socket) {
         const imgHeight = mapImg.height
         ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
         // ctxLayer.drawImage(layerImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
-        if (Map.list[player.map].name === 'forest') {
+        if (Map.list[player.map].name === 'forest' || Map.list[player.map].name === 'pvp-forest' ) {
           ctxLayer.drawImage(layerImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
         }
         ctx.mozImageSmoothingEnabled = false
