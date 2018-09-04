@@ -1,8 +1,8 @@
 const Map = require('./map.js')
 const BISON = require('../client/vendor/bison.js')
-const initData = { players: [], enemies: [], projectiles: [] }
-const updateData = { players: [], enemies: [], projectiles: [] }
-const removeData = { players: [], enemies: [], projectiles: [] }
+const initData = { players: [], enemies: [], projectiles: [], upgrades: [] }
+const updateData = { players: [], enemies: [], projectiles: [], upgrades: [] }
+const removeData = { players: [], enemies: [], projectiles: [], upgrades: [] }
 
 class Entity {
   constructor(params) {
@@ -53,6 +53,10 @@ class Entity {
     if (initData.enemies.length > 0) {
       data.init.enemies = initData.enemies
       initData.enemies = []
+    }
+    if (initData.upgrades.length > 0) {
+      data.init.upgrades = initData.upgrades
+      initData.upgrades = []
     }
     if (initData.projectiles.length > 0) {
       data.init.projectiles = initData.projectiles
@@ -146,7 +150,9 @@ class Player extends Entity {
       players: Player.getAllInitRenderData(),
       projectiles: Projectile.getAllInitData(),
       maps: Map.getAllInitData(),
-      enemies: Enemy.getAllInitData()
+      enemies: Enemy.getAllInitData(),
+      upgrades: Upgrade.getAllInitData()
+
     }))
     socket.emit('initUI', JSON.stringify({
       players: Player.getAllInitUIData()
@@ -240,6 +246,13 @@ class Player extends Entity {
     const prevY = this.y
     this.updateVelocity()
     super.update()
+    for (let i in Upgrade.list) {
+      const target = Upgrade.list[i]
+      if (this.isCollision(target, 32) && this.map === target.map && target.used === false) {
+        target.sendUsedUpgrade(this);
+        target.restore();
+      }
+    }
 
     if (this.pressingRight || this.pressingDown || this.pressingLeft || this.pressingUp) {
       this.spriteCalc += 0.25
@@ -403,6 +416,7 @@ class Enemy extends Entity {
     this.targetLocation = params.targetLocation || null
     this.imgSrc = params.imgSrc
     Enemy.list[this.id] = this
+    console.log(initData.enemies)
     initData.enemies.push(this.initialData)
   }
 
@@ -537,7 +551,7 @@ class Enemy extends Entity {
   }
 
   updateTargetLocation() {
-    if (Object.keys(Player.list).length > 0 && this.name !== 'bat' && this.name !== 'bee') {
+    if (Object.keys(Player.list).length > 0 && this.name !== 'Bat' && this.name !== 'Bee') {
       let closestDistance = Infinity
       for (let i in Player.list) {
         const player = Player.list[i]
@@ -554,7 +568,7 @@ class Enemy extends Entity {
   }
 
   updateVelocity() {
-    if (this.name === 'bat' || this.name === 'bee') {
+    if (this.name === 'Bat' || this.name === 'Bee') {
       if (this.x + this.dx > this.mapWidth || this.x + this.dx < this.xpos) {
         this.dx = -this.dx
       }
@@ -624,7 +638,7 @@ Enemy.bat = {
   projectileAngle: 0,
   meleeDamage: 10,
   map: 'cave',
-  name: 'bat',
+  name: 'Bat',
   targetLocation: null,
   maxNumber: 8,
   xpos: 0,
@@ -646,7 +660,7 @@ Enemy.bee1 = {
   projectileAngle: 0,
   meleeDamage: 6,
   map: 'forest',
-  name: 'bee',
+  name: 'Bee',
   targetLocation: null,
   maxNumber: 6,
   xpos: 0,
@@ -668,7 +682,7 @@ Enemy.bee2 = {
   projectileAngle: 0,
   meleeDamage: 6,
   map: 'forest',
-  name: 'bee',
+  name: 'Bee',
   targetLocation: null,
   maxNumber: 6,
   xpos: 0,
@@ -710,6 +724,7 @@ class Projectile extends Entity {
       let projPos = Map.list[projectile.map].isPositionWall(projectile)
       if (projPos && projPos === 436) {
         projectile.toRemove = true
+        console.log(projectile.x, projectile.y)
       }
       if (projectile.toRemove) {
         delete Projectile.list[i]
@@ -808,6 +823,141 @@ class Projectile extends Entity {
 // Class-level value properties
 Projectile.list = {}
 
+class Upgrade extends Entity {
+  constructor(params) {
+    super(params)
+    this.id = Math.floor(Math.random() * 5000)
+    this.map = params.map
+    this.name = params.name
+    this.type = 'upgrade'
+    this.x = params.x
+    this.y = params.y
+    this.xpos = params.xpos
+    this.ypos = params.ypos
+    this.mapWidth = params.mapWidth
+    this.mapHeight = params.mapHeight
+    this.imgSrc = params.imgSrc
+    this.heal = params.heal
+    this.used = false
+    Upgrade.list[this.id] = this
+    console.log(this)
+    initData.upgrades.push(this.initialData)
+  }
+
+  // static updateAll() {
+  //   for (let i in Upgrade.list) {
+  //     let upgrade = Upgrade.list[i]
+  //     upgrade.update()
+  //   }
+  // }
+
+  static getAllInitData() {
+    const upgrades = []
+    for (let i in Upgrade.list) { upgrades.push(Upgrade.list[i].initialData) }
+    return upgrades
+  }
+
+  static generatePowerUps() {
+    new Upgrade(Upgrade.potionCave)
+    new Upgrade(Upgrade.potionOutdoors2)
+    new Upgrade(Upgrade.potionOutdoors1)
+  }
+
+  get initialData() {
+    return {
+      id: this.id,
+      x: this.x,
+      y: this.y,
+      map: this.map,
+      xpos: this.xpos,
+      ypos: this.ypos,
+      mapWidth: this.mapWidth,
+      mapHeight: this.mapHeight,
+      name: this.name,
+      heal: this.heal,
+      imgSrc: this.imgSrc,
+      used: this.used
+    }
+  }
+
+  restore() {
+    setTimeout(() => {
+      this.used = false
+      // this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
+      let data = {
+        upgrades: [{
+          id: this.id,
+          used: this.used,
+        }]
+      }
+      for (let i in Player.socketList) {
+        let socket = Player.socketList[i]
+        socket.emit('update', BISON.encode(data))
+      }
+    }, 40000)
+  }
+  sendUsedUpgrade(target) {
+    this.used = true
+    target.currentHp += this.heal
+    let data = {
+      upgrades: [{
+        id: this.id,
+        used: this.used,
+      }],
+      players: [{
+        id: target.id,
+        currentHp: target.currentHp,
+        x: target.x,
+        y: target.y,
+        map: target.map
+      }]
+    }
+    for (let i in Player.socketList) {
+      let socket = Player.socketList[i]
+      socket.emit('update', BISON.encode(data))
+    }
+  }
+}
+
+Upgrade.list = {}
+Upgrade.potionCave = {
+  map: 'cave',
+  x: 120,
+  y: 120,
+  name: 'potion',
+  heal: 30,
+  xpos: 0,
+  ypos: 0,
+  mapWidth: 950,
+  mapHeight: 950,
+  imgSrc: '/client/images/bat.png'
+}
+Upgrade.potionOutdoors1 = {
+  map: 'forest',
+  x: 130,
+  y: 2210,
+  name: 'potion',
+  heal: 10,
+  xpos: 0,
+  ypos: 0,
+  mapWidth: 950,
+  mapHeight: 950,
+  imgSrc: '/client/images/bat.png'
+}
+Upgrade.potionOutdoors2 = {
+  map: 'forest',
+  x: 2520,
+  y: 2310,
+  name: 'potion',
+  heal: 10,
+  xpos: 0,
+  ypos: 0,
+  mapWidth: 950,
+  mapHeight: 950,
+  imgSrc: '/client/images/bat.png'
+}
+
+
 module.exports = {
   "SOCKET_LIST": Player.socketList,
   "playerConnect": Player.onConnect,
@@ -816,5 +966,6 @@ module.exports = {
   "updateEnemyTargetLocations": Enemy.updateAllTargetLocations,
   "getFrameUpdateData": Entity.getFrameUpdateData,
   "updateBatsLocation": Enemy.updateBatsLocation,
-  "generateMaps": Map.generateMaps
+  "generateMaps": Map.generateMaps,
+  "generatePowerUps": Upgrade.generatePowerUps
 }

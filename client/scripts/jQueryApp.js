@@ -39,8 +39,6 @@ const jQueryApp = function(socket) {
     Img.player.src = '/client/images/player.png'
     Img.bullet = new Image()
     Img.bullet.src = '/client/images/bullet.png'
-    Img.enemy = new Image()
-    Img.enemy.src = '/client/images/bat.png'
 
     class Map {
       constructor(params) {
@@ -62,7 +60,7 @@ const jQueryApp = function(socket) {
         const imgHeight = mapImg.height
         ctx.drawImage(mapImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
         // ctxLayer.drawImage(layerImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
-        if (Map.list[player.map].name === 'forest' || Map.list[player.map].name === 'pvp-forest' ) {
+        if (Map.list[player.map].name === 'forest' || Map.list[player.map].name === 'pvp-forest') {
           ctxLayer.drawImage(layerImg, 0, 0, imgWidth, imgHeight, xpos, ypos, imgWidth * 2, imgHeight * 2)
         }
         ctx.mozImageSmoothingEnabled = false
@@ -178,14 +176,14 @@ const jQueryApp = function(socket) {
           enemy.updateSpeed()
           enemy.x += enemy.dx
           enemy.y += enemy.dy
-          if(this.x < 0){
+          if (this.x < 0) {
             console.log(this.x)
           }
         }
       }
 
       updateSpeed() {
-        if (this.name === 'bat' || this.name === 'bee') {
+        if (this.name === 'Bat' || this.name === 'Bee') {
 
           if (this.x + this.dx > this.mapWidth || this.x + this.dx < this.xpos) {
             this.dx = -this.dx
@@ -216,8 +214,8 @@ const jQueryApp = function(socket) {
         if (Player.list[selfId].map !== this.map) {
           return
         }
-        if(this.currentHp <= 0){
-            return
+        if (this.currentHp <= 0) {
+          return
         }
         const imgWidth = this.img.width
         const imgHeight = this.img.height
@@ -271,6 +269,44 @@ const jQueryApp = function(socket) {
     }
     Projectile.list = {}
 
+    //-------------------------------------------UPGRADES-------------------------------------//
+
+    class Upgrade {
+      constructor(params) {
+        this.id = params.id
+        this.x = params.x
+        this.y = params.y
+        this.map = params.map
+        this.name = params.name
+        this.type = 'upgrade'
+        this.xpos = params.xpos
+        this.ypos = params.ypos
+        this.mapWidth = params.mapWidth
+        this.mapHeight = params.mapHeight
+        this.img = new Image()
+        this.img.src = params.imgSrc
+        this.heal = params.heal
+        this.used = params.used
+        Upgrade.list[this.id] = this
+      }
+
+      render() {
+        if (Player.list[selfId].map !== this.map) {
+          return
+        }
+        if (this.used) {
+          return
+        }
+        const imgWidth = this.img.width / 1.5
+        const imgHeight = this.img.height / 1.5
+        const posX = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
+        const posY = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
+        ctxEnt.drawImage(this.img, 0, 0, this.img.width, this.img.height,
+          posX - imgWidth / 2, posY - imgHeight / 2, imgWidth, imgHeight)
+      }
+    }
+    Upgrade.list = {}
+
 
 
     socket.on('signInResponse', function(data) {
@@ -294,6 +330,11 @@ const jQueryApp = function(socket) {
       if (parsedData.projectiles) {
         for (let i = 0; i < parsedData.projectiles.length; i++) {
           new Projectile(parsedData.projectiles[i])
+        }
+      }
+      if (parsedData.upgrades) {
+        for (let i = 0; i < parsedData.upgrades.length; i++) {
+          new Upgrade(parsedData.upgrades[i])
         }
       }
       if (parsedData.enemies) {
@@ -358,6 +399,15 @@ const jQueryApp = function(socket) {
           if (projectile) {
             if (newProjectileData.x !== undefined) { projectile.x = newProjectileData.x }
             if (newProjectileData.y !== undefined) { projectile.y = newProjectileData.y }
+          }
+        }
+      }
+      if (parsedData.upgrades) {
+        for (let i = 0; i < parsedData.upgrades.length; i++) {
+          const newUpdateData = parsedData.upgrades[i]
+          const upgrade = Upgrade.list[newUpdateData.id]
+          if (upgrade) {
+            if (newUpdateData.used !== undefined) { upgrade.used = newUpdateData.used }
           }
         }
       }
@@ -489,6 +539,7 @@ const jQueryApp = function(socket) {
         for (let i in Player.list) { Player.list[i].render() }
         for (let i in Projectile.list) { Projectile.list[i].render() }
         for (let i in Enemy.list) { Enemy.list[i].render() }
+        for (let i in Upgrade.list) { Upgrade.list[i].render() }
       }
       requestAnimationFrame(renderGame)
     }
