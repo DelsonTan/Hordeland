@@ -70,8 +70,8 @@ td{
 
 #pvp-button{
   position:absolute;
-  bottom: 0px;
-  right:0px;
+  bottom: -40px;
+  right:-50px;
   color:white;
   background-color: red;
 }

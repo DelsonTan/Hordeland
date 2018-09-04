@@ -179,13 +179,16 @@ const jQueryApp = function(socket) {
           enemy.updateSpeed()
           enemy.x += enemy.dx
           enemy.y += enemy.dy
+          if(this.x < 0){
+            console.log(this.x)
+          }
         }
       }
 
       updateSpeed() {
         if (this.name === 'bat' || this.name === 'bee') {
           if (this.x > this.mapWidth || this.x < this.xpos) {
-            this.dx = -this.dx
+            console.log(this.x)
           }
           if (this.y > this.mapHeight || this.y < this.ypos) {
             this.dy = -this.dy
@@ -212,6 +215,9 @@ const jQueryApp = function(socket) {
       render() {
         if (Player.list[selfId].map !== this.map) {
           return
+        }
+        if(this.currentHp <= 0){
+            return
         }
         const imgWidth = this.img.width
         const imgHeight = this.img.height

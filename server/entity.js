@@ -134,7 +134,7 @@ class Player extends Entity {
         player.projectileAngle = data.state
       }
     })
-    socket.on('changeMap', function (data) {
+    socket.on('changeMap', function(data) {
       if (player.map === 'forest') {
         player.map = 'pvp-forest';
       } else {
@@ -563,8 +563,22 @@ class Enemy extends Entity {
   }
 
   eliminate() {
-    this.currentHp = this.maxHp
-    this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
+    setTimeout(() => {
+      this.currentHp = this.maxHp
+      this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
+      let data = {
+        enemies: [{
+          id: this.id,
+          currentHp: this.currentHp,
+          x: this.x,
+          y: this.y
+        }]
+      }
+      for (let i in Player.socketList) {
+        let socket = Player.socketList[i]
+        socket.emit('update', BISON.encode(data))
+      }
+    }, 8000)
   }
 
   // fireProjectile(angle) {
@@ -600,8 +614,8 @@ Enemy.bat = {
   ypos: 0,
   mapWidth: 950,
   mapHeight: 950,
-  dx: Enemy.maxSpeed / 2,
-  dy: Enemy.maxSpeed / 2,
+  dx: Math.floor(Enemy.maxSpeed / 2),
+  dy: Math.floor(Enemy.maxSpeed / 2),
   imgSrc: '/client/images/bat.png'
 }
 Enemy.bee1 = {
@@ -621,9 +635,9 @@ Enemy.bee1 = {
   xpos: 0,
   ypos: 0,
   mapWidth: 2550,
-  mapHeight: 2550 / 2,
-  dx: Enemy.maxSpeed / 2,
-  dy: Enemy.maxSpeed / 2,
+  mapHeight: Math.floor(2550 / 2),
+  dx: Math.floor(Enemy.maxSpeed / 2),
+  dy: Math.floor(Enemy.maxSpeed / 2),
   imgSrc: '/client/images/bee.png'
 }
 Enemy.bee2 = {
@@ -643,11 +657,12 @@ Enemy.bee2 = {
   xpos: 0,
   ypos: 0,
   mapWidth: 2550,
-  mapHeight: 2550 / 2,
-  dx: Enemy.maxSpeed / 2,
-  dy: Enemy.maxSpeed / 2,
+  mapHeight: Math.floor(2550 / 2),
+  dx: Math.floor(Enemy.maxSpeed / 2),
+  dy: Math.floor(Enemy.maxSpeed / 2),
   imgSrc: '/client/images/bee.png'
 }
+
 
 //---------------------------------------------PROJECTILES----------------------------------------------//
 
@@ -734,21 +749,21 @@ class Projectile extends Entity {
         }
         let data = {
           players: [{
-            id: target.id,
-            currentHp: target.currentHp,
-            x: target.x,
-            y: target.y,
-            map: target.map
+              id: target.id,
+              currentHp: target.currentHp,
+              x: target.x,
+              y: target.y,
+              map: target.map
 
-          },
-          {
-            id: attacker.id,
-            maxHp: attacker.maxHp,
-            currentHp: attacker.currentHp,
-            x: attacker.x,
-            y: attacker.y,
-            map: attacker.map
-          }
+            },
+            {
+              id: attacker.id,
+              maxHp: attacker.maxHp,
+              currentHp: attacker.currentHp,
+              x: attacker.x,
+              y: attacker.y,
+              map: attacker.map
+            }
           ]
         }
         for (let id in Player.socketList) {
@@ -772,7 +787,7 @@ class Projectile extends Entity {
 
       for (let i in Enemy.list) {
         const target = Enemy.list[i]
-        if (this.map === target.map && this.isCollision(target, 50)) {
+        if (this.map === target.map && this.isCollision(target, 50) && target.currentHp > 0) {
           target.currentHp -= this.damage
           if (target.currentHp <= 0) {
             if (attacker) {
