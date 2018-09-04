@@ -583,7 +583,7 @@ class Enemy extends Entity {
 Enemy.list = {}
 Enemy.maxSpeed = 20
 Enemy.bat = {
-  scoreValue: 2,
+  scoreValue: 4,
   allowedToFire: true,
   rateOfFire: 100,
   speed: Enemy.maxSpeed,
@@ -605,7 +605,7 @@ Enemy.bat = {
   imgSrc: '/client/images/bat.png'
 }
 Enemy.bee1 = {
-  scoreValue: 2,
+  scoreValue: 4,
   allowedToFire: true,
   rateOfFire: 100,
   speed: Enemy.maxSpeed,
@@ -627,7 +627,7 @@ Enemy.bee1 = {
   imgSrc: '/client/images/bee.png'
 }
 Enemy.bee2 = {
-  scoreValue: 2,
+  scoreValue: 4,
   allowedToFire: true,
   rateOfFire: 100,
   speed: Enemy.maxSpeed,
