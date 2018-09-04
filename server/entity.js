@@ -253,52 +253,54 @@ class Player extends Entity {
         map: this.map
       })
       return
+    } else {
+      const dx1 = Math.floor(Math.cos((angle - 90) / 180 * Math.PI) * 10)
+      const dy1 = Math.floor(Math.sin((angle - 90) / 180 * Math.PI) * 10)
+      const dx2 = Math.floor(Math.cos((angle + 90) / 180 * Math.PI) * 10)
+      const dy2 = Math.floor(Math.sin((angle + 90) / 180 * Math.PI) * 10)
+      if (this.numProjectiles === 2) {
+        new Projectile({
+          source: this.id,
+          angle: angle - 1,
+          x: this.x + dx1,
+          y: this.y + dy1,
+          map: this.map
+        })
+        new Projectile({
+          source: this.id,
+          angle: angle + 1,
+          x: this.x + dx2,
+          y: this.y + dy2,
+          map: this.map
+        })
+        return
+      }
+      if (this.numProjectiles === 3) {
+        new Projectile({
+          source: this.id,
+          angle: angle - 1,
+          x: this.x + dx1,
+          y: this.y + dy1,
+          map: this.map
+        })
+        new Projectile({
+          source: this.id,
+          angle: angle,
+          x: this.x,
+          y: this.y,
+          map: this.map
+        })
+        new Projectile({
+          source: this.id,
+          angle: angle + 1,
+          x: this.x + dx2,
+          y: this.y + dy2,
+          map: this.map
+        })
+        return
+      }
     }
-    if (this.numProjectiles === 2) {
-      const dx = Math.floor(Math.abs(Math.sin(angle / 180 * Math.PI) * 10))
-      const dy = Math.floor(Math.abs(Math.cos(angle / 180 * Math.PI) * 10))
-      new Projectile({
-        source: this.id,
-        angle: angle - 2,
-        x: this.x - dx,
-        y: this.y - dy,
-        map: this.map
-      })
-      new Projectile({
-        source: this.id,
-        angle: angle + 2,
-        x: this.x + dx,
-        y: this.y + dy,
-        map: this.map
-      })
-      return
-    }
-    if (this.numProjectiles === 3) {
-      const dx = Math.floor(Math.abs(Math.sin(angle / 180 * Math.PI) * 10))
-      const dy = Math.floor(Math.abs(Math.cos(angle / 180 * Math.PI) * 10))
-      new Projectile({
-        source: this.id,
-        angle: angle - 3,
-        x: this.x - dx,
-        y: this.y - dy,
-        map: this.map
-      })
-      new Projectile({
-        source: this.id,
-        angle: angle,
-        x: this.x,
-        y: this.y,
-        map: this.map
-      })
-      new Projectile({
-        source: this.id,
-        angle: angle + 3,
-        x: this.x + dx,
-        y: this.y + dy,
-        map: this.map
-      })
-      return
-    }
+
   }
 
   eliminate() {
@@ -392,6 +394,7 @@ class Enemy extends Entity {
     this.ypos = params.ypos
     this.mapWidth = params.mapWidth
     this.mapHeight = params.mapHeight
+    this.scoreValue = params.scoreValue
     this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
     this.maxNumber = params.maxNumber
     this.targetLocation = params.targetLocation || null
@@ -583,13 +586,14 @@ class Enemy extends Entity {
 }
 // Class-level value properties
 Enemy.list = {}
-Enemy.maxSpeed = 10
+Enemy.maxSpeed = 20
 Enemy.bat = {
+  scoreValue: 2,
   allowedToFire: true,
   rateOfFire: 100,
   speed: Enemy.maxSpeed,
-  currentHp: 50,
-  maxHp: 50,
+  currentHp: 30,
+  maxHp: 30,
   spriteCalc: 0,
   projectileAngle: 0,
   meleeDamage: 10,
@@ -601,17 +605,17 @@ Enemy.bat = {
   ypos: 0,
   mapWidth: 950,
   mapHeight: 950,
-  dx: Enemy.maxSpeed,
-  dy: Enemy.maxSpeed,
+  dx: Enemy.maxSpeed / 2,
+  dy: Enemy.maxSpeed / 2,
   imgSrc: '/client/images/bat.png'
 }
 Enemy.bee1 = {
-  id: Math.floor(Math.random() * 5000),
+  scoreValue: 2,
   allowedToFire: true,
   rateOfFire: 100,
   speed: Enemy.maxSpeed,
-  currentHp: 40,
-  maxHp: 60,
+  currentHp: 30,
+  maxHp: 30,
   spriteCalc: 0,
   projectileAngle: 0,
   meleeDamage: 6,
@@ -623,17 +627,17 @@ Enemy.bee1 = {
   ypos: 0,
   mapWidth: 2550 / 2,
   mapHeight: 2550 / 2,
-  dx: Enemy.maxSpeed,
-  dy: Enemy.maxSpeed,
+  dx: Enemy.maxSpeed / 2,
+  dy: Enemy.maxSpeed / 2,
   imgSrc: '/client/images/bee.png'
 }
 Enemy.bee2 = {
-  id: Math.floor(Math.random() * 5000),
+  scoreValue: 2,
   allowedToFire: true,
   rateOfFire: 100,
   speed: Enemy.maxSpeed,
-  currentHp: 40,
-  maxHp: 40,
+  currentHp: 30,
+  maxHp: 30,
   spriteCalc: 0,
   projectileAngle: 0,
   meleeDamage: 6,
@@ -645,8 +649,8 @@ Enemy.bee2 = {
   ypos: 0,
   mapWidth: 2550,
   mapHeight: 2550 / 2,
-  dx: Enemy.maxSpeed,
-  dy: Enemy.maxSpeed,
+  dx: Enemy.maxSpeed / 2,
+  dy: Enemy.maxSpeed / 2,
   imgSrc: '/client/images/bee.png'
 }
 
@@ -771,7 +775,7 @@ class Projectile extends Entity {
           target.currentHp -= this.damage
           if (target.currentHp <= 0) {
             if (attacker) {
-              attacker.score += 1
+              attacker.score += target.scoreValue
             }
             entityEliminated = true
             target.eliminate()
@@ -809,5 +813,6 @@ module.exports = {
   "generateEnemies": Enemy.generateEnemies,
   "updateEnemyTargetLocations": Enemy.updateAllTargetLocations,
   "getFrameUpdateData": Entity.getFrameUpdateData,
-  "updateBatsLocation": Enemy.updateBatsLocation
+  "updateBatsLocation": Enemy.updateBatsLocation,
+  "generateMaps": Map.generateMaps
 }
