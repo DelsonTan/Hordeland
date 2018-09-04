@@ -78,7 +78,6 @@ const jQueryApp = function(socket) {
     class Player {
       constructor(params) {
         this.id = params.id
-        this.number = params.number
         this.x = params.x
         this.y = params.y
         this.currentHp = params.currentHp

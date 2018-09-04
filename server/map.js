@@ -57,17 +57,19 @@ class Map {
 
 
   isPositionCaveEntry(entity) {
+    // Maps with no cave entrances
+    if (this.name === 'pvp-forest') {
+      return false
+    }
     const gridX = Math.floor(entity.x / Map.tileSize)
     const gridY = Math.floor(entity.y / Map.tileSize)
-    if (this.grid[gridY][gridX] === 29) {
-      entity.map = 'forest';
-      entity.x = 1140;
-      entity.y = 2325;
-    } else if (this.grid[gridY][gridX] === 934) {
-      entity.map = 'cave';
-      entity.x = 406;
-      entity.y = 860;
+    // Maps with cave entrances
+    if (this.name === 'forest') {
+      return (this.grid[gridY][gridX] === 934)
     }
+    if (this.name === 'cave') {
+      return (this.grid[gridY][gridX] === 29)
+    }  
   }
 }
 // Map Choices
