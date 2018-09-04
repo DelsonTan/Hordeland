@@ -102,6 +102,7 @@ class Player extends Entity {
     this.spriteCalc = 0
     this.projectileAngle = 0
     this.numProjectiles = 1
+    this.mapChanging = false
     this.name = params.name || ''
     this.randomSpawn(0, 0, Map.list[this.map].width, Map.list[this.map].height)
     Player.list[this.id] = this
@@ -139,10 +140,18 @@ class Player extends Entity {
       }
     })
     socket.on('changeMap', function(data) {
-      if (player.map === 'forest') {
-        player.map = 'pvp-forest';
-      } else {
-        player.map = 'forest';
+      if (player.mapChanging === false) {
+        player.mapChanging = true;
+        setTimeout(() => {
+          if (player.map === 'forest') {
+            player.map = 'pvp-forest';
+            // socket.emit('counter')
+          } else {
+            player.map = 'forest';
+            // socket.emit('counter')
+          }
+          player.mapChanging = false;
+        }, 5000)
       }
     })
     socket.emit('init', JSON.stringify({
@@ -205,7 +214,8 @@ class Player extends Entity {
       map: this.map,
       spriteCalc: this.spriteCalc,
       projectileAngle: this.projectileAngle,
-      name: this.name
+      name: this.name,
+      mapChanging: this.mapChanging
     }
   }
 
@@ -226,7 +236,8 @@ class Player extends Entity {
       map: this.map,
       mouseAngle: this.mouseAngle,
       spriteCalc: this.spriteCalc,
-      projectileAngle: this.projectileAngle
+      projectileAngle: this.projectileAngle,
+      mapChanging: this.mapChanging
     }
   }
 
@@ -394,7 +405,6 @@ class Enemy extends Entity {
     this.targetLocation = params.targetLocation || null
     this.imgSrc = params.imgSrc
     Enemy.list[this.id] = this
-    console.log(initData.enemies)
     initData.enemies.push(this.initialData)
   }
 
@@ -912,7 +922,7 @@ class Upgrade extends Entity {
   }
   sendUsedUpgrade(target) {
     this.used = true
-    target.currentHp += this.heal
+    target.currentHp += Math.min(this.heal, target.maxHp - target.currentHp)
     let data = {
       upgrades: [{
         id: this.id,
@@ -944,7 +954,7 @@ Upgrade.potionCave = {
   ypos: 0,
   mapWidth: 950,
   mapHeight: 950,
-  imgSrc: '/client/images/bat.png'
+  imgSrc: '/client/images/bigHealthPotion.png'
 }
 Upgrade.potionOutdoors1 = {
   map: 'forest',
@@ -956,7 +966,7 @@ Upgrade.potionOutdoors1 = {
   ypos: 0,
   mapWidth: 950,
   mapHeight: 950,
-  imgSrc: '/client/images/bat.png'
+  imgSrc: '/client/images/smallHealthPotion.png'
 }
 Upgrade.potionOutdoors2 = {
   map: 'forest',
@@ -968,7 +978,7 @@ Upgrade.potionOutdoors2 = {
   ypos: 0,
   mapWidth: 950,
   mapHeight: 950,
-  imgSrc: '/client/images/bat.png'
+  imgSrc: '/client/images/smallHealthPotion.png'
 }
 
 

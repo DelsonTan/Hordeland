@@ -86,6 +86,7 @@ const jQueryApp = function(socket) {
         this.spriteCalc = params.spriteCalc
         this.projectileAngle = params.projectileAngle
         this.name = params.name
+        this.mapChanging = params.mapChanging
         Player.list[this.id] = this
       }
 
@@ -138,7 +139,9 @@ const jQueryApp = function(socket) {
 
         let walkingMod = Math.floor(this.spriteCalc) % 3
 
-
+        ctxEnt.mozImageSmoothingEnabled = false
+        ctxEnt.msImageSmoothingEnabled = false
+        ctxEnt.imageSmoothingEnabled = false
         ctxEnt.drawImage(Img.player, walkingMod * frameWidth, directionMod * frameHeight, frameWidth, frameHeight,
           xpos - playerSpriteWidth / 2, ypos - playerSpriteHeight / 2, playerSpriteWidth, playerSpriteHeight)
       }
@@ -298,8 +301,8 @@ const jQueryApp = function(socket) {
         if (this.used) {
           return
         }
-        const imgWidth = this.img.width / 1.5
-        const imgHeight = this.img.height / 1.5
+        const imgWidth = this.img.width * 2.5
+        const imgHeight = this.img.height * 2.5
         const posX = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
         const posY = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
         ctxEnt.drawImage(this.img, 0, 0, this.img.width, this.img.height,
@@ -376,6 +379,8 @@ const jQueryApp = function(socket) {
               player.spriteCalc = newPlayerData.spriteCalc
             if (newPlayerData.projectileAngle !== undefined)
               player.projectileAngle = newPlayerData.projectileAngle
+            if (newPlayerData.mapChanging !== undefined)
+              player.mapChanging = newPlayerData.mapChanging
           }
         }
       }
