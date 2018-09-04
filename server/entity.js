@@ -537,10 +537,10 @@ class Enemy extends Entity {
 
   updateVelocity() {
     if (this.name === 'bat' || this.name === 'bee') {
-      if (this.x > this.mapWidth || this.x < this.xpos) {
+      if (this.x + this.dx > this.mapWidth || this.x + this.dx < this.xpos) {
         this.dx = -this.dx
       }
-      if (this.y > this.mapHeight || this.y < this.ypos) {
+      if (this.y + this.dy > this.mapHeight || this.y + this.dy < this.ypos) {
         this.dy = -this.dy
       }
     } else if (this.targetLocation !== null) {
