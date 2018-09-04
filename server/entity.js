@@ -732,6 +732,9 @@ class Projectile extends Entity {
       y: this.y
     }
   }
+  // Queue projectile for removal when timer exceeds 15
+  // Projectile deleted as soon as it hits something (no splash damage)
+  // Take out return statements in for loop to allow splash, but this will cost a lot more performance issues
 
   // Queue projectile for removal when timer exceeds 8
   // Projectile deleted as soon as it hits something (no splash damage)
@@ -748,26 +751,28 @@ class Projectile extends Entity {
         if (target.currentHp <= 0) {
           if (attacker !== undefined) {
             attacker.updateStats(target.scoreValue)
-
+          }
           target.eliminate()
           entityEliminated = true
         }
         let data = {
           players: [{
-            id: target.id,
-            currentHp: target.currentHp,
-            x: target.x,
-            y: target.y,
-            map: target.map
-          },
-          {
-            id: attacker.id,
-            maxHp: attacker.maxHp,
-            currentHp: attacker.currentHp,
-            x: attacker.x,
-            y: attacker.y,
-            map: attacker.map
-          }]
+              id: target.id,
+              currentHp: target.currentHp,
+              x: target.x,
+              y: target.y,
+              map: target.map
+
+            },
+            {
+              id: attacker.id,
+              maxHp: attacker.maxHp,
+              currentHp: attacker.currentHp,
+              x: attacker.x,
+              y: attacker.y,
+              map: attacker.map
+            }
+          ]
         }
         for (let id in Player.socketList) {
           let socket = Player.socketList[id]
@@ -782,12 +787,11 @@ class Projectile extends Entity {
               socket.emit('elimination', BISON.encode({ attacker: attacker.UIData, target: target.UIData }))
             }
           }
+          delete Projectile.list[this.id]
+          removeData.projectiles.push(this.id)
+          return
         }
-        delete Projectile.list[this.id]
-        removeData.projectiles.push(this.id)
-        return
       }
-    }
 
       for (let i in Enemy.list) {
         const target = Enemy.list[i]
@@ -815,10 +819,10 @@ class Projectile extends Entity {
               socket.emit('elimination', BISON.encode({ attacker: attacker.UIData, target: target.UIData }))
             }
           }
+          delete Projectile.list[this.id]
+          removeData.projectiles.push(this.id)
+          return
         }
-        delete Projectile.list[this.id]
-        removeData.projectiles.push(this.id)
-        return
       }
     }
   }
