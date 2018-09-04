@@ -4,7 +4,7 @@ const server = require('http').Server(app)
 const io = require('socket.io')(server, {})
 const PORT = process.env.PORT || 3000;
 const BISON = require('./client/vendor/bison.js')
-const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData, generateEnemies, updateBatsLocation, generateMaps } = require('./server/entity.js')
+const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData, generateEnemies, updateBatsLocation, generateMaps, generatePowerUps } = require('./server/entity.js')
 // IMPORTANT: SET TO FALSE IN PRODUCTION
 const DEBUG = true
 
@@ -56,6 +56,7 @@ setInterval(() => {
 
 generateMaps()
 generateEnemies()
+generatePowerUps()
 setInterval(() => {
   updateBatsLocation()
 }, 100)
