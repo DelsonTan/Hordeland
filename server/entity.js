@@ -523,7 +523,7 @@ class Enemy extends Entity {
               this.fireProjectile(this.angle + i * 10, 18, 36)
             }
           } else if (this.name === Enemy.harpySouth.name || this.name === Enemy.harpySouthEast.name) {
-            this.fireProjectile(this.angle)
+            this.fireProjectile(this.angle, 36, 18)
           }
           this.allowedToFire = false
           setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
@@ -651,7 +651,7 @@ Enemy.harpySouth = {
   meleeDamage: Player.baseRangedDamage,
   rangedDamage: Player.baseRangedDamage * 2,
   allowedToFire: true,
-  rateOfFire: Player.baseRateOfFire * 1.5,
+  rateOfFire: Player.baseRateOfFire * 3,
   speed: Player.baseSpeed,
   spriteCalc: 0,
   map: 'forest',
@@ -670,7 +670,7 @@ Enemy.harpySouthEast = {
   meleeDamage: Player.baseRangedDamage,
   rangedDamage: Player.baseRangedDamage * 2,
   allowedToFire: true,
-  rateOfFire: Player.baseRateOfFire * 1.5,
+  rateOfFire: Player.baseRateOfFire * 3,
   speed: Player.baseSpeed,
   spriteCalc: 0,
   map: 'forest',
