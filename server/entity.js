@@ -583,10 +583,10 @@ class Enemy extends Entity {
 
   updateVelocity() {
     if (this.name === Enemy.bat.name || this.name === Enemy.bee1.name || this.name === Enemy.bee2.name) {
-      if (this.x + this.dx > this.mapWidth || this.x + this.dx < this.xpos) {
+      if (this.x + this.dx > (this.xpos + this.mapWidth) || this.x + this.dx < this.xpos) {
         this.dx = -this.dx
       }
-      if (this.y + this.dy > this.mapHeight || this.y + this.dy < this.ypos) {
+      if (this.y + this.dy > (this.ypos + this.mapHeight) || this.y + this.dy < this.ypos) {
         this.dy = -this.dy
       }
     }
@@ -679,15 +679,15 @@ Enemy.bee1 = {
   maxHp: 30,
   spriteCalc: 0,
   projectileAngle: 0,
-  meleeDamage: 6,
+  meleeDamage: 10,
   map: 'forest',
   name: 'Bee',
   targetLocation: null,
   maxNumber: 6,
   xpos: 0,
   ypos: 0,
-  mapWidth: 2550,
-  mapHeight: Math.floor(2550 / 2),
+  mapWidth: 2550 / 2,
+  mapHeight: Math.floor(2550 / 3 + 150),
   imgSrc: '/client/images/bee.png'
 }
 Enemy.bee2 = {
@@ -699,15 +699,15 @@ Enemy.bee2 = {
   maxHp: 30,
   spriteCalc: 0,
   projectileAngle: 0,
-  meleeDamage: 6,
+  meleeDamage: 10,
   map: 'forest',
   name: 'Bee',
   targetLocation: null,
   maxNumber: 6,
-  xpos: 0,
+  xpos: 2550 / 2,
   ypos: 0,
-  mapWidth: 2550,
-  mapHeight: Math.floor(2550 / 2),
+  mapWidth: 2550 / 2,
+  mapHeight: Math.floor(2550 / 3),
   imgSrc: '/client/images/bee.png'
 }
 
@@ -869,8 +869,8 @@ class Upgrade extends Entity {
 
   static generatePowerUps() {
     new Upgrade(Upgrade.potionCave)
-    new Upgrade(Upgrade.potionOutdoors2)
     new Upgrade(Upgrade.potionOutdoors1)
+    new Upgrade(Upgrade.potionOutdoors2)
     new Upgrade(Upgrade.potionOutdoors1PvP)
     new Upgrade(Upgrade.potionOutdoors2PvP)
   }
