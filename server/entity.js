@@ -589,7 +589,7 @@ class Enemy extends Entity {
 // Class-level value properties
 Enemy.list = {}
 Enemy.bat = {
-  scoreValue: Math.floor(Player.baseScoreValue * 2 / 5),
+  scoreValue: Math.floor(Player.baseScoreValue * 3 / 5),
   maxHp: Player.baseMaxHp,
   meleeDamage: Player.baseRangedDamage,
   rangedDamage: null,
@@ -685,7 +685,7 @@ Enemy.harpySouthEast = {
 }
 Enemy.hydra = {
   scoreValue: Player.baseScoreValue * 5,
-  maxHp: Player.baseMaxHp * 100,
+  maxHp: Player.baseMaxHp * 50,
   meleeDamage: null,
   rangedDamage: Math.floor(Player.baseRangedDamage * 1.5),
   allowedToFire: true,
