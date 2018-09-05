@@ -152,7 +152,7 @@ const jQueryApp = function(socket) {
       }
     }
     Player.list = {}
-    Player.baseMaxHp = 30
+    Player.baseMaxHp = 100
     Player.hpColors = ["red", "#0070dd", "#a335ee", "#ff8000"]
     class Enemy {
       constructor(params) {
@@ -189,7 +189,6 @@ const jQueryApp = function(socket) {
 
       updateSpeed() {
         if (this.name === 'Bat' || this.name === 'Bee' || this.name === 'Harpy') {
-
           if (this.x + this.dx > (this.xpos + this.mapWidth) || this.x + this.dx < this.xpos) {
             this.dx = -this.dx
           }
@@ -249,8 +248,8 @@ const jQueryApp = function(socket) {
         if (Player.list[selfId].map !== this.map) {
           return
         }
-        const imgWidth = Img.bullet.width / 1.5
-        const imgHeight = Img.bullet.height / 1.5
+        const imgWidth = Img.bullet.width / 2
+        const imgHeight = Img.bullet.height / 2
         const xpos = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
         const ypos = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
         ctxEnt.drawImage(Img.bullet, 0, 0, Img.bullet.width, Img.bullet.height,
