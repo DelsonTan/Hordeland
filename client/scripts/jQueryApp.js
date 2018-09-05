@@ -493,6 +493,7 @@ const jQueryApp = function(socket) {
 
     pvpButton.unbind("click").click(function() {
       socket.emit('changeMap')
+      focusCanvas();
     });
 
     game.on("keyup", (event) => {

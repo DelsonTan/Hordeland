@@ -589,7 +589,7 @@ class Enemy extends Entity {
       if (this.y + this.dy > this.mapHeight || this.y + this.dy < this.ypos) {
         this.dy = -this.dy
       }
-    } 
+    }
     // else if (this.targetLocation !== null) {
     //   if (Math.floor(this.targetLocation.x - this.x) > 4) {
     //     this.dx = this.speed
@@ -871,6 +871,8 @@ class Upgrade extends Entity {
     new Upgrade(Upgrade.potionCave)
     new Upgrade(Upgrade.potionOutdoors2)
     new Upgrade(Upgrade.potionOutdoors1)
+    new Upgrade(Upgrade.potionOutdoors1PvP)
+    new Upgrade(Upgrade.potionOutdoors2PvP)
   }
 
   get initialData() {
@@ -942,6 +944,30 @@ Upgrade.potionOutdoors1 = {
 }
 Upgrade.potionOutdoors2 = {
   map: 'forest',
+  x: 2520,
+  y: 2310,
+  name: 'potion',
+  heal: 10,
+  xpos: 0,
+  ypos: 0,
+  mapWidth: 950,
+  mapHeight: 950,
+  imgSrc: '/client/images/smallHealthPotion.png'
+}
+Upgrade.potionOutdoors1PvP = {
+  map: 'pvp-forest',
+  x: 130,
+  y: 2210,
+  name: 'potion',
+  heal: 10,
+  xpos: 0,
+  ypos: 0,
+  mapWidth: 950,
+  mapHeight: 950,
+  imgSrc: '/client/images/smallHealthPotion.png'
+}
+Upgrade.potionOutdoors2PvP = {
+  map: 'pvp-forest',
   x: 2520,
   y: 2310,
   name: 'potion',
