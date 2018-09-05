@@ -468,14 +468,15 @@ const jQueryApp = function(socket) {
 
     signDivUsername.focus(() => {
       $(this).data('placeholder', $(this).attr('placeholder'))
-        .attr('placeholder', '');
-    }).blur(function() {
-      $(this).attr('placeholder', $(this).data('placeholder'));
-    });
+        .attr('placeholder', '')
+    }).blur(() => {
+      $(this).attr('placeholder', $(this).data('placeholder'))
+    })
 
     signDivSignIn.on('submit', (event) => {
       event.preventDefault();
-      socket.emit('signIn', { username: signDivUsername.val() });
+      socket.emit('signIn', { username: signDivUsername.val() })
+      focusCanvas()
     })
 
     game.on("keydown", (event) => {
@@ -551,7 +552,7 @@ const jQueryApp = function(socket) {
       requestAnimationFrame(renderGame)
     }
     // initialize on page load
-    focusCanvas()
+    signDivUsername.focus()
     renderGame()
     // Update all property values for entities
     setInterval(() => {
