@@ -142,15 +142,19 @@ class Player extends Entity {
     socket.on('changeMap', function (data) {
       if (player.mapChanging === false) {
         player.mapChanging = true;
+        socket.emit('counter', { timer: 5, player: player })
         setTimeout(() => {
           if (player.map === 'forest') {
             player.map = 'pvp-forest';
-            // socket.emit('counter')
           } else {
             player.map = 'forest';
-            // socket.emit('counter')
           }
           player.mapChanging = false;
+          let data = {players: [player.updateRenderData]}
+          for (let i in Player.socketList) {
+            let socket = Player.socketList[i]
+            socket.emit('update', BISON.encode(data))
+          }
         }, 5000)
       }
     })

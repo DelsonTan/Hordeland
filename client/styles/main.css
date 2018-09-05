@@ -1,19 +1,20 @@
-html, body {
+html,
+body {
   overflow: hidden;
 }
 
 #ctx {
-    border: 1px solid #000000;
+  border: 1px solid #000000;
 }
 
 #chat-text {
-    width: 500px;
-    height: 100px;
-    overflow-y: scroll;
+  width: 500px;
+  height: 100px;
+  overflow-y: scroll;
 }
 
 #chat-input {
-    width: 500px;
+  width: 500px;
 }
 
 :focus {
@@ -28,7 +29,8 @@ html, body {
   position: absolute;
   border: 1px solid black;
 }
-#button-div{
+
+#button-div {
   position: absolute;
   width: 1500px;
   height: 900px;
@@ -56,7 +58,7 @@ html, body {
   pointer-events: none;
 }
 
-.title{
+.title {
   border-bottom: 1px solid black;
   color: #f57070;
   font-weight: bold;
@@ -64,23 +66,25 @@ html, body {
   padding-bottom: 10px;
 }
 
-td{
+td {
   text-align: center;
 }
 
-.player-rank, .player-score, .player-name{
+.player-rank,
+.player-score,
+.player-name {
   font-size: 20px;
 }
 
-#pvp-button{
-  position:absolute;
+#pvp-button {
+  position: absolute;
   bottom: -40px;
-  right:-50px;
-  color:white;
+  right: -50px;
+  color: white;
   background-color: red;
 }
 
-#signDiv{
+#signDiv {
   position: absolute;
   background-color: white;
   display: flex;
@@ -89,7 +93,7 @@ td{
   z-index: 1;
 }
 
-#signDiv-username{
+#signDiv-username {
   width: fit-content;
   height: 30px;
   font-size: 25px;
@@ -106,12 +110,12 @@ td{
 }
 
 @keyframes glow {
-    0% {
-      box-shadow: 0 0 5px #3acfd5;
-    }
-    100% {
-      box-shadow: 0 0 20px #3a4ed5;
-    }
+  0% {
+    box-shadow: 0 0 5px #3acfd5;
+  }
+  100% {
+    box-shadow: 0 0 20px #3a4ed5;
+  }
 }
 
 #eliminations {
@@ -126,15 +130,27 @@ td{
   pointer-events: none;
 }
 
-.log{
+.counter {
+  position: relative;
+  display: flex;
+  color: white;
+  width: 100%;
+  font-size: 35px;
+  justify-content: center;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  top: 5%;
+  pointer-events: none;
+}
+
+.log {
   color: white;
 }
 
-.elim{
+.elim {
   color: red;
 }
 
-.message{
+.message {
   position: relative;
   display: flex;
   color: white;

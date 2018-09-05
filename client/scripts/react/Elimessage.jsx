@@ -8,9 +8,9 @@ class Elimessage extends Component {
         let message
         if (attacker && target) {
             if (this.props.selfId === target.id) {
-                message = <span>{attacker.name} has eliminated you!</span>
+                message = <span>Eliminated by {attacker.name}!</span>
             } else if (this.props.selfId === attacker.id) {
-                message = <span>You have eliminated {target.name}!</span>
+                message = <span>You eliminated {target.name}!</span>
             }
         }
         return (
