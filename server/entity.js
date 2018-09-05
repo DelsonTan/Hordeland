@@ -347,7 +347,7 @@ class Player extends Entity {
     const mod3 = Math.floor(this.score / (Player.baseScoreValue * 3))
     this.scoreValue = Player.baseScoreValue + (Player.baseScoreValue * mod3)
     // Approximately +10% max hp increase per kill, up to a maximum of +200%
-    this.maxHp = Math.min(Player.baseMaxHp * 3, this.maxHp + Math.floor(Player.baseMaxHp * 0.30 * mod3))
+    this.maxHp = Math.min(Player.baseMaxHp * 3, Player.baseMaxHp + Math.floor(Player.baseMaxHp * 0.30 * mod3))
     // Player dps increases by +20% of base damage per projectile, if all projectiles hit
     // But spread increases with each projectile
     this.numProjectiles = 1 + mod3
