@@ -6,7 +6,9 @@ class Login extends Component {
         return (
               <center id="signDiv">
                 <form id="loginForm">
-                  <input id="signDiv-username" type="text" placeholder="What's your name?"></input>
+                  <input id="signDiv-username" type="text" placeholder="Type your username..."></input>
+                  <br/>
+                  <small>[ PRESS ENTER TO PLAY ]</small>
                 </form>
               </center>
         )

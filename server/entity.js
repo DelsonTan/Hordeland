@@ -113,7 +113,7 @@ class Player extends Entity {
     const player = new Player({
       id: socket.id,
       map: Player.defaultMap,
-      name: socket.playerName
+      name: socket.playerName || '<Blank>'
     })
     socket.on('keyPress', (data) => {
       if (data.inputId === 'leftClick') {

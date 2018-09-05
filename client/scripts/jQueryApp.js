@@ -115,9 +115,11 @@ const jQueryApp = function(socket) {
         ctxEnt.strokeStyle = "black"
         ctxEnt.strokeRect(xpos - maxHpWidth / 2, ypos - 70 / 2, maxHpWidth, 4)
         //player Name
+        let renderedName = null
+        this.name !== '<Blank>' ? renderedName = this.name : renderedName = ''
         ctxEnt.fillStyle = 'black'
         ctxEnt.font = '18px Arial'
-        ctxEnt.fillText(this.name, xpos - 40 / 2, ypos - 40)
+        ctxEnt.fillText(renderedName, xpos - 40 / 2, ypos - 40)
 
         const playerSpriteWidth = Img.player.width / 1.2
         const playerSpriteHeight = Img.player.height / 1.5
