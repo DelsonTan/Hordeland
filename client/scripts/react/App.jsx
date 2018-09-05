@@ -30,6 +30,9 @@ class App extends Component {
             <Game socket={this.state.socket} selfId={this.state.selfId}/>
             <Chat/>
             <UI socket={this.state.socket} selfId={this.state.selfId}/>
+            <button id="pvp-button">
+                PvP Mode
+            </button>
         </div>
         )
     }
