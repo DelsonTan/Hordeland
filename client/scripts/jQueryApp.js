@@ -12,7 +12,11 @@ const jQueryApp = function(socket) {
     signDiv.css('width', $(window).width())
     const signDivUsername = $('#signDiv-username');
     const signDivSignIn = $('#loginForm');
-
+    const audio = document.getElementById('audio')
+    audio.oncanplay = function(){
+        audio.play();
+    }
+    audio.load();
     const canvas = $('#ctx')
     const canvasEnt = $('#ctx-ent')
     const canvasLayer = $('#ctx-lay')
