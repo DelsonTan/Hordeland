@@ -98,6 +98,7 @@ class Player extends Entity {
     this.allowedToFire = true
     this.mouseAngle = 0
     this.score = 0
+    this.rangedDamage = 10
     this.rateOfFire = Player.baseRateOfFire
     this.baseSpeed = Player.baseSpeed
     this.speed = this.baseSpeed
@@ -108,6 +109,7 @@ class Player extends Entity {
     this.projectileAngle = 0
     this.numProjectiles = 1
     this.mapChanging = false
+    this.type = 'player'
     this.name = params.name || ''
     this.randomSpawn(0, 0, Map.list[this.map].width, Map.list[this.map].height)
     Player.list[this.id] = this
@@ -356,49 +358,49 @@ class Player extends Entity {
     this.score += scoreValue
     if (oldScore < Player.baseScoreValue * 2) {
       if (this.score >= Player.baseScoreValue * 2) {
-        this.scoreValue = Math.floor(1.5 * Player.baseScoreValue)
-        this.maxHp = Math.floor(1.4 * Player.baseMaxHp)
+        this.scoreValue += Math.floor(0.5 * Player.baseScoreValue)
+        this.maxHp += Math.floor(0.4 * Player.baseMaxHp)
         this.currentHp += Math.floor(0.4 * Player.baseMaxHp)
-        this.baseSpeed = Math.floor(1.1 * Player.baseSpeed)
-        this.rateOfFire = Math.floor(0.95 * Player.baseRateOfFire)
+        this.baseSpeed += Math.floor(0.1 * Player.baseSpeed)
+        this.rateOfFire -= Math.floor(0.05 * Player.baseRateOfFire)
       }
     }
     if (oldScore < Player.baseScoreValue * 4) {
       if (this.score >= Player.baseScoreValue * 4) {
-        this.scoreValue = Math.floor(2.0 * Player.baseScoreValue)
-        this.maxHp = Math.floor(1.8 * Player.baseMaxHp)
+        this.scoreValue += Math.floor(0.5 * Player.baseScoreValue)
+        this.maxHp += Math.floor(0.4 * Player.baseMaxHp)
         this.currentHp += Math.floor(0.4 * Player.baseMaxHp)
-        this.baseSpeed = Math.floor(1.2 * Player.baseSpeed)
-        this.rateOfFire = Math.floor(0.90 * Player.baseRateOfFire)
+        this.baseSpeed += Math.floor(0.1 * Player.baseSpeed)
+        this.rateOfFire -= Math.floor(0.05 * Player.baseRateOfFire)
       }
     }
     if (oldScore < Player.baseScoreValue * 6) {
       if (this.score >= Player.baseScoreValue * 6) {
-        this.scoreValue = Math.floor(2.5 * Player.baseScoreValue)
-        this.maxHp = Math.floor(2.2 * Player.baseMaxHp)
+        this.scoreValue += Math.floor(0.5 * Player.baseScoreValue)
+        this.maxHp += Math.floor(0.4 * Player.baseMaxHp)
         this.currentHp += Math.floor(0.4 * Player.baseMaxHp)
-        this.baseSpeed = Math.floor(1.3 * Player.baseSpeed)
-        this.rateOfFire = Math.floor(0.85 * Player.baseRateOfFire)
-        this.numProjectiles = 2
+        this.baseSpeed += Math.floor(0.1 * Player.baseSpeed)
+        this.rateOfFire -= Math.floor(0.05 * Player.baseRateOfFire)
+        this.numProjectiles += 1
       }
     }
     if (oldScore < Player.baseScoreValue * 8) {
       if (this.score >= Player.baseScoreValue * 8) {
-        this.scoreValue = Math.floor(3.0 * Player.baseScoreValue)
-        this.maxHp = Math.floor(2.6 * Player.baseMaxHp)
+        this.scoreValue += Math.floor(0.5 * Player.baseScoreValue)
+        this.maxHp += Math.floor(0.4 * Player.baseMaxHp)
         this.currentHp += Math.floor(0.4 * Player.baseMaxHp)
-        this.baseSpeed = Math.floor(1.4 * Player.baseSpeed)
-        this.rateOfFire = Math.floor(0.80 * Player.baseRateOfFire)
+        this.baseSpeed += Math.floor(0.1 * Player.baseSpeed)
+        this.rateOfFire -= Math.floor(0.05 * Player.baseRateOfFire)
       }
     }
     if (oldScore < Player.baseScoreValue * 10) {
       if (this.score >= Player.baseScoreValue * 10) {
-        this.scoreValue = Math.floor(4.0 * Player.baseScoreValue)
-        this.maxHp = Math.floor(3.0 * Player.baseMaxHp)
+        this.scoreValue += Math.floor(1.0 * Player.baseScoreValue)
+        this.maxHp += Math.floor(0.4 * Player.baseMaxHp)
         this.currentHp += Math.floor(0.4 * Player.baseMaxHp)
-        this.baseSpeed = Math.floor(1.5 * Player.baseSpeed)
-        this.rateOfFire = Math.floor(0.75 * Player.baseRateOfFire)
-        this.numProjectiles = 3
+        this.baseSpeed += Math.floor(0.1 * Player.baseSpeed)
+        this.rateOfFire -= Math.floor(0.05 * Player.baseRateOfFire)
+        this.numProjectiles += 1
       }
     }
   }
@@ -421,8 +423,9 @@ class Enemy extends Entity {
     this.currentHp = params.currentHp
     this.maxHp = params.maxHp
     this.spriteCalc = params.spriteCalc
-    this.projectileAngle = params.projectileAngle
+    this.projectileAngle = 0
     this.meleeDamage = params.meleeDamage
+    this.rangedDamage = params.rangedDamage
     this.map = params.map
     this.name = params.name || null
     this.type = 'enemy'
@@ -555,15 +558,21 @@ class Enemy extends Entity {
           }
         }
       }
-      if (this.allowedToFire === true) {
-        if (this.name === Enemy.hydra.name) {
-          this.angle = Math.floor(Math.random() * 360)
-          for (let i = 0; i < 12; i++) {
-            this.fireProjectile(this.angle + i * 25, 15, 36)
+      if (this.rangedDamage !== null) {
+        if (this.allowedToFire === true) {
+          if (this.name === Enemy.hydra.name) {
+            this.angle = Math.floor(Math.random() * 360)
+            for (let i = 0; i < 12; i++) {
+              this.fireProjectile(this.angle + i * 15, 20, 36)
+            }
           }
+          if (this.name === Enemy.harpySouth.name || this.name === Enemy.harpySouthEast.name) {
+            this.angle = Math.floor(Math.random() * 360)
+              this.fireProjectile(this.angle)      
+          }
+          this.allowedToFire = false
+          setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
         }
-        this.allowedToFire = false
-        setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
       }
     }
   }
@@ -624,14 +633,14 @@ class Enemy extends Entity {
 Enemy.list = {}
 Enemy.bat = {
   scoreValue: 4,
+  maxHp: 30,
+  currentHp: 30,
+  meleeDamage: 10,
+  rangedDamage: null,
   allowedToFire: null,
   rateOfFire: null,
-  projectileAngle: null,
   speed: 20,
-  currentHp: 30,
-  maxHp: 30,
   spriteCalc: 0,
-  meleeDamage: 10,
   map: 'cave',
   name: 'Bat',
   maxNumber: 8,
@@ -644,12 +653,12 @@ Enemy.bat = {
 }
 Enemy.beeWest = {
   scoreValue: 4,
+  maxHp: 30,
+  currentHp: 30,
+  rangedDamage: null,
   allowedToFire: null,
   rateOfFire: null,
-  projectileAngle: null,
   speed: 20,
-  currentHp: 30,
-  maxHp: 30,
   spriteCalc: 0,
   meleeDamage: 10,
   map: 'forest',
@@ -664,9 +673,9 @@ Enemy.beeWest = {
 }
 Enemy.beeEast = {
   scoreValue: 4,
+  rangedDamage: null,
   allowedToFire: null,
   rateOfFire: null,
-  projectileAngle: null,
   speed: 20,
   currentHp: 30,
   maxHp: 30,
@@ -684,9 +693,9 @@ Enemy.beeEast = {
 }
 Enemy.harpySouth = {
   scoreValue: 4,
-  allowedToFire: null,
-  rateOfFire: null,
-  projectileAngle: null,
+  rangedDamage: 10,
+  allowedToFire: true,
+  rateOfFire: 400,
   speed: 20,
   currentHp: 30,
   maxHp: 30,
@@ -704,9 +713,9 @@ Enemy.harpySouth = {
 }
 Enemy.harpySouthEast = {
   scoreValue: 4,
-  allowedToFire: null,
-  rateOfFire: null,
-  projectileAngle: null,
+  rangedDamage: 10,
+  allowedToFire: true,
+  rateOfFire: 400,
   speed: 20,
   currentHp: 30,
   maxHp: 30,
@@ -725,9 +734,9 @@ Enemy.harpySouthEast = {
 Enemy.hydra = {
   scoreValue: 100,
   meleeDamage: null,
+  rangedDamage: 10,
   allowedToFire: true,
   rateOfFire: 1600,
-  projectileAngle: 0,
   speed: 0,
   currentHp: 1000,
   maxHp: 1000,
@@ -819,9 +828,9 @@ class Projectile extends Entity {
     for (let i in Player.list) {
       const target = Player.list[i]
       if (this.map === target.map && this.isCollision(target, 40) && this.source !== target.id) {
-        target.currentHp -= this.damage
+        target.currentHp -= attacker.rangedDamage
         if (target.currentHp <= 0) {
-          if (attacker !== undefined && attacker.name !== 'Hydra') {
+          if (attacker !== undefined && attacker.type === 'player') {
             attacker.updateStats(target.scoreValue)
           }
           target.eliminate()
@@ -844,9 +853,11 @@ class Projectile extends Entity {
     for (let i in Enemy.list) {
       const target = Enemy.list[i]
       if (this.map === target.map && this.isCollision(target, 50) && target.currentHp > 0 && attacker.type !== 'enemy') {
-        target.currentHp -= this.damage
+        target.currentHp -= attacker.rangedDamage
         if (target.currentHp <= 0) {
-          if (attacker && attacker.name !== 'Hydra') { attacker.updateStats(target.scoreValue) }
+          if (attacker && attacker.type === 'player') { 
+            attacker.updateStats(target.scoreValue)
+          }
           entityEliminated = true
           target.eliminate()
         }
