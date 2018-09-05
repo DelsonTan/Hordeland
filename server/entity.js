@@ -519,7 +519,7 @@ class Enemy extends Entity {
         if (this.allowedToFire === true) {
           this.angle = Math.floor(Math.random() * 360)
           if (this.name === Enemy.hydra.name) {
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i < 15; i++) {
               this.fireProjectile(this.angle + i * 10, 18, 36)
             }
           } else if (this.name === Enemy.harpySouth.name || this.name === Enemy.harpySouthEast.name) {
@@ -552,7 +552,9 @@ class Enemy extends Entity {
       this.angle = angle
       this.dx = newdx
       this.dy = newdy
-      this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
+      if (this.name !== Enemy.hydra.name) {
+        this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
+      }
       let data = {
         enemies: [{
           id: this.id,
@@ -574,8 +576,8 @@ class Enemy extends Entity {
     const projectile = new Projectile({
       source: this.id,
       angle: angle,
-      speed: speed || null,
-      duration: duration || null,
+      speed: speed,
+      duration: duration,
       x: this.x,
       y: this.y,
       map: this.map
@@ -683,7 +685,7 @@ Enemy.harpySouthEast = {
 }
 Enemy.hydra = {
   scoreValue: Player.baseScoreValue * 5,
-  maxHp: Player.baseMaxHp * 80,
+  maxHp: Player.baseMaxHp * 100,
   meleeDamage: null,
   rangedDamage: Math.floor(Player.baseRangedDamage * 1.5),
   allowedToFire: true,
