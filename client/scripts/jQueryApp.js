@@ -14,9 +14,9 @@ const jQueryApp = function(socket) {
     const signDivSignIn = $('#loginForm');
     const audio = document.getElementById('audio')
     audio.oncanplay = function(){
-        audio.play();
+        audio.play()
     }
-    audio.load();
+    audio.load()
     const canvas = $('#ctx')
     const canvasEnt = $('#ctx-ent')
     const canvasLayer = $('#ctx-lay')
@@ -184,19 +184,16 @@ const jQueryApp = function(socket) {
           enemy.updateSpeed()
           enemy.x += enemy.dx
           enemy.y += enemy.dy
-          if (this.x < 0) {
-            console.log(this.x)
-          }
         }
       }
 
       updateSpeed() {
         if (this.name === 'Bat' || this.name === 'Bee') {
 
-          if (this.x + this.dx > this.mapWidth || this.x + this.dx < this.xpos) {
+          if (this.x + this.dx > (this.xpos + this.mapWidth) || this.x + this.dx < this.xpos) {
             this.dx = -this.dx
           }
-          if (this.y + this.dy > this.mapHeight || this.y + this.dy < this.ypos) {
+          if (this.y + this.dy > (this.ypos +this.mapHeight) || this.y + this.dy < this.ypos) {
             this.dy = -this.dy
           }
         }
