@@ -144,7 +144,7 @@ class Player extends Entity {
         player.projectileAngle = data.state
       }
     })
-    socket.on('changeMap', function(data) {
+    socket.on('changeMap', function (data) {
       if (player.mapChanging === false) {
         player.mapChanging = true;
         socket.emit('counter', { timer: 5, player: player })
@@ -437,7 +437,6 @@ class Enemy extends Entity {
     this.scoreValue = params.scoreValue
     this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
     this.maxNumber = params.maxNumber
-    this.targetLocation = params.targetLocation || null
     this.respawnTimer = params.respawnTimer
     this.imgSrc = params.imgSrc
     Enemy.list[this.id] = this
@@ -461,20 +460,19 @@ class Enemy extends Entity {
     for (let i = 0; i < Enemy.bat.maxNumber; i++) {
       new Enemy(Enemy.bat)
     }
-    for (let i = 0; i < Enemy.bee1.maxNumber; i++) {
-      new Enemy(Enemy.bee1)
+    for (let i = 0; i < Enemy.beeWest.maxNumber; i++) {
+      new Enemy(Enemy.beeWest)
     }
-    for (let i = 0; i < Enemy.bee2.maxNumber; i++) {
-      new Enemy(Enemy.bee2)
+    for (let i = 0; i < Enemy.beeEast.maxNumber; i++) {
+      new Enemy(Enemy.beeEast)
+    }
+    for (let i = 0; i < Enemy.harpySouth.maxNumber; i++) {
+      new Enemy(Enemy.harpySouth)
+    }
+    for (let i = 0; i < Enemy.harpySouthEast.maxNumber; i++) {
+      new Enemy(Enemy.harpySouthEast)
     }
     new Enemy(Enemy.hydra)
-  }
-
-  static updateAllTargetLocations() {
-    for (let i in Enemy.list) {
-      let enemy = Enemy.list[i]
-      enemy.updateTargetLocation()
-    }
   }
 
   static updateBatsLocation() {
@@ -492,7 +490,6 @@ class Enemy extends Entity {
       maxHp: this.maxHp,
       map: this.map,
       spriteCalc: this.spriteCalc,
-      targetLocation: this.targetLocation,
       dx: this.dx,
       dy: this.dy,
       xpos: this.xpos,
@@ -525,15 +522,6 @@ class Enemy extends Entity {
     }
   }
 
-  get updateTargetData() {
-    return {
-      id: this.id,
-      x: this.x,
-      y: this.y,
-      targetLocation: this.targetLocation
-    }
-  }
-
   get eliminatedData() {
     return {
       id: this.id,
@@ -545,52 +533,43 @@ class Enemy extends Entity {
     this.updateVelocity()
     super.update()
     // this.spriteCalc += 0.25
-    let entityEliminated = false
-    for (let i in Player.list) {
-      const target = Player.list[i]
-      if (this.isCollision(target, 15) && this.map === target.map) {
-        target.currentHp -= this.meleeDamage
-        if (target.currentHp <= 0) {
-          target.eliminate()
-          entityEliminated = true
-        }
-        let data = { players: [target.respawnData] }
-        for (let i in Player.socketList) {
-          let socket = Player.socketList[i]
-          socket.emit('update', BISON.encode(data))
-          if (entityEliminated) {
-            socket.emit('elimination', BISON.encode({ attacker: this.UIData, target: target.UIData }))
+    if (this.currentHp > 0) {
+      if (this.meleeDamage !== null) {
+        let entityEliminated = false
+        for (let i in Player.list) {
+          const target = Player.list[i]
+          if (this.isCollision(target, 15) && this.map === target.map) {
+            target.currentHp -= this.meleeDamage
+            if (target.currentHp <= 0) {
+              target.eliminate()
+              entityEliminated = true
+            }
+            let data = { players: [target.respawnData] }
+            for (let i in Player.socketList) {
+              let socket = Player.socketList[i]
+              socket.emit('update', BISON.encode(data))
+              if (entityEliminated) {
+                socket.emit('elimination', BISON.encode({ attacker: this.UIData, target: target.UIData }))
+              }
+            }
           }
         }
       }
-    }
-    if (this.allowedToFire && this.name === 'Hydra' && this.currentHp > 0) {
-      this.angle = Math.floor(Math.random() * 360)
-      this.fireProjectile(this.angle)
-      this.allowedToFire = false
-      setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
+      if (this.allowedToFire === true) {
+        if (this.name === Enemy.hydra.name) {
+          this.angle = Math.floor(Math.random() * 360)
+          for (let i = 0; i < 12; i++) {
+            this.fireProjectile(this.angle + i * 25, 15, 36)
+          }
+        }
+        this.allowedToFire = false
+        setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
+      }
     }
   }
 
-  // updateTargetLocation() {
-  //   if (Object.keys(Player.list).length > 0 && this.name !== 'Bat' && this.name !== 'Bee') {
-  //     let closestDistance = Infinity
-  //     for (let i in Player.list) {
-  //       const player = Player.list[i]
-  //       if (player.map === this.map) {
-  //         const distance = this.getDistance(player)
-  //         if (closestDistance > distance) {
-  //           closestDistance = distance
-  //           this.targetLocation = { x: player.x, y: player.y }
-  //         }
-  //       }
-  //     }
-  //     updateData.enemies.push(this.updateTargetData)
-  //   }
-  // }
-
   updateVelocity() {
-    if (this.name === Enemy.bat.name || this.name === Enemy.bee1.name || this.name === Enemy.bee2.name) {
+    if (this.speed !== 0) {
       if (this.x + this.dx > (this.xpos + this.mapWidth) || this.x + this.dx < this.xpos) {
         this.dx = -this.dx
       }
@@ -598,22 +577,6 @@ class Enemy extends Entity {
         this.dy = -this.dy
       }
     }
-    // else if (this.targetLocation !== null) {
-    //   if (Math.floor(this.targetLocation.x - this.x) > 4) {
-    //     this.dx = this.speed
-    //   } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
-    //     this.dx = -this.speed
-    //   }
-    //   if (Math.floor(this.targetLocation.y - this.y) > 4) {
-    //     this.dy = this.speed
-    //   } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
-    //     this.dy = -this.speed
-    //   }
-
-    // } else {
-    //   this.dy = 0
-    //   this.dx = 0
-    // }
   }
 
   eliminate() {
@@ -643,10 +606,12 @@ class Enemy extends Entity {
     }, this.respawnTimer)
   }
 
-  fireProjectile(angle) {
+  fireProjectile(angle, speed, duration) {
     const projectile = new Projectile({
       source: this.id,
       angle: angle,
+      speed: speed || null,
+      duration: duration || null,
       x: this.x,
       y: this.y,
       map: this.map
@@ -657,20 +622,18 @@ class Enemy extends Entity {
 }
 // Class-level value properties
 Enemy.list = {}
-Enemy.maxSpeed = 20
 Enemy.bat = {
   scoreValue: 4,
   allowedToFire: null,
   rateOfFire: null,
-  speed: Enemy.maxSpeed,
+  projectileAngle: null,
+  speed: 20,
   currentHp: 30,
   maxHp: 30,
   spriteCalc: 0,
-  projectileAngle: 0,
   meleeDamage: 10,
   map: 'cave',
   name: 'Bat',
-  targetLocation: null,
   maxNumber: 8,
   xpos: 0,
   ypos: 0,
@@ -679,19 +642,18 @@ Enemy.bat = {
   respawnTimer: 8000,
   imgSrc: '/client/images/bat.png'
 }
-Enemy.bee1 = {
+Enemy.beeWest = {
   scoreValue: 4,
   allowedToFire: null,
   rateOfFire: null,
-  speed: Enemy.maxSpeed,
+  projectileAngle: null,
+  speed: 20,
   currentHp: 30,
   maxHp: 30,
   spriteCalc: 0,
-  projectileAngle: 0,
   meleeDamage: 10,
   map: 'forest',
   name: 'Bee',
-  targetLocation: null,
   maxNumber: 6,
   xpos: 0,
   ypos: 0,
@@ -700,19 +662,18 @@ Enemy.bee1 = {
   mapHeight: Math.floor(2550 / 3 + 150),
   imgSrc: '/client/images/bee.png'
 }
-Enemy.bee2 = {
+Enemy.beeEast = {
   scoreValue: 4,
   allowedToFire: null,
   rateOfFire: null,
-  speed: Enemy.maxSpeed,
+  projectileAngle: null,
+  speed: 20,
   currentHp: 30,
   maxHp: 30,
   spriteCalc: 0,
-  projectileAngle: 0,
   meleeDamage: 10,
   map: 'forest',
   name: 'Bee',
-  targetLocation: null,
   maxNumber: 6,
   xpos: 2550 / 2,
   ypos: 0,
@@ -721,19 +682,58 @@ Enemy.bee2 = {
   mapHeight: Math.floor(2550 / 3),
   imgSrc: '/client/images/bee.png'
 }
-Enemy.hydra = {
-  scoreValue: 100,
-  allowedToFire: true,
-  rateOfFire: 300,
-  speed: 0,
-  currentHp: 500,
-  maxHp: 500,
+Enemy.harpySouth = {
+  scoreValue: 4,
+  allowedToFire: null,
+  rateOfFire: null,
+  projectileAngle: null,
+  speed: 20,
+  currentHp: 30,
+  maxHp: 30,
   spriteCalc: 0,
-  projectileAngle: 0,
   meleeDamage: 10,
   map: 'forest',
+  name: 'Harpy',
+  maxNumber: 2,
+  xpos: Math.floor(2550 / 3),
+  ypos: 1900,
+  mapWidth: 500,
+  mapHeight: 300,
+  respawnTimer: 25000,
+  imgSrc: '/client/images/harpy.png'
+}
+Enemy.harpySouthEast = {
+  scoreValue: 4,
+  allowedToFire: null,
+  rateOfFire: null,
+  projectileAngle: null,
+  speed: 20,
+  currentHp: 30,
+  maxHp: 30,
+  spriteCalc: 0,
+  meleeDamage: 10,
+  map: 'forest',
+  name: 'Harpy',
+  maxNumber: 2,
+  xpos: 2150,
+  ypos: 1850,
+  mapWidth: 400,
+  mapHeight: 300,
+  respawnTimer: 25000,
+  imgSrc: '/client/images/harpy.png'
+}
+Enemy.hydra = {
+  scoreValue: 100,
+  meleeDamage: null,
+  allowedToFire: true,
+  rateOfFire: 1600,
+  projectileAngle: 0,
+  speed: 0,
+  currentHp: 1000,
+  maxHp: 1000,
+  spriteCalc: 0,
+  map: 'forest',
   name: 'Hydra',
-  targetLocation: null,
   xpos: 630,
   ypos: 1410,
   mapWidth: 2550,
@@ -753,8 +753,8 @@ class Projectile extends Entity {
     this.id = Math.floor(Math.random() * 1000)
     this.map = params.map
     this.angle = params.angle
-    this.speed = 50
-    this.speed = 80
+    this.duration = params.duration || 8
+    this.speed = params.speed || 80
     this.damage = 10
     this.dx = Math.floor(Math.cos(params.angle / 180 * Math.PI) * this.speed)
     this.dy = Math.floor(Math.sin(params.angle / 180 * Math.PI) * this.speed)
@@ -788,7 +788,8 @@ class Projectile extends Entity {
       x: this.x,
       y: this.y,
       map: this.map,
-      angle: this.angle
+      angle: this.angle,
+      speed: this.speed
     }
   }
 
@@ -799,11 +800,11 @@ class Projectile extends Entity {
       y: this.y
     }
   }
-  // Queue projectile for removal when timer exceeds 8
+  // Queue projectile for removal when timer exceeds duration
   // Projectile deleted as soon as it hits something (no splash damage)
   // Take out return statements in for loop to allow splash, but this will cost a lot more performance issues
   update() {
-    if (this.timer++ > 8) {
+    if (this.timer++ > this.duration) {
       delete Projectile.list[this.id]
       removeData.projectiles.push(this.id)
       return
@@ -811,8 +812,8 @@ class Projectile extends Entity {
     super.update()
     let entityEliminated = false
     let attacker = Player.list[this.source]
-    if(!attacker){
-        attacker = Enemy.list[this.source]
+    if (!attacker) {
+      attacker = Enemy.list[this.source]
     }
     // Check projectile collision with players
     for (let i in Player.list) {
@@ -1019,7 +1020,6 @@ module.exports = {
   "playerConnect": Player.onConnect,
   "playerDisconnect": Player.onDisconnect,
   "generateEnemies": Enemy.generateEnemies,
-  "updateAllTargetLocations": Enemy.updateAllTargetLocations,
   "getFrameUpdateData": Entity.getFrameUpdateData,
   "updateBatsLocation": Enemy.updateBatsLocation,
   "generateMaps": Map.generateMaps,

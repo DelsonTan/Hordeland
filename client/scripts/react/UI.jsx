@@ -29,19 +29,6 @@ class UI extends Component {
     return 0
   }
 
-  // sendCount(player) {
-  //   let person = player
-  //   this.setState({ counter: this.state.timer, player: person})
-  //   if(this.state.timer > -1){
-  //       console.log(this.state.timer)
-  //       let time = this.state.timer
-  //       this.setState({ timer: time - 1})
-  //       setTimeout(this.sendCount(person),2000)
-  //   } else {
-  //       this.setState({ timer: 5})
-  //   }
-  // }
-
   componentDidMount() {
     this.props.socket.on('initUI', (data) => {
       const allPlayers = []
@@ -61,16 +48,15 @@ class UI extends Component {
       this.setState({ players: updatedPlayers })
     })
     this.props.socket.on('counter', (data) => {
-      // this.sendCount(data.player)
-      var timeleft = data.timer;
+      var timeleft = data.timer
       var sendCount = setInterval(() => {
         this.setState({ counter: timeleft, player: data.player })
-        timeleft--;
+        timeleft--
         if (timeleft < 0) {
           clearInterval(sendCount);
           this.setState({ counter: -1, player: null })
         }
-      }, 1000);
+      }, 1000)
     })
 
     this.props.socket.on("elimination", (data) => {
@@ -93,9 +79,7 @@ class UI extends Component {
         newEliminations.shift()
       }
       newEliminations.push({ attacker, target })
-      console.log(updatedPlayers)
       const sortedPlayers = updatedPlayers.sort(this.sortPlayersByScore)
-      console.log(sortedPlayers)
       this.setState({ players: sortedPlayers, attacker: attacker, target: target, eliminations: newEliminations })
       setTimeout(() => { this.setState({ attacker: null, target: null }) }, 5000)
     })
@@ -116,19 +100,14 @@ class UI extends Component {
 
   render() {
 
-    return ( <
-      div id = "UI" >
-      <
-      Scoreboard players = { this.state.players }
-      /> <
-      Eliminations eliminations = { this.state.eliminations }
-      /> <
-      Elimessage selfId = { this.props.selfId } target = { this.state.target } attacker = { this.state.attacker }
-      /> <
-      Counter selfId = { this.props.selfId } player = { this.state.player } counter = { this.state.counter }
-      /> <
-      /div> )
-    }
+    return (
+      <div id="UI">
+        <Scoreboard players={this.state.players} />
+        <Eliminations eliminations={this.state.eliminations} />
+        <Elimessage selfId={this.props.selfId} target={this.state.target} attacker={this.state.attacker} />
+        <Counter selfId={this.props.selfId} player={this.state.player} counter={this.state.counter} />
+      </div>)
   }
+}
 
-  export default UI
+export default UI

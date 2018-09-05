@@ -188,7 +188,7 @@ const jQueryApp = function(socket) {
       }
 
       updateSpeed() {
-        if (this.name === 'Bat' || this.name === 'Bee') {
+        if (this.name === 'Bat' || this.name === 'Bee' || this.name === 'Harpy') {
 
           if (this.x + this.dx > (this.xpos + this.mapWidth) || this.x + this.dx < this.xpos) {
             this.dx = -this.dx
@@ -197,23 +197,6 @@ const jQueryApp = function(socket) {
             this.dy = -this.dy
           }
         }
-        // else if (this.targetLocation !== null) {
-
-        //   if (Math.floor(this.targetLocation.x - this.x) > 4) {
-        //     this.x += 6
-        //   } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
-        //     this.x -= 6
-        //   }
-
-        //   if (Math.floor(this.targetLocation.y - this.y) > 4) {
-        //     this.y += 6
-        //   } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
-        //     this.y -= 6
-        //   }
-        // } else {
-        //   this.y += 0
-        //   this.x += 0
-        // }
       }
 
       render() {
@@ -248,7 +231,7 @@ const jQueryApp = function(socket) {
         this.y = params.y
         this.map = params.map
         this.angle = params.angle
-        this.speed = 80
+        this.speed = params.speed
         this.dx = Math.floor(Math.cos(params.angle / 180 * Math.PI) * this.speed)
         this.dy = Math.floor(Math.sin(params.angle / 180 * Math.PI) * this.speed)
         Projectile.list[this.id] = this
