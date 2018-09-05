@@ -231,11 +231,12 @@ const jQueryApp = function(socket) {
         const posX = this.x - Player.list[selfId].x + canvasEnt[0].width / 2
         const posY = this.y - Player.list[selfId].y + canvasEnt[0].height / 2
         // hp bar
-        const currentHpWidth = 40 * this.currentHp / this.maxHp
+        const currentHpWidth = imgWidth * this.currentHp / this.maxHp
+
         ctxEnt.fillStyle = "red"
-        ctxEnt.fillRect(posX - 40 / 2, posY - 70 / 2, 40, 4)
+        ctxEnt.fillRect(posX - imgWidth / 2, posY - imgHeight / 2, imgWidth, 5)
         ctxEnt.fillStyle = "blue"
-        ctxEnt.fillRect(posX - 40 / 2, posY - 70 / 2, currentHpWidth, 4)
+        ctxEnt.fillRect(posX - imgWidth / 2, posY - imgHeight / 2, currentHpWidth, 5)
 
         ctxEnt.drawImage(this.img, 0, 0, this.img.width, this.img.height,
           posX - imgWidth / 2, posY - imgHeight / 2, imgWidth, imgHeight)
@@ -398,6 +399,7 @@ const jQueryApp = function(socket) {
             if (newEnemyData.y !== undefined) { enemy.y = newEnemyData.y }
             if (newEnemyData.dx !== undefined) { enemy.dx = newEnemyData.dx }
             if (newEnemyData.dy !== undefined) { enemy.dy = newEnemyData.dy }
+            if (newEnemyData.projectileAngle !== undefined) { enemy.projectileAngle = newEnemyData.projectileAngle }
             if (newEnemyData.targetLocation !== undefined) { enemy.targetLocation = newEnemyData.targetLocation }
             if (newEnemyData.currentHp !== undefined) {
               enemy.currentHp = newEnemyData.currentHp

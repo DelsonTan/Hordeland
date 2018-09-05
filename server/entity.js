@@ -29,11 +29,16 @@ class Entity {
   }
 
   randomSpawn(xpos, ypos, width, height) {
-    this.x = Math.floor(Math.random() * width) - xpos
-    this.y = Math.floor(Math.random() * height) - ypos
-    while (Map.list[this.map].isPositionWall(this)) {
-      this.x = xpos + Math.floor(Math.random() * width)
-      this.y = ypos + Math.floor(Math.random() * height)
+    if (this.name === "Hydra") {
+      this.x = xpos
+      this.y = ypos
+    } else {
+      this.x = Math.floor(Math.random() * width) - xpos
+      this.y = Math.floor(Math.random() * height) - ypos
+      while (Map.list[this.map].isPositionWall(this)) {
+        this.x = xpos + Math.floor(Math.random() * width)
+        this.y = ypos + Math.floor(Math.random() * height)
+      }
     }
   }
 
@@ -139,7 +144,7 @@ class Player extends Entity {
         player.projectileAngle = data.state
       }
     })
-    socket.on('changeMap', function (data) {
+    socket.on('changeMap', function(data) {
       if (player.mapChanging === false) {
         player.mapChanging = true;
         socket.emit('counter', { timer: 5, player: player })
@@ -150,7 +155,7 @@ class Player extends Entity {
             player.map = 'forest';
           }
           player.mapChanging = false;
-          let data = {players: [player.updateRenderData]}
+          let data = { players: [player.updateRenderData] }
           for (let i in Player.socketList) {
             let socket = Player.socketList[i]
             socket.emit('update', BISON.encode(data))
@@ -433,6 +438,7 @@ class Enemy extends Entity {
     this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
     this.maxNumber = params.maxNumber
     this.targetLocation = params.targetLocation || null
+    this.respawnTimer = params.respawnTimer
     this.imgSrc = params.imgSrc
     Enemy.list[this.id] = this
     initData.enemies.push(this.initialData)
@@ -461,6 +467,7 @@ class Enemy extends Entity {
     for (let i = 0; i < Enemy.bee2.maxNumber; i++) {
       new Enemy(Enemy.bee2)
     }
+    new Enemy(Enemy.hydra)
   }
 
   static updateAllTargetLocations() {
@@ -557,29 +564,30 @@ class Enemy extends Entity {
         }
       }
     }
-    // if (this.allowedToFire && this.pressingFire) {
-    //   this.fireProjectile(this.projectileAngle)
-    //   this.allowedToFire = false
-    //   setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
-    // }
-  }
-
-  updateTargetLocation() {
-    if (Object.keys(Player.list).length > 0 && this.name !== 'Bat' && this.name !== 'Bee') {
-      let closestDistance = Infinity
-      for (let i in Player.list) {
-        const player = Player.list[i]
-        if (player.map === this.map) {
-          const distance = this.getDistance(player)
-          if (closestDistance > distance) {
-            closestDistance = distance
-            this.targetLocation = { x: player.x, y: player.y }
-          }
-        }
-      }
-      updateData.enemies.push(this.updateTargetData)
+    if (this.allowedToFire && this.name === 'Hydra' && this.currentHp > 0) {
+      this.angle = Math.floor(Math.random() * 360)
+      this.fireProjectile(this.angle)
+      this.allowedToFire = false
+      setTimeout(() => { this.allowedToFire = true }, this.rateOfFire)
     }
   }
+
+  // updateTargetLocation() {
+  //   if (Object.keys(Player.list).length > 0 && this.name !== 'Bat' && this.name !== 'Bee') {
+  //     let closestDistance = Infinity
+  //     for (let i in Player.list) {
+  //       const player = Player.list[i]
+  //       if (player.map === this.map) {
+  //         const distance = this.getDistance(player)
+  //         if (closestDistance > distance) {
+  //           closestDistance = distance
+  //           this.targetLocation = { x: player.x, y: player.y }
+  //         }
+  //       }
+  //     }
+  //     updateData.enemies.push(this.updateTargetData)
+  //   }
+  // }
 
   updateVelocity() {
     if (this.name === Enemy.bat.name || this.name === Enemy.bee1.name || this.name === Enemy.bee2.name) {
@@ -632,28 +640,28 @@ class Enemy extends Entity {
         let socket = Player.socketList[i]
         socket.emit('update', BISON.encode(data))
       }
-    }, 8000)
+    }, this.respawnTimer)
   }
 
-  // fireProjectile(angle) {
-  //   const projectile = new Projectile({
-  //     source: this.type,
-  //     angle: angle,
-  //     x: this.x,
-  //     y: this.y,
-  //     map: this.map
-  //   })
-  //   projectile.x = this.x
-  //   projectile.y = this.y
-  // }
+  fireProjectile(angle) {
+    const projectile = new Projectile({
+      source: this.id,
+      angle: angle,
+      x: this.x,
+      y: this.y,
+      map: this.map
+    })
+    projectile.x = this.x
+    projectile.y = this.y
+  }
 }
 // Class-level value properties
 Enemy.list = {}
 Enemy.maxSpeed = 20
 Enemy.bat = {
   scoreValue: 4,
-  allowedToFire: true,
-  rateOfFire: 100,
+  allowedToFire: null,
+  rateOfFire: null,
   speed: Enemy.maxSpeed,
   currentHp: 30,
   maxHp: 30,
@@ -668,12 +676,13 @@ Enemy.bat = {
   ypos: 0,
   mapWidth: 950,
   mapHeight: 950,
+  respawnTimer: 8000,
   imgSrc: '/client/images/bat.png'
 }
 Enemy.bee1 = {
   scoreValue: 4,
-  allowedToFire: true,
-  rateOfFire: 100,
+  allowedToFire: null,
+  rateOfFire: null,
   speed: Enemy.maxSpeed,
   currentHp: 30,
   maxHp: 30,
@@ -688,12 +697,13 @@ Enemy.bee1 = {
   ypos: 0,
   mapWidth: 2550,
   mapHeight: Math.floor(2550 / 2),
+  respawnTimer: 8000,
   imgSrc: '/client/images/bee.png'
 }
 Enemy.bee2 = {
   scoreValue: 4,
-  allowedToFire: true,
-  rateOfFire: 100,
+  allowedToFire: null,
+  rateOfFire: null,
   speed: Enemy.maxSpeed,
   currentHp: 30,
   maxHp: 30,
@@ -708,7 +718,28 @@ Enemy.bee2 = {
   ypos: 0,
   mapWidth: 2550,
   mapHeight: Math.floor(2550 / 2),
+  respawnTimer: 8000,
   imgSrc: '/client/images/bee.png'
+}
+Enemy.hydra = {
+  scoreValue: 100,
+  allowedToFire: true,
+  rateOfFire: 300,
+  speed: 0,
+  currentHp: 500,
+  maxHp: 500,
+  spriteCalc: 0,
+  projectileAngle: 0,
+  meleeDamage: 10,
+  map: 'forest',
+  name: 'Hydra',
+  targetLocation: null,
+  xpos: 630,
+  ypos: 1410,
+  mapWidth: 2550,
+  mapHeight: 2550,
+  respawnTimer: 40000,
+  imgSrc: '/client/images/waterDragon.png'
 }
 
 
@@ -779,14 +810,17 @@ class Projectile extends Entity {
     }
     super.update()
     let entityEliminated = false
-    const attacker = Player.list[this.source]
+    let attacker = Player.list[this.source]
+    if(!attacker){
+        attacker = Enemy.list[this.source]
+    }
     // Check projectile collision with players
     for (let i in Player.list) {
       const target = Player.list[i]
       if (this.map === target.map && this.isCollision(target, 40) && this.source !== target.id) {
         target.currentHp -= this.damage
         if (target.currentHp <= 0) {
-          if (attacker !== undefined) {
+          if (attacker !== undefined && attacker.name !== 'Hydra') {
             attacker.updateStats(target.scoreValue)
           }
           target.eliminate()
@@ -808,10 +842,10 @@ class Projectile extends Entity {
     // Check projectile collision with enemies
     for (let i in Enemy.list) {
       const target = Enemy.list[i]
-      if (this.map === target.map && this.isCollision(target, 50) && target.currentHp > 0) {
+      if (this.map === target.map && this.isCollision(target, 50) && target.currentHp > 0 && attacker.type !== 'enemy') {
         target.currentHp -= this.damage
         if (target.currentHp <= 0) {
-          if (attacker) { attacker.updateStats(target.scoreValue) }
+          if (attacker && attacker.name !== 'Hydra') { attacker.updateStats(target.scoreValue) }
           entityEliminated = true
           target.eliminate()
         }
@@ -985,7 +1019,7 @@ module.exports = {
   "playerConnect": Player.onConnect,
   "playerDisconnect": Player.onDisconnect,
   "generateEnemies": Enemy.generateEnemies,
-  "updateEnemyTargetLocations": Enemy.updateAllTargetLocations,
+  "updateAllTargetLocations": Enemy.updateAllTargetLocations,
   "getFrameUpdateData": Entity.getFrameUpdateData,
   "updateBatsLocation": Enemy.updateBatsLocation,
   "generateMaps": Map.generateMaps,
