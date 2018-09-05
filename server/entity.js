@@ -419,6 +419,10 @@ class Enemy extends Entity {
     this.type = 'enemy'
     this.xpos = params.xpos
     this.ypos = params.ypos
+    this.speed = params.speed
+    this.angle = Math.floor(Math.random() * 360)
+    this.dx = Math.floor(Math.cos(this.angle / 180 * Math.PI) * this.speed)
+    this.dy = Math.floor(Math.sin(this.angle / 180 * Math.PI) * this.speed)
     this.mapWidth = params.mapWidth
     this.mapHeight = params.mapHeight
     this.scoreValue = params.scoreValue
@@ -574,41 +578,50 @@ class Enemy extends Entity {
   }
 
   updateVelocity() {
-    if (this.name === 'Bat' || this.name === 'Bee') {
+    if (this.name === Enemy.bat.name || this.name === Enemy.bee1.name || this.name === Enemy.bee2.name) {
       if (this.x + this.dx > this.mapWidth || this.x + this.dx < this.xpos) {
         this.dx = -this.dx
       }
       if (this.y + this.dy > this.mapHeight || this.y + this.dy < this.ypos) {
         this.dy = -this.dy
       }
-    } else if (this.targetLocation !== null) {
-      if (Math.floor(this.targetLocation.x - this.x) > 4) {
-        this.dx = this.speed
-      } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
-        this.dx = -this.speed
-      }
-      if (Math.floor(this.targetLocation.y - this.y) > 4) {
-        this.dy = this.speed
-      } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
-        this.dy = -this.speed
-      }
+    } 
+    // else if (this.targetLocation !== null) {
+    //   if (Math.floor(this.targetLocation.x - this.x) > 4) {
+    //     this.dx = this.speed
+    //   } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
+    //     this.dx = -this.speed
+    //   }
+    //   if (Math.floor(this.targetLocation.y - this.y) > 4) {
+    //     this.dy = this.speed
+    //   } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
+    //     this.dy = -this.speed
+    //   }
 
-    } else {
-      this.dy = 0
-      this.dx = 0
-    }
+    // } else {
+    //   this.dy = 0
+    //   this.dx = 0
+    // }
   }
 
   eliminate() {
+    const angle = Math.floor(Math.random() * 360)
+    const newdx = Math.floor(Math.cos(angle / 180 * Math.PI) * this.speed)
+    const newdy = Math.floor(Math.sin(angle / 180 * Math.PI) * this.speed)
     setTimeout(() => {
       this.currentHp = this.maxHp
+      this.angle = angle
+      this.dx = newdx
+      this.dy = newdy
       this.randomSpawn(this.xpos, this.ypos, this.mapWidth, this.mapHeight)
       let data = {
         enemies: [{
           id: this.id,
           currentHp: this.currentHp,
           x: this.x,
-          y: this.y
+          y: this.y,
+          dx: this.dx,
+          dy: this.dy
         }]
       }
       for (let i in Player.socketList) {
@@ -651,8 +664,6 @@ Enemy.bat = {
   ypos: 0,
   mapWidth: 950,
   mapHeight: 950,
-  dx: Math.floor(Enemy.maxSpeed / 2),
-  dy: Math.floor(Enemy.maxSpeed / 2),
   imgSrc: '/client/images/bat.png'
 }
 Enemy.bee1 = {
@@ -673,8 +684,6 @@ Enemy.bee1 = {
   ypos: 0,
   mapWidth: 2550,
   mapHeight: Math.floor(2550 / 2),
-  dx: Math.floor(Enemy.maxSpeed / 2),
-  dy: Math.floor(Enemy.maxSpeed / 2),
   imgSrc: '/client/images/bee.png'
 }
 Enemy.bee2 = {
@@ -695,8 +704,6 @@ Enemy.bee2 = {
   ypos: 0,
   mapWidth: 2550,
   mapHeight: Math.floor(2550 / 2),
-  dx: Math.floor(Enemy.maxSpeed / 2),
-  dy: Math.floor(Enemy.maxSpeed / 2),
   imgSrc: '/client/images/bee.png'
 }
 

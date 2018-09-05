@@ -155,7 +155,6 @@ const jQueryApp = function(socket) {
         this.y = params.y
         this.currentHp = params.currentHp
         this.maxHp = params.maxHp
-        this.speed = params.speed
         this.map = params.map
         this.spriteCalc = params.spriteCalc
         this.projectileAngle = params.projectileAngle
@@ -194,23 +193,24 @@ const jQueryApp = function(socket) {
           if (this.y + this.dy > this.mapHeight || this.y + this.dy < this.ypos) {
             this.dy = -this.dy
           }
-        } else if (this.targetLocation !== null) {
-
-          if (Math.floor(this.targetLocation.x - this.x) > 4) {
-            this.x += 6
-          } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
-            this.x -= 6
-          }
-
-          if (Math.floor(this.targetLocation.y - this.y) > 4) {
-            this.y += 6
-          } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
-            this.y -= 6
-          }
-        } else {
-          this.y += 0
-          this.x += 0
         }
+        // else if (this.targetLocation !== null) {
+
+        //   if (Math.floor(this.targetLocation.x - this.x) > 4) {
+        //     this.x += 6
+        //   } else if (Math.floor(this.targetLocation.x - this.x) < 0) {
+        //     this.x -= 6
+        //   }
+
+        //   if (Math.floor(this.targetLocation.y - this.y) > 4) {
+        //     this.y += 6
+        //   } else if (Math.floor(this.targetLocation.y - this.y) < 0) {
+        //     this.y -= 6
+        //   }
+        // } else {
+        //   this.y += 0
+        //   this.x += 0
+        // }
       }
 
       render() {
@@ -390,6 +390,8 @@ const jQueryApp = function(socket) {
           if (enemy) {
             if (newEnemyData.x !== undefined) { enemy.x = newEnemyData.x }
             if (newEnemyData.y !== undefined) { enemy.y = newEnemyData.y }
+            if (newEnemyData.dx !== undefined) { enemy.dx = newEnemyData.dx }
+            if (newEnemyData.dy !== undefined) { enemy.dy = newEnemyData.dy }
             if (newEnemyData.targetLocation !== undefined) { enemy.targetLocation = newEnemyData.targetLocation }
             if (newEnemyData.currentHp !== undefined) {
               enemy.currentHp = newEnemyData.currentHp
