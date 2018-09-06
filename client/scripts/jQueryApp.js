@@ -493,8 +493,8 @@ const jQueryApp = function(socket) {
     game.mousedown((event) => {
       if (event.which === 1) {
         clicking = true
-        const x = -canvas[0].width / 2 + event.clientX - 8
-        const y = -canvas[0].height / 2 + event.clientY - 8
+        const x = -canvas[0].width / 2 + event.clientX
+        const y = -canvas[0].height / 2 + event.clientY
         const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
         socket.emit('keyPress', { inputId: 'leftClick', state: true, angle: angle })
       }
@@ -507,8 +507,8 @@ const jQueryApp = function(socket) {
 
     game.mousemove((event) => {
       if (clicking) {
-        const x = -canvas[0].width / 2 + event.clientX - 8
-        const y = -canvas[0].height / 2 + event.clientY - 8
+        const x = -canvas[0].width / 2 + event.clientX
+        const y = -canvas[0].height / 2 + event.clientY
         const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
         socket.emit('keyPress', { inputId: 'mouseAngle', state: angle })
       }
