@@ -839,7 +839,7 @@ class Projectile extends Entity {
           for (let id in Player.socketList) {
             let socket = Player.socketList[id]
             socket.emit('update', BISON.encode(data))
-            if (entityEliminated && attacker !== undefined) {
+            if (entityEliminated) {
               socket.emit('elimination', BISON.encode({ attacker: attacker.UIData, target: target.UIData }))
             }
           }
@@ -876,7 +876,7 @@ class Projectile extends Entity {
             for (let i in Player.socketList) {
               let socket = Player.socketList[i]
               socket.emit('update', BISON.encode(data))
-              if (entityEliminated && attacker !== undefined) {
+              if (entityEliminated) {
                 socket.emit('elimination', BISON.encode({ attacker: attacker.UIData, target: target.UIData }))
               }
             }
