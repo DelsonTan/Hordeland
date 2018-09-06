@@ -437,7 +437,10 @@ class Enemy extends Entity {
 
   static updateEnemyLocations() {
     for (let i in Enemy.list) {
-      updateData.enemies.push(Enemy.list[i].updateData)
+      const newEnemyData = Enemy.list[i].updateData
+      if (newEnemyData !== null) {
+        updateData.enemies.push(newEnemyData)
+      }
     }
   }
 
@@ -467,12 +470,14 @@ class Enemy extends Entity {
     if (this.speed > 0) {
       data.x = this.x
       data.y = this.y
+      return data
     }
     // use this conditional for enemies with regenerating health
     if (this.name === Enemy.hydra.name) {
       data.currentHp = this.currentHp
+      return data
     }
-    return data
+    return null
   }
 
   get UIData() {
@@ -485,7 +490,9 @@ class Enemy extends Entity {
   get eliminatedData() {
     return {
       id: this.id,
-      currentHp: this.currentHp
+      currentHp: this.currentHp,
+      dx: this.dx,
+      dy: this.dy
     }
   }
 
@@ -544,12 +551,17 @@ class Enemy extends Entity {
   }
 
   eliminate() {
+    const prevSpeed = this.speed
     const angle = Math.floor(Math.random() * 360)
     const newdx = Math.floor(Math.cos(angle / 180 * Math.PI) * this.speed)
     const newdy = Math.floor(Math.sin(angle / 180 * Math.PI) * this.speed)
+    this.speed = 0
+    this.dx = 0
+    this.dy = 0
     setTimeout(() => {
       this.currentHp = this.maxHp
       this.angle = angle
+      this.speed = prevSpeed
       this.dx = newdx
       this.dy = newdy
       if (this.name !== Enemy.hydra.name) {
