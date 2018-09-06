@@ -7,7 +7,7 @@ class Chat extends Component {
             <div id="chat">
                 <div id="chat-text"></div>
                 <form id="chat-form">
-                    <input tabIndex="0" id="chat-input" type="text"></input>
+                    <input tabIndex="0" id="chat-input" maxLength="80" type="text"></input>
                 </form>
             </div>)
     }
