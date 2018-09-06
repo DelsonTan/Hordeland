@@ -12,11 +12,10 @@ class Game extends Component {
     }
 
     componentDidMount() {
+        jQueryApp(this.props.socket, this.props.selfId)
     }
 
     render() {
-        // console.log(this.props.selfId)
-        jQueryApp(this.props.socket, this.props.selfId)
         return (
             <div id="game" tabIndex="0">
             <canvas id="ctx" width={this.width} height={this.height}/>

@@ -7,6 +7,21 @@ body {
   border: 1px solid #000000;
 }
 
+#chat {
+  pointer-events: none;
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  color: #c20114;
+  background-color: rgb(0, 0, 0); /* Fallback for older browsers without RGBA-support */
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+#chat:focus-within {
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
 #chat-text {
   width: 500px;
   height: 100px;

@@ -1,6 +1,6 @@
 const jQueryApp = function(socket) {
 
-  $(document).ready(function() {
+  
     // Canvas Selectors and Settings
     const game = $('#game')
     game.oncontextmenu = function(event) {
@@ -478,7 +478,7 @@ const jQueryApp = function(socket) {
       }
     })
 
-    pvpButton.unbind("click").click(function() {
+    pvpButton.click(function() {
       socket.emit('changeMap')
       focusCanvas();
     });
@@ -516,17 +516,15 @@ const jQueryApp = function(socket) {
     // Chat
     chatForm.submit((event) => {
       event.preventDefault()
-      if (chatInput.val()[0] === '/') { socket.emit('evalMessage', { text: chatInput.val().slice(1) }) } else { socket.emit('sendMessage', { text: chatInput.val() }) }
-      chatInput.val("")
+      if (chatInput.val()[0] === '/') { 
+        socket.emit('evalMessage', { name: Player.list[selfId].name, text: chatInput.val().slice(1) }) 
+      } else if (chatInput.val() !== '') {
+        socket.emit('sendMessage', { name: Player.list[selfId].name, text: chatInput.val() }) 
+      }
+      chatInput.val('')
       blurChat()
       focusCanvas()
     })
-
-    // pvpButton.mousedown((event) => {
-    //     event.preventDefault();
-    //     console.log("button clicked");
-    //     socket.emit('changeMap');
-    // })
 
     socket.on('addToChat', function(data) { $("<div>").text(data).appendTo(chatText) })
     socket.on('evalAnswer', function(data) { console.log(data) })
@@ -552,7 +550,7 @@ const jQueryApp = function(socket) {
       Enemy.updateAll()
       Projectile.updateAll()
     }, 40)
-  })
+  
 }
 
 export default jQueryApp
