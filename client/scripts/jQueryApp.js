@@ -120,8 +120,9 @@ const jQueryApp = function(socket) {
         ctxEnt.strokeRect(xpos - maxHpWidth / 2, ypos - 70 / 2, maxHpWidth, 4)
         //player Name
         ctxEnt.fillStyle = 'black'
-        ctxEnt.font = '18px Arial'
-        ctxEnt.fillText(this.name, xpos - 40 / 2, ypos - 40)
+        ctxEnt.font = '16px Arial'
+        ctxEnt.textAlign= "center"
+        ctxEnt.fillText(this.name, xpos, ypos - 40)
 
         const playerSpriteWidth = Img.player.width / 1.2
         const playerSpriteHeight = Img.player.height / 1.5
@@ -460,7 +461,7 @@ const jQueryApp = function(socket) {
 
     signDivSignIn.on('submit', (event) => {
       event.preventDefault();
-      socket.emit('signIn', { username: signDivUsername.val() })
+      socket.emit('signIn', { username: signDivUsername.val().substring(0,12) })
       focusCanvas()
     })
 

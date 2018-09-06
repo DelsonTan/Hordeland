@@ -31,7 +31,7 @@ setInterval(() => {
 
 io.sockets.on('connection', (socket) => {
   socket.on('signIn', function(data) {
-    socket.playerName = data.username
+    socket.playerName = data.username.substring(0,12)
     socket.id = Math.floor(Math.random() * 1000)
     playerConnect(socket)
     socket.emit('signInResponse', { success: true })
