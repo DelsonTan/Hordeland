@@ -29,11 +29,16 @@ class Entity {
   }
 
   randomSpawn(xpos, ypos, width, height) {
-    this.x = Math.floor(Math.random() * width) - xpos
-    this.y = Math.floor(Math.random() * height) - ypos
-    while (Map.list[this.map].isPositionWall(this)) {
-      this.x = xpos + Math.floor(Math.random() * width)
-      this.y = ypos + Math.floor(Math.random() * height)
+    if (this.name === "Joel") {
+      this.x = 230
+      this.y = 200
+    } else {
+      this.x = Math.floor(Math.random() * width) - xpos
+      this.y = Math.floor(Math.random() * height) - ypos
+      while (Map.list[this.map].isPositionWall(this)) {
+        this.x = xpos + Math.floor(Math.random() * width)
+        this.y = ypos + Math.floor(Math.random() * height)
+      }
     }
   }
 
@@ -143,7 +148,7 @@ class Player extends Entity {
         player.projectileAngle = data.state
       }
     })
-    socket.on('changeMap', function (data) {
+    socket.on('changeMap', function(data) {
       if (player.mapChanging === false) {
         player.mapChanging = true
         socket.emit('counter', { timer: 5, player: player })
@@ -278,21 +283,31 @@ class Player extends Entity {
       this.spriteCalc += 0.25
     }
     let playPos = Map.list[this.map].isPositionWall(this)
-    if (playPos && playPos !== 29 && playPos !== 934) {
+    if (playPos && playPos !== 29 && playPos !== 934 && playPos !== 1488 && playPos !== 2952) {
       this.x = prevX
       this.y = prevY
     }
-    if (Map.list[this.map].isPositionCaveEntry(this)) {
-      if (this.map === 'forest') {
-        this.map = 'cave'
-        this.x = 406
-        this.y = 860
-      } else if (this.map === 'cave') {
-        this.map = 'forest'
-        this.x = 1140
-        this.y = 2325
-      }
+
+    if ((Map.list[this.map].isPositionCaveEntry(this)) === 934) {
+      this.map = 'cave'
+      this.x = 406
+      this.y = 860
+    } else if ((Map.list[this.map].isPositionCaveEntry(this)) === 29) {
+      this.map = 'forest'
+      this.x = 1140
+      this.y = 2325
+    } else if ((Map.list[this.map].isPositionCaveEntry(this)) === 1488) {
+      console.log(this.x, this.y)
+      this.map = 'forest'
+      this.x = 1082
+      this.y = 390
+    } else if ((Map.list[this.map].isPositionCaveEntry(this)) === 2952) {
+      console.log(this.x, this.y)
+      this.map = 'house'
+      this.x = 830
+      this.y = 880
     }
+
 
     if (this.allowedToFire && this.pressingFire) {
       this.fireProjectiles(this.projectileAngle, this.numProjectiles, this.x, this.y)
@@ -535,7 +550,7 @@ class Enemy extends Entity {
             }
           } else if (this.name === Enemy.houseBoss.name) {
             for (let i = 0; i < 10; i++) {
-              this.fireProjectile(this.angle + i * 5, 15, 32)
+              this.fireProjectile(this.angle + i * 5, 20, 32)
             }
           } else if (this.name === Enemy.harpySouth.name || this.name === Enemy.harpySouthEast.name) {
             this.fireProjectile(this.angle, 36, 18)
@@ -672,7 +687,7 @@ Enemy.harpySouth = {
   rangedDamage: Player.baseRangedDamage * 2,
   allowedToFire: true,
   rateOfFire: Player.baseRateOfFire * 3,
-  speed: Math.floor(Player.baseSpeed / 1.5),
+  speed: Math.floor(Player.baseSpeed / 1.8),
   spriteCalc: 0,
   map: 'forest',
   name: 'Harpy',
@@ -691,7 +706,7 @@ Enemy.harpySouthEast = {
   rangedDamage: Player.baseRangedDamage * 2,
   allowedToFire: true,
   rateOfFire: Player.baseRateOfFire * 3,
-  speed: Math.floor(Player.baseSpeed / 1.5),
+  speed: Math.floor(Player.baseSpeed / 1.8),
   spriteCalc: 0,
   map: 'forest',
   name: 'Harpy',
@@ -733,17 +748,17 @@ Enemy.houseBoss = {
   rangedDamage: Player.baseRangedDamage * 2,
   allowedToFire: true,
   rateOfFire: Player.baseRateOfFire * 3,
-  speed: Player.baseSpeed,
+  speed: Math.floor(Player.baseSpeed * 0.8),
   spriteCalc: 0,
-  map: 'cave',
+  map: 'house',
   name: 'Joel',
   maxNumber: 1,
-  xpos: 0,
-  ypos: 0,
-  mapWidth: 950,
-  mapHeight: 950,
+  xpos: 230,
+  ypos: 200,
+  mapWidth: 400,
+  mapHeight: 400,
   respawnTimer: 45000,
-  imgSrc: '/client/images/harpy.png'
+  imgSrc: '/client/images/joel.png'
 }
 
 //---------------------------------------------PROJECTILES----------------------------------------------//
@@ -772,7 +787,7 @@ class Projectile extends Entity {
       let projectile = Projectile.list[i]
       projectile.update()
       let projPos = Map.list[projectile.map].isPositionWall(projectile)
-      if (projPos && projPos === 436) {
+      if (projPos && projPos === 436 || projPos === 35) {
         delete Projectile.list[i]
         removeData.projectiles.push(projectile.id)
       }
