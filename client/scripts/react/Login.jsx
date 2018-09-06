@@ -8,7 +8,7 @@ class Login extends Component {
       tips: [
         'Holding down fire slows down your movement',
         'Eliminating the hydra grants a player 2x attack speed for 20 seconds',
-        'Eliminating the jouse boss removes your movement penalty while firing and increases your movement speed by 50%',
+        'Eliminating the house boss removes your movement penalty while firing and increases your movement speed by 50%',
         'The potion in the cave heals a player by a large amount, but is guarded by ferocious bats',
         'The forest provides great cover against hostile player fire, if you can handle bees...',
         'Every three player kills, or the score equivalent in AI kills, nets you a small power boost',
