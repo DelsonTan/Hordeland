@@ -50,9 +50,8 @@ io.sockets.on('connection', (socket) => {
   })
 
   socket.on('sendMessage', (data) => {
-    const playerName = (socket.id).toString().slice(2, 7)
     for (let i in SOCKET_LIST) {
-      SOCKET_LIST[i].emit('addToChat', `${playerName}: ${data.text}`)
+      SOCKET_LIST[i].emit('addToChat', `${data.name}: ${data.text}`)
     }
   })
 

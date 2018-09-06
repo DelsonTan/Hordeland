@@ -117,7 +117,7 @@ class Player extends Entity {
     const player = new Player({
       id: socket.id,
       map: Player.defaultMap,
-      name: socket.playerName || '<Blank>'
+      name: socket.playerName || `Anon${socket.id}`
     })
     socket.on('keyPress', (data) => {
       if (data.inputId === 'leftClick') {
@@ -777,63 +777,72 @@ class Projectile extends Entity {
     if (!attacker) {
       attacker = Enemy.list[this.source]
     }
-    // Check projectile collision with players
-    for (let i in Player.list) {
-      const target = Player.list[i]
-      if (this.map === target.map && this.isCollision(target, 40) && this.source !== target.id) {
-        target.currentHp -= attacker.rangedDamage
-        if (target.currentHp <= 0) {
-          if (attacker !== undefined && attacker.type === 'player') {
-            attacker.updateStats(target.scoreValue)
+    if (attacker !== undefined) {
+      // Check projectile collision with players
+      for (let i in Player.list) {
+        const target = Player.list[i]
+        if (this.map === target.map && this.isCollision(target, 40) && this.source !== target.id) {
+          target.currentHp -= attacker.rangedDamage
+          if (target.currentHp <= 0) {
+            if (attacker.type === 'player') {
+              attacker.updateStats(target.scoreValue)
+            }
+            if (attacker.type === 'enemy' && attacker.name === Enemy.hydra.name) {
+              // Hydra heals up to 3% of its health when it kills someone
+              attacker.currentHp += Math.min(attacker.maxHp - attacker.currentHp, Math.floor(attacker.maxHp * 0.03))
+            }
+            target.eliminate()
+            entityEliminated = true
           }
-          if (attacker.type === 'enemy' && attacker.name === Enemy.hydra.name) {
-            // Hydra heals up to 3% of its health when it kills someone
-            attacker.currentHp += Math.min(attacker.maxHp - attacker.currentHp, Math.floor(attacker.maxHp * 0.03))
-          }
-          target.eliminate()
-          entityEliminated = true
-        }
-        let data = { players: [target.respawnData] }
-        for (let id in Player.socketList) {
-          let socket = Player.socketList[id]
-          socket.emit('update', BISON.encode(data))
-          if (entityEliminated && attacker !== undefined) {
-            socket.emit('elimination', BISON.encode({ attacker: attacker.UIData, target: target.UIData }))
-          }
-        }
-        delete Projectile.list[this.id]
-        removeData.projectiles.push(this.id)
-        return
-      }
-    }
-    // Check projectile collision with enemies
-    for (let i in Enemy.list) {
-      const target = Enemy.list[i]
-      if (this.map === target.map && this.isCollision(target, 50) && target.currentHp > 0 && attacker.type !== 'enemy') {
-        target.currentHp -= attacker.rangedDamage
-        if (target.currentHp <= 0) {
-          if (attacker && attacker.type === 'player') {
-            attacker.updateStats(target.scoreValue)
-            if (target.name === Enemy.hydra.name) {
-              attacker.rateOfFire = Math.floor(0.50 * Player.baseRateOfFire)
-              setTimeout(() => { attacker.rateOfFire = Math.floor(Player.baseRateOfFire) }, 20000)
+          let data = { players: [target.respawnData] }
+          for (let id in Player.socketList) {
+            let socket = Player.socketList[id]
+            socket.emit('update', BISON.encode(data))
+            if (entityEliminated && attacker !== undefined) {
+              socket.emit('elimination', BISON.encode({ attacker: attacker.UIData, target: target.UIData }))
             }
           }
-          entityEliminated = true
-          target.eliminate()
+          delete Projectile.list[this.id]
+          removeData.projectiles.push(this.id)
+          return
         }
-        let data = { enemies: [target.eliminatedData] }
-        for (let i in Player.socketList) {
-          let socket = Player.socketList[i]
-          socket.emit('update', BISON.encode(data))
-          if (entityEliminated && attacker !== undefined) {
-            socket.emit('elimination', BISON.encode({ attacker: attacker.UIData, target: target.UIData }))
+      }
+      // Check projectile collision with enemies
+      if (attacker.type === 'player') {
+        for (let i in Enemy.list) {
+          const target = Enemy.list[i]
+          if (this.map === target.map && this.isCollision(target, 50) && target.currentHp > 0) {
+            target.currentHp -= attacker.rangedDamage
+            if (target.currentHp <= 0) {
+              if (attacker && attacker.type === 'player') {
+                attacker.updateStats(target.scoreValue)
+                if (target.name === Enemy.hydra.name) {
+                  attacker.rateOfFire = Math.floor(0.50 * Player.baseRateOfFire)
+                  setTimeout(() => { attacker.rateOfFire = Math.floor(Player.baseRateOfFire) }, 20000)
+                }
+              }
+              entityEliminated = true
+              target.eliminate()
+            }
+            let data = { enemies: [target.eliminatedData] }
+            for (let i in Player.socketList) {
+              let socket = Player.socketList[i]
+              socket.emit('update', BISON.encode(data))
+              if (entityEliminated && attacker !== undefined) {
+                socket.emit('elimination', BISON.encode({ attacker: attacker.UIData, target: target.UIData }))
+              }
+            }
+            delete Projectile.list[this.id]
+            removeData.projectiles.push(this.id)
+            return
           }
         }
-        delete Projectile.list[this.id]
-        removeData.projectiles.push(this.id)
-        return
       }
+      // Projectile source undefined, projectile deleted immediately
+    } else {
+      delete Projectile.list[this.id]
+      removeData.projectiles.push(this.id)
+      return
     }
   }
 }

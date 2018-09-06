@@ -1,6 +1,6 @@
 const jQueryApp = function(socket) {
 
-  $(document).ready(function() {
+  
     // Canvas Selectors and Settings
     const game = $('#game')
     game.oncontextmenu = function(event) {
@@ -119,11 +119,9 @@ const jQueryApp = function(socket) {
         ctxEnt.strokeStyle = "black"
         ctxEnt.strokeRect(xpos - maxHpWidth / 2, ypos - 70 / 2, maxHpWidth, 4)
         //player Name
-        let renderedName = null
-        this.name !== '<Blank>' ? renderedName = this.name : renderedName = ''
         ctxEnt.fillStyle = 'black'
         ctxEnt.font = '18px Arial'
-        ctxEnt.fillText(renderedName, xpos - 40 / 2, ypos - 40)
+        ctxEnt.fillText(this.name, xpos - 40 / 2, ypos - 40)
 
         const playerSpriteWidth = Img.player.width / 1.2
         const playerSpriteHeight = Img.player.height / 1.5
@@ -468,7 +466,11 @@ const jQueryApp = function(socket) {
 
     game.on("keydown", (event) => {
       event.preventDefault()
-      if (event.which === 65) { pressing('left', true) } else if (event.which === 68) { pressing('right', true) } else if (event.which === 87) { pressing('up', true) } else if (event.which === 83) { pressing('down', true) } else if (event.which === 13) {
+      if (event.which === 65 || event.which === 37) { pressing('left', true) } 
+      else if (event.which === 68 || event.which === 39) { pressing('right', true) } 
+      else if (event.which === 87 || event.which === 38) { pressing('up', true) } 
+      else if (event.which === 83 || event.which === 40) { pressing('down', true) } 
+      else if (event.which === 13) {
         event.preventDefault()
         cancelPlayerKeyPress()
         blurCanvas()
@@ -476,20 +478,23 @@ const jQueryApp = function(socket) {
       }
     })
 
-    pvpButton.unbind("click").click(function() {
+    pvpButton.click(function() {
       socket.emit('changeMap')
       focusCanvas();
     });
 
     game.on("keyup", (event) => {
-      if (event.which === 65) { pressing('left', false) } else if (event.which === 68) { pressing('right', false) } else if (event.which === 87) { pressing('up', false) } else if (event.which === 83) { pressing('down', false) }
+      if (event.which === 65 || event.which === 37) { pressing('left', false) } 
+      else if (event.which === 68 || event.which === 39) { pressing('right', false) } 
+      else if (event.which === 87 || event.which === 38) { pressing('up', false) } 
+      else if (event.which === 83 || event.which === 40) { pressing('down', false) }
     })
 
     game.mousedown((event) => {
       if (event.which === 1) {
         clicking = true
-        const x = -canvas[0].width / 2 + event.clientX - 8
-        const y = -canvas[0].height / 2 + event.clientY - 8
+        const x = -canvas[0].width / 2 + event.clientX
+        const y = -canvas[0].height / 2 + event.clientY
         const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
         socket.emit('keyPress', { inputId: 'leftClick', state: true, angle: angle })
       }
@@ -502,8 +507,8 @@ const jQueryApp = function(socket) {
 
     game.mousemove((event) => {
       if (clicking) {
-        const x = -canvas[0].width / 2 + event.clientX - 8
-        const y = -canvas[0].height / 2 + event.clientY - 8
+        const x = -canvas[0].width / 2 + event.clientX
+        const y = -canvas[0].height / 2 + event.clientY
         const angle = Math.floor(Math.atan2(y, x) / Math.PI * 180)
         socket.emit('keyPress', { inputId: 'mouseAngle', state: angle })
       }
@@ -511,17 +516,15 @@ const jQueryApp = function(socket) {
     // Chat
     chatForm.submit((event) => {
       event.preventDefault()
-      if (chatInput.val()[0] === '/') { socket.emit('evalMessage', { text: chatInput.val().slice(1) }) } else { socket.emit('sendMessage', { text: chatInput.val() }) }
-      chatInput.val("")
+      if (chatInput.val()[0] === '/') { 
+        socket.emit('evalMessage', { name: Player.list[selfId].name, text: chatInput.val().slice(1) }) 
+      } else if (chatInput.val() !== '') {
+        socket.emit('sendMessage', { name: Player.list[selfId].name, text: chatInput.val() }) 
+      }
+      chatInput.val('')
       blurChat()
       focusCanvas()
     })
-
-    // pvpButton.mousedown((event) => {
-    //     event.preventDefault();
-    //     console.log("button clicked");
-    //     socket.emit('changeMap');
-    // })
 
     socket.on('addToChat', function(data) { $("<div>").text(data).appendTo(chatText) })
     socket.on('evalAnswer', function(data) { console.log(data) })
@@ -547,7 +550,7 @@ const jQueryApp = function(socket) {
       Enemy.updateAll()
       Projectile.updateAll()
     }, 40)
-  })
+  
 }
 
 export default jQueryApp

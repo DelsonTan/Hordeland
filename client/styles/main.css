@@ -1,10 +1,26 @@
 html,
 body {
   overflow: hidden;
+  background-color: black;
 }
 
 #ctx {
   border: 1px solid #000000;
+}
+
+#chat {
+  pointer-events: none;
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  color: #c20114;
+  background-color: rgb(0, 0, 0); /* Fallback for older browsers without RGBA-support */
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+#chat:focus-within {
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 #chat-text {
@@ -49,7 +65,6 @@ body {
   background-color: #ffffff4f;
   border: 1px solid black;
   padding: 5px;
-  top: 8px;
   border-bottom-right-radius: 20px;
   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
   color: white;
