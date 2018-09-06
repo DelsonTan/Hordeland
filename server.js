@@ -51,7 +51,7 @@ io.sockets.on('connection', (socket) => {
 
   socket.on('sendMessage', (data) => {
     for (let i in SOCKET_LIST) {
-      SOCKET_LIST[i].emit('addToChat', `${data.name}: ${data.text}`)
+      SOCKET_LIST[i].emit('addToChat', `${data.name}: ${data.text.substring(0,80)}`)
     }
   })
 

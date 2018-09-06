@@ -153,12 +153,7 @@ class Player extends Entity {
         player.mapChanging = true
         socket.emit('counter', { timer: 5, player: player })
         setTimeout(() => {
-          if (player.map === 'forest') {
-            player.map = 'pvp-forest';
-          } else {
-            player.map = 'forest';
-          }
-          player.eliminate()
+          player.map === 'pvp-forest' ? player.respawn('forest') : player.respawn('pvp-forest')
           player.mapChanging = false
           let data = { players: [player.updateRenderData] }
           for (let i in Player.socketList) {
@@ -343,13 +338,13 @@ class Player extends Entity {
     }
   }
 
-  eliminate() {
+  respawn(map) {
     this.score = 0
     this.maxHp = Player.baseMaxHp
     this.currentHp = this.maxHp
     this.baseSpeed = Player.baseSpeed
     this.rateOfFire = Player.baseRateOfFire
-    this.map = Player.defaultMap
+    this.map = map || Player.defaultMap
     this.scoreValue = Player.baseScoreValue
     this.numProjectiles = 1
     this.rangedDamage = Player.baseRangedDamage
@@ -506,7 +501,7 @@ class Enemy extends Entity {
     }
   }
 
-  get eliminatedData() {
+  get respawnData() {
     return {
       id: this.id,
       currentHp: this.currentHp,
@@ -527,7 +522,7 @@ class Enemy extends Entity {
           if (this.isCollision(target, 30) && this.map === target.map) {
             target.currentHp -= this.meleeDamage
             if (target.currentHp <= 0) {
-              target.eliminate()
+              target.respawn()
               entityEliminated = true
             }
             let data = { players: [target.respawnData] }
@@ -573,7 +568,7 @@ class Enemy extends Entity {
     }
   }
 
-  eliminate() {
+  respawn() {
     const prevSpeed = this.speed
     const angle = Math.floor(Math.random() * 360)
     const newdx = Math.floor(Math.cos(angle / 180 * Math.PI) * this.speed)
@@ -847,7 +842,7 @@ class Projectile extends Entity {
               // Boss heals up to 5% of its health when it kills someone
               attacker.currentHp += Math.min(attacker.maxHp - attacker.currentHp, Math.floor(attacker.maxHp * 0.05))
             }
-            target.eliminate()
+            target.respawn()
             entityEliminated = true
           }
           let data = { players: [target.respawnData] }
@@ -885,9 +880,9 @@ class Projectile extends Entity {
               }
 
               entityEliminated = true
-              target.eliminate()
+              target.respawn()
             }
-            let data = { enemies: [target.eliminatedData] }
+            let data = { enemies: [target.respawnData] }
             for (let i in Player.socketList) {
               let socket = Player.socketList[i]
               socket.emit('update', BISON.encode(data))
