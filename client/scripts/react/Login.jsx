@@ -17,7 +17,7 @@ class Login extends Component {
         'Please be civil to your fellow players on the in-game chat',
         '🤗Jazzhands🤗',
         'If it can break, Jeremie will break it',
-        'When in doubt, use "fluffybunny" as your password',
+        'When in doubt, "fluffybunny" is a great password',
         'Please email any complaints to Joel@Joel.Joel'
       ]
     }
