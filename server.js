@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 3000;
 const BISON = require('./client/vendor/bison.js')
 const { SOCKET_LIST, playerDisconnect, playerConnect, getFrameUpdateData, generateEnemies, updateEnemyLocations, generateMaps, generatePowerUps } = require('./server/entity.js')
 // IMPORTANT: SET TO FALSE IN PRODUCTION
-const DEBUG = true
+const DEBUG = false
 
 generateMaps()
 generateEnemies()

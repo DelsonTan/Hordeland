@@ -353,8 +353,8 @@ class Player extends Entity {
     this.maxHp = Math.min(Player.baseMaxHp * 3, Player.baseMaxHp + Math.floor(Player.baseMaxHp * 0.30 * mod3))
     // Player dps increases by +20% of base damage per projectile, if all projectiles hit
     // But spread increases with each projectile
-    this.numProjectiles = 1 + mod3
-    this.rangedDamage = Math.max(1, Math.floor(Player.baseRangedDamage * 1.2 / this.numProjectiles))
+    this.numProjectiles = Math.min(1 + mod3, 21)
+    this.rangedDamage = Math.min(Player.baseRangedDamage * 5, Math.floor(Player.baseRangedDamage + Player.baseRangedDamage * 0.2 * (this.numProjectiles - 1)))
     // heal by difference between old max hp and increased max hp
     this.currentHp += this.maxHp - oldMaxHp
   }
@@ -726,7 +726,6 @@ Enemy.hydra = {
   respawnTimer: 45000,
   imgSrc: '/client/images/waterDragon.png'
 }
-
 Enemy.houseBoss = {
   scoreValue: Player.baseScoreValue * 5,
   maxHp: Player.baseMaxHp * 25,
