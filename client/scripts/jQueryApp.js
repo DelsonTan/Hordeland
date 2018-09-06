@@ -119,11 +119,9 @@ const jQueryApp = function(socket) {
         ctxEnt.strokeStyle = "black"
         ctxEnt.strokeRect(xpos - maxHpWidth / 2, ypos - 70 / 2, maxHpWidth, 4)
         //player Name
-        let renderedName = null
-        this.name !== '<Blank>' ? renderedName = this.name : renderedName = ''
         ctxEnt.fillStyle = 'black'
         ctxEnt.font = '18px Arial'
-        ctxEnt.fillText(renderedName, xpos - 40 / 2, ypos - 40)
+        ctxEnt.fillText(this.name, xpos - 40 / 2, ypos - 40)
 
         const playerSpriteWidth = Img.player.width / 1.2
         const playerSpriteHeight = Img.player.height / 1.5
@@ -468,7 +466,11 @@ const jQueryApp = function(socket) {
 
     game.on("keydown", (event) => {
       event.preventDefault()
-      if (event.which === 65) { pressing('left', true) } else if (event.which === 68) { pressing('right', true) } else if (event.which === 87) { pressing('up', true) } else if (event.which === 83) { pressing('down', true) } else if (event.which === 13) {
+      if (event.which === 65 || event.which === 37) { pressing('left', true) } 
+      else if (event.which === 68 || event.which === 39) { pressing('right', true) } 
+      else if (event.which === 87 || event.which === 38) { pressing('up', true) } 
+      else if (event.which === 83 || event.which === 40) { pressing('down', true) } 
+      else if (event.which === 13) {
         event.preventDefault()
         cancelPlayerKeyPress()
         blurCanvas()
@@ -482,7 +484,10 @@ const jQueryApp = function(socket) {
     });
 
     game.on("keyup", (event) => {
-      if (event.which === 65) { pressing('left', false) } else if (event.which === 68) { pressing('right', false) } else if (event.which === 87) { pressing('up', false) } else if (event.which === 83) { pressing('down', false) }
+      if (event.which === 65 || event.which === 37) { pressing('left', false) } 
+      else if (event.which === 68 || event.which === 39) { pressing('right', false) } 
+      else if (event.which === 87 || event.which === 38) { pressing('up', false) } 
+      else if (event.which === 83 || event.which === 40) { pressing('down', false) }
     })
 
     game.mousedown((event) => {
