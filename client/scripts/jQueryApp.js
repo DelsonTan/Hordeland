@@ -187,7 +187,7 @@ const jQueryApp = function(socket) {
       }
 
       updateSpeed() {
-        if (this.name === 'Bat' || this.name === 'Bee' || this.name === 'Harpy') {
+        if (this.dx !== 0 || this.dy !== 0) {
           if (this.x + this.dx > (this.xpos + this.mapWidth) || this.x + this.dx < this.xpos) {
             this.dx = -this.dx
           }

@@ -145,7 +145,7 @@ class Player extends Entity {
     })
     socket.on('changeMap', function (data) {
       if (player.mapChanging === false) {
-        player.mapChanging = true;
+        player.mapChanging = true
         socket.emit('counter', { timer: 5, player: player })
         setTimeout(() => {
           if (player.map === 'forest') {
@@ -153,7 +153,8 @@ class Player extends Entity {
           } else {
             player.map = 'forest';
           }
-          player.mapChanging = false;
+          player.eliminate()
+          player.mapChanging = false
           let data = { players: [player.updateRenderData] }
           for (let i in Player.socketList) {
             let socket = Player.socketList[i]
@@ -337,6 +338,8 @@ class Player extends Entity {
     this.scoreValue = Player.baseScoreValue
     this.numProjectiles = 1
     this.rangedDamage = Player.baseRangedDamage
+    this.speedPenalty = Player.baseSpeedPenalty
+    this.speed = Player.baseSpeed
     this.randomSpawn(0, 0, Map.list[this.map].width, Map.list[this.map].height)
   }
 
@@ -433,6 +436,7 @@ class Enemy extends Entity {
       new Enemy(Enemy.harpySouthEast)
     }
     new Enemy(Enemy.hydra)
+    new Enemy(Enemy.houseBoss)
   }
 
   static updateEnemyLocations() {
@@ -529,6 +533,10 @@ class Enemy extends Entity {
             for (let i = 0; i < 15; i++) {
               this.fireProjectile(this.angle + i * 10, 18, 36)
             }
+          } else if (this.name === Enemy.houseBoss.name) {
+            for (let i = 0; i < 10; i++) {
+              this.fireProjectile(this.angle + i * 5, 15, 32)
+            }
           } else if (this.name === Enemy.harpySouth.name || this.name === Enemy.harpySouthEast.name) {
             this.fireProjectile(this.angle, 36, 18)
           }
@@ -616,7 +624,7 @@ Enemy.bat = {
   ypos: 0,
   mapWidth: 950,
   mapHeight: 950,
-  respawnTimer: 8000,
+  respawnTimer: 10000,
   imgSrc: '/client/images/bat.png'
 }
 Enemy.beeWest = {
@@ -633,7 +641,7 @@ Enemy.beeWest = {
   maxNumber: 6,
   xpos: 0,
   ypos: 0,
-  respawnTimer: 8000,
+  respawnTimer: 10000,
   mapWidth: 1225,
   mapHeight: 1000,
   imgSrc: '/client/images/bee.png'
@@ -652,7 +660,7 @@ Enemy.beeEast = {
   maxNumber: 6,
   xpos: 1225,
   ypos: 0,
-  respawnTimer: 8000,
+  respawnTimer: 10000,
   mapWidth: 1225,
   mapHeight: 800,
   imgSrc: '/client/images/bee.png'
@@ -664,7 +672,7 @@ Enemy.harpySouth = {
   rangedDamage: Player.baseRangedDamage * 2,
   allowedToFire: true,
   rateOfFire: Player.baseRateOfFire * 3,
-  speed: Player.baseSpeed/1.5,
+  speed: Math.floor(Player.baseSpeed / 1.5),
   spriteCalc: 0,
   map: 'forest',
   name: 'Harpy',
@@ -683,7 +691,7 @@ Enemy.harpySouthEast = {
   rangedDamage: Player.baseRangedDamage * 2,
   allowedToFire: true,
   rateOfFire: Player.baseRateOfFire * 3,
-  speed: Player.baseSpeed/1.5,
+  speed: Math.floor(Player.baseSpeed / 1.5),
   spriteCalc: 0,
   map: 'forest',
   name: 'Harpy',
@@ -703,11 +711,14 @@ Enemy.hydra = {
   allowedToFire: true,
   rateOfFire: Player.baseRateOfFire * 6,
   speed: 0,
+  dx: 0,
+  dy: 0,
   spriteCalc: 0,
   map: 'forest',
   name: 'Hydra',
   x: 630,
   y: 1410,
+  maxNumber: 1,
   xpos: 630,
   ypos: 1410,
   mapWidth: 2550,
@@ -716,6 +727,25 @@ Enemy.hydra = {
   imgSrc: '/client/images/waterDragon.png'
 }
 
+Enemy.houseBoss = {
+  scoreValue: Player.baseScoreValue * 5,
+  maxHp: Player.baseMaxHp * 25,
+  meleeDamage: Player.baseRangedDamage * 2,
+  rangedDamage: Player.baseRangedDamage * 2,
+  allowedToFire: true,
+  rateOfFire: Player.baseRateOfFire * 3,
+  speed: Player.baseSpeed,
+  spriteCalc: 0,
+  map: 'cave',
+  name: 'Joel',
+  maxNumber: 1,
+  xpos: 0,
+  ypos: 0,
+  mapWidth: 950,
+  mapHeight: 950,
+  respawnTimer: 45000,
+  imgSrc: '/client/images/harpy.png'
+}
 
 //---------------------------------------------PROJECTILES----------------------------------------------//
 
@@ -799,9 +829,9 @@ class Projectile extends Entity {
             if (attacker.type === 'player') {
               attacker.updateStats(target.scoreValue)
             }
-            if (attacker.type === 'enemy' && attacker.name === Enemy.hydra.name) {
-              // Hydra heals up to 3% of its health when it kills someone
-              attacker.currentHp += Math.min(attacker.maxHp - attacker.currentHp, Math.floor(attacker.maxHp * 0.03))
+            if (attacker.type === 'enemy' && attacker.name === (Enemy.hydra.name || Enemy.houseBoss.name)) {
+              // Boss heals up to 5% of its health when it kills someone
+              attacker.currentHp += Math.min(attacker.maxHp - attacker.currentHp, Math.floor(attacker.maxHp * 0.05))
             }
             target.eliminate()
             entityEliminated = true
@@ -826,13 +856,20 @@ class Projectile extends Entity {
           if (this.map === target.map && this.isCollision(target, 50) && target.currentHp > 0) {
             target.currentHp -= attacker.rangedDamage
             if (target.currentHp <= 0) {
-              if (attacker && attacker.type === 'player') {
-                attacker.updateStats(target.scoreValue)
-                if (target.name === Enemy.hydra.name) {
-                  attacker.rateOfFire = Math.floor(0.50 * Player.baseRateOfFire)
-                  setTimeout(() => { attacker.rateOfFire = Math.floor(Player.baseRateOfFire) }, 20000)
-                }
+
+              attacker.updateStats(target.scoreValue)
+              if (target.name === Enemy.hydra.name) {
+                attacker.rateOfFire = Math.floor(0.50 * Player.baseRateOfFire)
+                setTimeout(() => { attacker.rateOfFire = Math.floor(Player.baseRateOfFire) }, 20000)
+              } else if (target.name === Enemy.houseBoss.name) {
+                attacker.speedPenalty = 1.0
+                attacker.speed = Player.baseSpeed * 1.5
+                setTimeout(() => {
+                  attacker.speedPenalty = Player.baseSpeedPenalty
+                  attacker.speed = Player.baseSpeed
+                }, 20000)
               }
+
               entityEliminated = true
               target.eliminate()
             }
