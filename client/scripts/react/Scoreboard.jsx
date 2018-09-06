@@ -6,7 +6,7 @@ class Scoreboard extends Component {
         let playerTableRows = null
 
         if (this.props.players.length > 0) {
-            playerTableRows = this.props.players.map((player, index) => {
+            playerTableRows = this.props.players.slice(0, 10).map((player, index) => {
                 return (
                     <tr key={player.id}>
                         <td>{index + 1}</td>
