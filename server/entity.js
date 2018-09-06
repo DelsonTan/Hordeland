@@ -487,7 +487,7 @@ class Enemy extends Entity {
       return data
     }
     // use this conditional for enemies with regenerating health
-    if (this.name === Enemy.hydra.name) {
+    if (this.name === Enemy.hydra.name || this.name === Enemy.houseBoss.name) {
       data.currentHp = this.currentHp
       return data
     }
@@ -676,8 +676,8 @@ Enemy.beeEast = {
   imgSrc: '/client/images/bee.png'
 }
 Enemy.harpySouth = {
-  scoreValue: Math.floor(Player.baseScoreValue * 3 / 4),
-  maxHp: Math.floor(Player.baseMaxHp * 1.5),
+  scoreValue: Player.baseScoreValue,
+  maxHp: Math.floor(Player.baseMaxHp * 2),
   meleeDamage: Player.baseRangedDamage,
   rangedDamage: Player.baseRangedDamage * 2,
   allowedToFire: true,
@@ -695,8 +695,8 @@ Enemy.harpySouth = {
   imgSrc: '/client/images/harpy.png'
 }
 Enemy.harpySouthEast = {
-  scoreValue: Math.floor(Player.baseScoreValue * 3 / 4),
-  maxHp: Math.floor(Player.baseMaxHp * 1.5),
+  scoreValue: Player.baseScoreValue,
+  maxHp: Math.floor(Player.baseMaxHp * 2),
   meleeDamage: Player.baseRangedDamage,
   rangedDamage: Player.baseRangedDamage * 2,
   allowedToFire: true,
@@ -709,13 +709,13 @@ Enemy.harpySouthEast = {
   xpos: 2150,
   ypos: 1850,
   mapWidth: 400,
-  mapHeight: 300,
+  mapHeight: 400,
   respawnTimer: 30000,
   imgSrc: '/client/images/harpy.png'
 }
 Enemy.hydra = {
   scoreValue: Player.baseScoreValue * 5,
-  maxHp: Player.baseMaxHp * 50,
+  maxHp: Player.baseMaxHp * 60,
   meleeDamage: null,
   rangedDamage: Math.floor(Player.baseRangedDamage * 1.5),
   allowedToFire: true,
@@ -738,7 +738,7 @@ Enemy.hydra = {
 }
 Enemy.houseBoss = {
   scoreValue: Player.baseScoreValue * 5,
-  maxHp: Player.baseMaxHp * 25,
+  maxHp: Player.baseMaxHp * 30,
   meleeDamage: Player.baseRangedDamage * 2,
   rangedDamage: Player.baseRangedDamage * 2,
   allowedToFire: true,
@@ -839,8 +839,8 @@ class Projectile extends Entity {
               attacker.updateStats(target.scoreValue)
             }
             if (attacker.type === 'enemy' && attacker.name === (Enemy.hydra.name || Enemy.houseBoss.name)) {
-              // Boss heals up to 5% of its health when it kills someone
-              attacker.currentHp += Math.min(attacker.maxHp - attacker.currentHp, Math.floor(attacker.maxHp * 0.05))
+              // Boss heals up to 10% of its health when it kills someone
+              attacker.currentHp += Math.min(attacker.maxHp - attacker.currentHp, Math.floor(attacker.maxHp * 0.1))
             }
             target.respawn()
             entityEliminated = true

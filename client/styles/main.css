@@ -170,6 +170,7 @@ img {
 #eliminations {
   position: absolute;
   background-color: black;
+  background-color:  rgba(0, 0, 0, 0.8);
   font-size: 20px;
   right: 0px;
   padding-left: 5px;
@@ -200,13 +201,13 @@ img {
 }
 
 .message {
-  position: relative;
+  position: absolute;
   display: flex;
   color: white;
   width: 100%;
   font-size: 35px;
   justify-content: center;
   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-  top: 5%;
+  top: 25%;
   pointer-events: none;
 }
