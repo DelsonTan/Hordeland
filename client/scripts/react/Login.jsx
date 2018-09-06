@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 
 class Login extends Component {
-
     render() {
         return (
               <center id="signDiv">
+              <img src={window.location.origin + '/client/images/logo.png'} />
                 <form id="loginForm">
                   <input id="signDiv-username" type="text" placeholder="Type your username..."></input>
                   <br/>

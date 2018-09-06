@@ -11,14 +11,17 @@ body {
 #chat {
   pointer-events: none;
   position: absolute;
-  bottom: 8px;
+  bottom: 0px;
   left: 8px;
   color: #c20114;
-  background-color: rgb(0, 0, 0); /* Fallback for older browsers without RGBA-support */
+  background-color: rgb(0, 0, 0);
+  /* Fallback for older browsers without RGBA-support */
   background-color: rgba(0, 0, 0, 0.4);
+  overflow: hidden;
 }
 
 #chat:focus-within {
+  pointer-events: auto;
   background-color: rgb(0, 0, 0);
   background-color: rgba(0, 0, 0, 0.8);
 }
@@ -27,10 +30,21 @@ body {
   width: 500px;
   height: 100px;
   overflow-y: scroll;
+  padding: 5px;
+}
+
+#chat-text::-webkit-scrollbar {
+  display: none;
 }
 
 #chat-input {
   width: 500px;
+  font-size: 15px;
+  opacity: 0.4;
+}
+
+#chat-input:focus {
+  opacity: 1;
 }
 
 :focus {
@@ -75,7 +89,7 @@ body {
   border-bottom: 1px solid black;
   color: #f57070;
   font-weight: bold;
-  font-size: 25px;
+  font-size: 30px;
   padding-bottom: 10px;
 }
 
@@ -84,10 +98,12 @@ td {
 }
 
 .player-rank,
+.scoreboard-names,
 .player-score,
 .player-name {
-  font-size: 20px;
+  font-size: 25px;
 }
+
 
 #pvp-button {
   position: absolute;
@@ -95,7 +111,7 @@ td {
   bottom: 8px;
   color: white;
   background-color: red;
-  font-size: 15px;
+  font-size: 30px;
   border-radius: 10px;
 }
 
@@ -106,6 +122,14 @@ td {
   justify-content: center;
   align-items: center;
   z-index: 1;
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+img {
+  width: 800px;
 }
 
 #signDiv-username {
@@ -113,9 +137,9 @@ td {
   height: 30px;
   font-size: 25px;
   border: 5px solid transparent;
-  -moz-border-image: -moz-linear-gradient(top, #3acfd5 0%, #3a4ed5 100%);
-  -webkit-border-image: -webkit-linear-gradient(top, #3acfd5 0%, #3a4ed5 100%);
-  border-image: linear-gradient(to bottom, #3acfd5 0%, #3a4ed5 100%);
+  -moz-border-image: -moz-linear-gradient(top, #D85D69 0%, #C20114 100%);
+  -webkit-border-image: -webkit-linear-gradient(top, #D85D69 0%, #C20114 100%);
+  border-image: linear-gradient(to bottom, #D85D69 0%, #C20114 100%);
   border-image-slice: 1;
 }
 
@@ -126,10 +150,10 @@ td {
 
 @keyframes glow {
   0% {
-    box-shadow: 0 0 5px #3acfd5;
+    box-shadow: 0 0 5px #F2D0A4;
   }
   100% {
-    box-shadow: 0 0 20px #3a4ed5;
+    box-shadow: 0 0 20px #F2D0A4;
   }
 }
 
