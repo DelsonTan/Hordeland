@@ -16,7 +16,7 @@ class Login extends Component {
         'Prefer playing against your friends with no AI? Then PVP mode is for you!',
         'Please be civil to your fellow players on the in-game chat',
         '🤗Jazzhands🤗',
-        'If it can break, Jeremie will break it',
+        'If it can break, Jeremy will break it',
         'When in doubt, "fluffybunny" is a great password',
         'Please email any complaints to Joel@Joel.Joel'
       ]
