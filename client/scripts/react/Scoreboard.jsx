@@ -28,7 +28,7 @@ class Scoreboard extends Component {
                         <td className="player-score">Score</td>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className="scoreboard-names">
                     {playerTableRows ? playerTableRows : <tr><td>No players</td></tr>}
                 </tbody>
             </table>)

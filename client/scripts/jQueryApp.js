@@ -1,6 +1,6 @@
 const jQueryApp = function(socket) {
 
-  
+
     // Canvas Selectors and Settings
     const game = $('#game')
     game.oncontextmenu = function(event) {
@@ -466,10 +466,10 @@ const jQueryApp = function(socket) {
 
     game.on("keydown", (event) => {
       event.preventDefault()
-      if (event.which === 65 || event.which === 37) { pressing('left', true) } 
-      else if (event.which === 68 || event.which === 39) { pressing('right', true) } 
-      else if (event.which === 87 || event.which === 38) { pressing('up', true) } 
-      else if (event.which === 83 || event.which === 40) { pressing('down', true) } 
+      if (event.which === 65 || event.which === 37) { pressing('left', true) }
+      else if (event.which === 68 || event.which === 39) { pressing('right', true) }
+      else if (event.which === 87 || event.which === 38) { pressing('up', true) }
+      else if (event.which === 83 || event.which === 40) { pressing('down', true) }
       else if (event.which === 13) {
         event.preventDefault()
         cancelPlayerKeyPress()
@@ -484,9 +484,9 @@ const jQueryApp = function(socket) {
     });
 
     game.on("keyup", (event) => {
-      if (event.which === 65 || event.which === 37) { pressing('left', false) } 
-      else if (event.which === 68 || event.which === 39) { pressing('right', false) } 
-      else if (event.which === 87 || event.which === 38) { pressing('up', false) } 
+      if (event.which === 65 || event.which === 37) { pressing('left', false) }
+      else if (event.which === 68 || event.which === 39) { pressing('right', false) }
+      else if (event.which === 87 || event.which === 38) { pressing('up', false) }
       else if (event.which === 83 || event.which === 40) { pressing('down', false) }
     })
 
@@ -516,17 +516,20 @@ const jQueryApp = function(socket) {
     // Chat
     chatForm.submit((event) => {
       event.preventDefault()
-      if (chatInput.val()[0] === '/') { 
-        socket.emit('evalMessage', { name: Player.list[selfId].name, text: chatInput.val().slice(1) }) 
+      if (chatInput.val()[0] === '/') {
+        socket.emit('evalMessage', { name: Player.list[selfId].name, text: chatInput.val().slice(1) })
       } else if (chatInput.val() !== '') {
-        socket.emit('sendMessage', { name: Player.list[selfId].name, text: chatInput.val() }) 
+        socket.emit('sendMessage', { name: Player.list[selfId].name, text: chatInput.val() })
       }
       chatInput.val('')
       blurChat()
       focusCanvas()
     })
 
-    socket.on('addToChat', function(data) { $("<div>").text(data).appendTo(chatText) })
+    socket.on('addToChat', function(data) {
+        $("<div>").text(data).appendTo(chatText)
+        $("#chat-text").stop().animate({ scrollTop: $("#chat-text")[0].scrollHeight}, 1000);
+    })
     socket.on('evalAnswer', function(data) { console.log(data) })
     // ------------------------------------------------ Render Logic ------------------------------------------------
     const renderGame = () => {
@@ -550,7 +553,7 @@ const jQueryApp = function(socket) {
       Enemy.updateAll()
       Projectile.updateAll()
     }, 40)
-  
+
 }
 
 export default jQueryApp
