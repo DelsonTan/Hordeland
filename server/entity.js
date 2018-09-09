@@ -160,7 +160,7 @@ class Player extends Entity {
             let socket = Player.socketList[i]
             socket.emit('update', BISON.encode(data))
           }
-        }, 5000)
+        }, 6000)
       }
     })
     socket.emit('init', JSON.stringify({
