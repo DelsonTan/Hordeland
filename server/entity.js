@@ -947,6 +947,7 @@ class Upgrade extends Entity {
     new Upgrade(Upgrade.potionOutdoors2)
     new Upgrade(Upgrade.potionOutdoors1PvP)
     new Upgrade(Upgrade.potionOutdoors2PvP)
+    new Upgrade(Upgrade.potionHouse)
   }
 
   get initialData() {
@@ -996,6 +997,18 @@ Upgrade.potionCave = {
   map: 'cave',
   x: 120,
   y: 120,
+  name: 'potion',
+  heal: Player.baseMaxHp,
+  xpos: 0,
+  ypos: 0,
+  mapWidth: 950,
+  mapHeight: 950,
+  imgSrc: '/client/images/bigHealthPotion.png'
+}
+Upgrade.potionHouse = {
+  map: 'house',
+  x: 900,
+  y: 130,
   name: 'potion',
   heal: Player.baseMaxHp,
   xpos: 0,
