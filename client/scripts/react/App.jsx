@@ -17,10 +17,7 @@ class App extends Component {
     componentDidMount() {
         
         const audio = document.getElementById('audio')
-        audio.oncanplay = () => {
-            audio.play()
-        }
-        audio.load()
+        audio.muted = false
         this.state.socket.on('init', (data) => {
             const parsedData = JSON.parse(data)
             if (parsedData.selfId) {
