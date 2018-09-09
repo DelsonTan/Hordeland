@@ -15,25 +15,31 @@ class App extends Component {
     }
 
     componentDidMount() {
+        
+        const audio = document.getElementById('audio')
+        audio.oncanplay = () => {
+            audio.play()
+        }
+        audio.load()
         this.state.socket.on('init', (data) => {
             const parsedData = JSON.parse(data)
-            if(parsedData.selfId) {
-                this.setState({selfId: parsedData.selfId})
+            if (parsedData.selfId) {
+                this.setState({ selfId: parsedData.selfId })
             }
         })
     }
 
     render() {
         return (
-        <div>
-            <Login/>
-            <Game socket={this.state.socket} selfId={this.state.selfId}/>
-            <Chat/>
-            <UI socket={this.state.socket} selfId={this.state.selfId}/>
-            <button id="pvp-button">
-                PvP Mode
+            <div>
+                <Login />
+                <Game socket={this.state.socket} selfId={this.state.selfId} />
+                <Chat />
+                <UI socket={this.state.socket} selfId={this.state.selfId} />
+                <button id="pvp-button">
+                    PvP Mode
             </button>
-        </div>
+            </div>
         )
     }
 }
