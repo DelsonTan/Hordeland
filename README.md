@@ -3,6 +3,12 @@
 Hosted on Heroku: http://hordeland.herokuapp.com/  
 Co-created with Raf Rocha: https://github.com/rafrocha/
 
+## Getting Started
+* ``npm install``
+* ``webpack run build``
+* `` npm start``
+* Game will run on port 3000 by default, open multiple windows/tabs of the browser to test multiplayer functionality
+
 ## 1.0
 * Real-time massively multiplayer third person shooting game
 * WASD or arrow keys to move, hold down left click to shoot
