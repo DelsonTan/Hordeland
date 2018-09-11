@@ -1,6 +1,7 @@
 # Hordeland
 
 Hosted on Heroku: http://hordeland.herokuapp.com/
+Co-created with Raf Rocha: https://github.com/rafrocha/
 
 ## 1.0
 * Real-time massively multiplayer third person shooting game
@@ -14,9 +15,9 @@ Hosted on Heroku: http://hordeland.herokuapp.com/
 * Soundtrack!
 
 ## Tech Stack
-* Mostly vanilla javascript (no game engine)
-* Express server that manages game logic and websocket connections
-* Socket.io
+* Pure javascript for rendering and game logic (no game engine)
+* Client-side rendering but zero game logic done on the front end
+* Express server to manage game logic and websocket (Socket.io) connections 
 * React components for the user interface (chat, scoreboard, elimination log, elimination messages, login screen)
 
 ## Credits
