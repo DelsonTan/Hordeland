@@ -5,7 +5,7 @@ Co-created with Raf Rocha: https://github.com/rafrocha/
 
 ## Getting Started
 * ``npm install``
-* ``webpack run build``
+* ``npm run build``
 * `` npm start``
 * Game will run on port 3000 by default, open multiple windows/tabs of the browser to test multiplayer functionality
 
