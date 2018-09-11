@@ -1,6 +1,6 @@
 # Hordeland
 
-Hosted on Heroku: http://hordeland.herokuapp.com/
+Hosted on Heroku: http://hordeland.herokuapp.com/  
 Co-created with Raf Rocha: https://github.com/rafrocha/
 
 ## 1.0
